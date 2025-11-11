@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF Queue → Planck Spectrum Demo</title>
+  <style>
+    :root { --bg:#0b1020; --fg:#e7f0ff; --muted:#90a4c3; --accent:#6ee7ff; --accent2:#ffd166; }
+    html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
+    header { padding:16px 20px; border-bottom:1px solid #18213e; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    header h1 { margin:0; font-size:18px; letter-spacing:0.3px; }
+    .wrap { display:grid; grid-template-columns: 320px 1fr; gap:16px; padding:16px; }
+    .card { background:#0f1730; border:1px solid #1a2548; border-radius:14px; padding:14px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+    .controls label { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0; color:var(--muted); }
+    .controls input[type=range] { width:160px; }
+    .row { display:flex; gap:8px; align-items:center; }
+    .small { font-size:12px; color:var(--muted); }
+    .btn { background:linear-gradient(135deg, #1b2b5a, #1a3b6a); border:1px solid #274482; color:#d9ecff; padding:8px 12px; border-radius:10px; cursor:pointer; }
+    .btn.alt { background:linear-gradient(135deg, #20436a, #21547c); }
+    canvas { background:#080d1b; border:1px solid #1a2548; border-radius:12px; display:block; width:100%; height:360px; }
+    .grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; }
+    .pill { padding:2px 8px; border-radius:999px; background:#11204a; border:1px solid #203264; font-size:12px; color:#9fb6e8; }
+    .legend { display:flex; gap:10px; align-items:center; }
+    .legend .box { width:10px; height:10px; border-radius:2px; }
+    .tests { font-size:12px; color:#b6c6f0; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CBF Queue → Planck Spectrum (Toy Demo)</h1>
+    <div class="legend">
+      <span class="pill">Photons: spatial-only</span>
+      <span class="legend-item"><span class="box" style="background:var(--accent)"></span> Histogram (emitted)</span>
+      <span class="legend-item"><span class="box" style="background:var(--accent2)"></span> Planck fit</span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card controls" id="controls">
+      <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div class="pill">Atoms: <span id="atomsOut">100</span></div>
+        <div class="row">
+          <label class="row" style="align-items:center; gap:6px; color:var(--muted); font-size:12px; margin-right:10px;">
+            <input type="checkbox" id="bursts" /> Microbursts
+          </label>
+          <button class="btn alt" id="toggleBtn">Pause</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <label>Atoms (N)
+        <input type="range" id="atoms" min="10" max="500" value="100" />
+      </label>
+      <label>Input power R (avg)
+        <input type="range" id="Rin" min="0" max="10" step="0.1" value="3" />
+      </label>
+      <label>Maintenance M (drain rate)
+        <input type="range" id="Mrate" min="0.1" max="10" step="0.1" value="2" />
+      </label>
+      <label>Overflow threshold E<sub>th</sub>
+        <input type="range" id="Eth" min="0.1" max="10" step="0.1" value="2" />
+      </label>
+      <label>dt (tick size)
+        <input type="range" id="dt" min="0.01" max="0.5" step="0.01" value="0.05" />
+      </label>
+      <label>Steps per frame
+        <input type="range" id="spf" min="1" max="2000" step="1" value="400" />
+      </label>
+      <label>Emax scale (×kT)
+        <input type="range" id="emaxScale" min="4" max="20" step="1" value="8" />
+      </label>
+      <hr style="border-color:#1a2548; margin:10px 0;" />
+      <div class="small">This is a <b>toy</b> statistical demo. The queue rule is the CBF idea; the Planck curve is fitted from the emergent mean photon energy. Tweak R, M, E<sub>th</sub> and watch the spectrum reshape.</div>
+      <div class="small" style="margin-top:6px">Fit T: <span id="Tout">–</span> · Mean E<sub>γ</sub>: <span id="Eout">–</span> · Emitted: <span id="countOut">0</span></div>
+      <div class="tests" id="testOutput">Tests: not run</div>
+      <div class="row" style="margin-top:6px">
+        <button class="btn" id="runTestsBtn">Run Tests</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <canvas id="histCanvas" width="800" height="360"></canvas>
+      </div>
+      <div class="card">
+        <canvas id="queuesCanvas" width="800" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Physical-ish constants (code units) ---
+    const h = 1; // Planck-like unit (normalized)
+    const k = 1; // Boltzmann-like unit (normalized)
+    let EMAX_KT = 8; // histogram range = EMAX_KT * kT (prevents right-edge spikes)
+
+    // --- State ---
+    let N = 100;           // atoms
+    let Rin = 3.0;         // avg input per dt
+    let Mrate = 2.0;       // drain per dt
+    let Eth = 2.0;         // overflow threshold
+    let dt = 0.05;         // tick size
+    let SPF = 400;         // steps per animation frame
+
+    let atoms = [];
+    let photons = [];      // emitted photon energies (E=hf)
+    let overflowCount = 0; // photons above current plot range (handled separately)
+    let microbursts = false;
+
+    // Animation guard to prevent RAF stack issues
+    let animId = null;
+    let running = true;
+
+    function resetAtoms() {
+      atoms = new Array(N).fill(0).map(() => ({ E: Math.random()*Eth, M: Mrate }));
+      photons = [];
+      overflowCount = 0;
+    }
+
+    // --- Emission model ---
+    // Queue overflow rule:
+    //  - If E > Eth: attempt emissions until just above Eth
+    //  - Each emission pulls energy h*f from queue
+    //  - Frequency draw is probabilistic with a BE-like acceptance
+
+    function samplePlanckishFrequency(T) {
+      // Rejection sample using g(f) ~ f^3 on [0, fmax], accepted with BE factor.
+      // If acceptance becomes tiny at low T, avoid returning a constant value.
+      const fmax = Math.max(1e-3, 10 * T + 1e-3);
+      let attempts = 0;
+      const Tsafe = Math.max(T, 1e-6);
+      while (attempts < 2000) { // many tries to avoid fallback bias
+        attempts++;
+        const u = Math.random();
+        const f = fmax * Math.pow(u, 1/4); // inverse CDF for f^3
+        const boltz = 1 / (Math.exp((h*f)/(k*Tsafe)) - 1 + 1e-9);
+        if (Math.random() < boltz) return f;
+      }
+      // Fallback: draw a SMALL random band (not a fixed constant) to avoid spectral spikes
+      return (fmax * 0.1) * Math.sqrt(Math.random()) + 1e-6*Math.random();
+    }
+
+    function stepOnce() {
+      // Estimate an effective temperature from mean queue fill (toy mapping):
+      const meanE = atoms.reduce((s,a)=>s+a.E,0) / Math.max(1, atoms.length);
+      const T_eff = Math.max(1e-6, 0.5*meanE); // simple proportional proxy
+
+      for (let i=0; i<atoms.length; i++) {
+        const a = atoms[i];
+        // stochastic input around Rin (Gaussian-ish via CLT of uniforms)
+        let noise = (Math.random()+Math.random()+Math.random()+Math.random()+Math.random()+Math.random()) - 3; // ~N(0,1)
+        const Rin_i = Math.max(0, Rin + 0.5*noise);
+
+        // queue update
+        a.E += (Rin_i - a.M) * dt;
+        if (a.E < 0) a.E = 0;
+
+        // overflow → emit photons until just above threshold.
+        // Only emit if we have margin above Eth; never drive below Eth.
+        let emits = 0;
+        const cap = microbursts ? 20 : 6; // allow tighter clusters when bursts enabled
+        while (a.E > Eth * 1.001 && emits < cap) {
+          let f = samplePlanckishFrequency(T_eff);
+          if (microbursts && Math.random() < 0.15) {
+            // cluster around a central f to create occasional narrow peaks
+            const sigma = 0.03 * f; // small spread
+            f = Math.max(1e-6, f + sigma * (Math.random()*2-1));
+          }
+          const Eg = h * f;
+          if (a.E - Eg >= Eth) {
+            a.E -= Eg;
+            photons.push(Eg + 1e-6*Math.random()); // jitter avoids bin-locking
+            emits++;
+          } else {
+            // Not enough energy above threshold for this Eg → stop emitting this tick
+            break;
+          }
+        }
+      }
+
+      // Cap photon array to avoid unbounded growth
+      const MAX_PHOTONS = 100000;
+      if (photons.length > MAX_PHOTONS) {
+        photons = photons.slice(-MAX_PHOTONS);
+      }
+    }
+
+    // --- Visualization ---
+    const histCanvas = document.getElementById('histCanvas');
+    const hctx = histCanvas.getContext('2d');
+    const qCanvas = document.getElementById('queuesCanvas');
+    const qctx = qCanvas.getContext('2d');
+
+    function drawHistogram() {
+      hctx.clearRect(0,0,histCanvas.width,histCanvas.height);
+      const W = histCanvas.width, H = histCanvas.height;
+
+      const bins = 80;
+      if (photons.length === 0) { drawAxes(hctx, W, H); return; }
+
+      // Use a STABLE range: maxE = EMAX_KT * k * Tfit, with Tfit from recent photons
+      const recent = photons.slice(-50000);
+      const meanEg_recent = recent.reduce((s,x)=>s+x,0) / recent.length;
+      const Tfit = Math.max(1e-6, meanEg_recent/2.70);
+      const maxE = Math.max(1e-6, EMAX_KT * k * Tfit);
+
+      const counts = new Array(bins).fill(0);
+      overflowCount = 0;
+      const eps = 1e-9;
+      for (const Eg of recent) {
+        if (Eg > maxE) { overflowCount++; continue; }
+        const ratio = Math.min(1 - eps, Eg / maxE); // never hit exactly the last edge
+        const b = Math.floor(ratio * bins);
+        counts[b]++;
+      }
+      const maxCount = Math.max(...counts,1);
+
+      // Bars
+      for (let i=0;i<bins;i++) {
+        const x0 = 40 + i*( (W-60)/bins );
+        const y0 = H-30;
+        const barH = (counts[i]/maxCount)*(H-60);
+        hctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+        hctx.fillRect(x0, y0-barH, (W-60)/bins - 1, barH);
+      }
+
+      // Overflow indicator
+      if (overflowCount > 0) {
+        const y0 = H-30;
+        const barH = Math.min(1, overflowCount / Math.max(1, maxCount)) * (H-60);
+        hctx.fillStyle = '#ff7f7f';
+        hctx.fillRect(W-18, y0-barH, 6, barH);
+        hctx.fillStyle = '#b6c6f0';
+        hctx.fillText(`overflow: ${overflowCount}`, W-120, 28);
+      }
+
+      // Planck overlay using same maxE scale
+      hctx.beginPath();
+      for (let px=0; px<W-40; px++) {
+        const E = (px/(W-40)) * maxE;
+        const I = (E*E*E) / (Math.exp(E/(k*Tfit)) - 1 + 1e-9);
+        const y = scaleY(I, H-30, 40, counts);
+        const x = 40 + px;
+        if (px===0) hctx.moveTo(x,y); else hctx.lineTo(x,y);
+      }
+      hctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent2');
+      hctx.lineWidth = 2;
+      hctx.stroke();
+
+      drawAxes(hctx, W, H, "Photon energy E (arb)", "Counts / Planck fit");
+
+      document.getElementById('Tout').textContent = Tfit.toFixed(3);
+      document.getElementById('Eout').textContent = meanEg_recent.toFixed(3);
+      document.getElementById('countOut').textContent = photons.length.toLocaleString();
+    }
+
+    function drawQueues() {
+      qctx.clearRect(0,0,qCanvas.width,qCanvas.height);
+      const W=qCanvas.width, H=qCanvas.height;
+      const cols = 10;
+      const rows = Math.ceil(N/cols);
+      const cw = (W-40)/cols, ch = (H-40)/rows;
+      const maxE = Math.max(Eth*1.2, ...atoms.map(a=>a.E));
+
+      for (let i=0;i<N;i++) {
+        const a = atoms[i];
+        const r = Math.floor(i/cols), c = i%cols;
+        const x = 20 + c*cw; const y = 20 + r*ch;
+        qctx.fillStyle = '#0a1330';
+        qctx.fillRect(x, y, cw-6, ch-6);
+        const barH = (a.E/maxE) * (ch-10);
+        qctx.fillStyle = '#3aa0ff';
+        qctx.fillRect(x+3, y+(ch-10-barH), cw-12, barH);
+        // threshold line
+        const th = (Eth/maxE) * (ch-10);
+        qctx.strokeStyle = '#ffb86b';
+        qctx.lineWidth = 1;
+        qctx.beginPath();
+        qctx.moveTo(x+2, y+(ch-10-th));
+        qctx.lineTo(x+cw-8, y+(ch-10-th));
+        qctx.stroke();
+      }
+
+      // labels
+      qctx.fillStyle = '#9bb0df';
+      qctx.fillText('Atom queues (bar height = E, orange line = E_th)', 20, 14);
+    }
+
+    function drawAxes(ctx, W, H, xlabel="", ylabel="") {
+      ctx.strokeStyle = '#2a386b'; ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(40, 20); ctx.lineTo(40, H-30); ctx.lineTo(W-10, H-30); ctx.stroke();
+      ctx.fillStyle = '#9fb6e8'; ctx.fillText(xlabel, W/2-60, H-8);
+      ctx.save(); ctx.translate(12, H/2+40); ctx.rotate(-Math.PI/2); ctx.fillText(ylabel, 0,0); ctx.restore();
+    }
+
+    function scaleY(I, y0, y1, countsForScale) {
+      // Auto-scale Planck overlay to histogram scale using histogram max as proxy for amplitude
+      const maxCount = Math.max(...countsForScale, 1);
+      const scale = (y0 - y1) / maxCount;
+      return y0 - I*scale;
+    }
+
+    // --- Utility: percentile (robust max) ---
+    function percentile(arr, p) {
+      if (arr.length === 0) return 1;
+      const tmp = arr.slice().sort((a,b)=>a-b);
+      const idx = Math.min(tmp.length-1, Math.max(0, Math.floor(p*tmp.length)));
+      return tmp[idx];
+    }
+
+    // --- Animation loop (guarded) ---
+    function loop() {
+      if (!running) return; // stop condition
+      for (let s=0; s<SPF; s++) stepOnce();
+      drawHistogram();
+      drawQueues();
+      animId = requestAnimationFrame(loop);
+    }
+    function start() { if (animId === null) { running = true; animId = requestAnimationFrame(loop); } }
+    function stop()  { if (animId !== null) { cancelAnimationFrame(animId); animId = null; } running = false; }
+
+    // --- Controls ---
+    const atomsSlider = document.getElementById('atoms');
+    const RinSlider = document.getElementById('Rin');
+    const MrateSlider = document.getElementById('Mrate');
+    const EthSlider = document.getElementById('Eth');
+    const dtSlider = document.getElementById('dt');
+    const spfSlider = document.getElementById('spf');
+    const toggleBtn  = document.getElementById('toggleBtn');
+    const burstsChk  = document.getElementById('bursts');
+    const emaxScale  = document.getElementById('emaxScale');
+
+    function syncUI() {
+      N = parseInt(atomsSlider.value,10);
+      Rin = parseFloat(RinSlider.value);
+      Mrate = parseFloat(MrateSlider.value);
+      Eth = parseFloat(EthSlider.value);
+      dt = parseFloat(dtSlider.value);
+      SPF = parseInt(spfSlider.value,10);
+      EMAX_KT = parseInt(emaxScale.value,10);
+      document.getElementById('atomsOut').textContent = N;
+    }
+
+    [atomsSlider, RinSlider, MrateSlider, EthSlider, dtSlider, spfSlider, emaxScale].forEach(el => {
+      el.addEventListener('input', ()=>{ syncUI(); });
+      el.addEventListener('change', ()=>{ resetAtoms(); });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{ resetAtoms(); });
+
+    burstsChk.addEventListener('change', ()=>{ microbursts = burstsChk.checked; });
+
+    toggleBtn.addEventListener('click', ()=>{
+      if (running) { stop(); toggleBtn.textContent = 'Resume'; }
+      else { start(); toggleBtn.textContent = 'Pause'; }
+    });
+
+    // --- Simple tests (always add tests) ---
+    const testOut = document.getElementById('testOutput');
+    function runTests() {
+      let ok = true; const msgs = [];
+      // 1) Frequency sampler returns finite numbers for a range of T
+      [0, 0.01, 0.1, 1, 3].forEach(T => {
+        const f = samplePlanckishFrequency(T);
+        if (!Number.isFinite(f) || f < 0) { ok=false; msgs.push(`samplePlanckishFrequency failed for T=${T}`); }
+      });
+      // 2) Step does not produce negative energies and keeps photons non-decreasing
+      const pBefore = photons.length; stepOnce(); const pAfter = photons.length;
+      if (pAfter < pBefore) { ok=false; msgs.push('Photons count decreased unexpectedly'); }
+      if (atoms.some(a=>a.E<0)) { ok=false; msgs.push('Atom energy went negative'); }
+      // 3) Start/stop guards do not create multiple RAFs
+      start(); const id1 = animId; start(); const id2 = animId; if (id1 !== id2) { ok=false; msgs.push('Multiple RAF loops created'); }
+      stop(); if (running) { ok=false; msgs.push('Stop did not set running=false'); }
+      // 4) Histogram overflow is tracked, not clamped to last bin
+      overflowCount = 0; drawHistogram();
+      if (overflowCount < 0) { ok=false; msgs.push('Overflow counter logic broken'); }
+      // 5) Rightmost bin should not dominate when overflow exists and EMAX_KT >= 8 (anti-spike)
+      const bins = 80; // same as draw
+      const recent = photons.slice(-5000);
+      if (recent.length > 200) {
+        const TfitLocal = Math.max(1e-6, (recent.reduce((s,x)=>s+x,0)/recent.length)/2.70);
+        const maxELocal = Math.max(1e-6, EMAX_KT * k * TfitLocal);
+        const eps = 1e-9;
+        const counts = new Array(bins).fill(0);
+        let over = 0;
+        for (const Eg of recent) {
+          if (Eg > maxELocal) { over++; continue; }
+          const ratio = Math.min(1 - eps, Eg/maxELocal);
+          counts[Math.floor(ratio*bins)]++;
+        }
+        const total = counts.reduce((s,x)=>s+x,0);
+        if (total>0) {
+          const rightFrac = counts[bins-1]/total;
+          if (over>0 && rightFrac > 0.5 && EMAX_KT >= 8) { ok=false; msgs.push('Right-edge spike detected despite overflow tracking'); }
+        }
+      }
+      // 6) **New**: Emission energies should not collapse to a single value (anti-constant fallback)
+      const last = photons.slice(-3000);
+      if (last.length > 200) {
+        const map = new Map();
+        for (const e of last) {
+          const kbin = Math.round(e*1000)/1000; // 1e-3 precision
+          map.set(kbin, (map.get(kbin)||0)+1);
+        }
+        const maxFrac = Math.max(...[...map.values()].map(v=>v/last.length));
+        if (maxFrac > 0.8) { ok=false; msgs.push('Energy distribution collapsed to a narrow line (>80%)'); }
+      }
+
+      testOut.textContent = ok ? 'Tests: ✅ passed' : ('Tests: ❌ ' + msgs.join(' | '));
+    }
+    document.getElementById('runTestsBtn').addEventListener('click', runTests);
+
+    // init
+    syncUI();
+    resetAtoms();
+    start();
+  </script>
+</body>
+</html>

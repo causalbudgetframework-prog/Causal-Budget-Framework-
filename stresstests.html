@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Conclusions</title>
+  <meta name="description" content="Causal Budget Framework — Conclusions skeleton page using site-wide dark theme." />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="pagestyles.css" />
+  <script src="./contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="/conclusions.html">Conclusions</a>
+        <a href="/referencetable.html">Reference Table</a>
+        <a href="/devblog.html">Dev Blog</a>
+         <a href="/stresstests.html" class="active">Stress Tests</a>
+        <a href="/predictions.html">Predictions</a>
+        <a href="/ai-assisted-math.html">Appendix</a>
+        <a href="/theory.html"class="nav-cta">Theory</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+            <a href="/conclusions.html">Conclusions</a>
+            <a href="/referencetable.html">Reference Table</a>
+            <a href="/devblog.html">Dev Blog</a>
+            <a href="/stresstests.html" class="active">Stress Tests</a>
+            <a href="/predictions.html">Predictions</a>
+            <a href="/ai-assisted-math.html">Appendix</a>
+            <a href="/theory.html">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <!-- Page -->
+  <div class="layout container">
+    <aside class="sidebar">
+      <div class="side-brand">
+        <div class="dot"></div>
+        <div>
+          <h1>CBF Stress Tests</h1>
+          <small>Current and ongoing stress tests</small>
+        </div>
+      </div>
+
+      <nav class="toc" id="toc">
+        <a class="cat-title active" data-cat="quantum">Quantum Foundations</a>
+        <div class="items" id="items-quantum" style="display:block;">
+            <a href="#first-item" class="active">Double-Slit & the Observer</a>
+            <a href="#sol-particle-wave">Particle–Wave Duality</a>
+            <a href="#sol-measurement">Measurement Problem</a>
+            <a href="#sol-superposition">Superposition</a>
+            <a href="#sol-spin-superposition">Spin Superposition</a>
+            <a href="#sol-uncertainty">Uncertainty Principle</a>
+            <a href="#sol-retrocausality">Causality and Retrocausality</a>
+            <a href="#sol-erasure">Quantum Erasure</a>
+            <a href="#sol-entanglement">Quantum Entanglement</a>
+            <a href="#sol-tunneling">Quantum Tunneling</a>
+            <a href="#sol-cat">Schrödinger’s Cat (Cat in the Box)</a>
+        </div>
+
+        <a class="cat-title" data-cat="relativity">Relativity & Time</a>
+        <div class="items" id="items-relativity">
+            <a href="#sol-twin">Twin Paradox</a>
+            <a href="#sol-lengthcontraction">Length Contraction</a>
+            <a href="#sol-andromeda">Andromeda Paradox</a>
+            <a href="#sol-arrow">Arrow of Time</a>
+            <a href="#sol-grandfather">Grandfather Paradox</a>
+            <a href="#sol-gravity">Gravity</a>
+        </div>
+
+        <a class="cat-title" data-cat="cosmo">Cosmology</a>
+        <div class="items" id="items-cosmo">
+            <a href="#sol-manyworlds">Many-Worlds</a>
+            <a href="#sol-blockuniverse">Block Universe</a>
+            <a href="#sol-blackholes">Black Holes and Singularities</a>
+            <a href="#sol-darkmatter">Dark Matter</a>
+            <a href="#sol-darkenergy">Dark Energy / Expansion</a>
+            <a href="#sol-cmb">Cosmic Microwave Background</a>
+        </div>     
+
+      </nav>
+    </aside>
+
+    <main class="content">
+    <section id="quantum" class="cat card">
+        <h3>Quantum Foundations</h3>
+
+        <article id="first-item" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Double-Slit Experiment</h3>
+                <p>Interference arises from phase alignment during commit. A detector resets the pattern by creating a new particle under the CBF new-particle rule.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Wave propagation:</strong>  
+                            A photon or electron leaves its source as a coherent field of wave cells.  
+                            Each cell carries phase and direction data in <a href="./referencetable.html#t">T</a>.  
+                            The <a href="./referencetable.html#ledger">Event Ledger</a> buffers all potential paths as uncommitted options.</li>
+
+                            <li><strong>Slit diversification:</strong>  
+                            Passing through two slits diversifies the set of momentum vectors <em>kᵢ</em>.  
+                            Their relative phases beat against each other, and the ledger’s temporal gate prefers commit points where phases align (Δθ ≈ 0).  
+                            The observed intensity pattern follows <em>|Σ e^{iθᵢ}|²</em>, the Born-rule map.</li>
+
+                            <li><strong>Commit event:</strong>  
+                            The final detection is a single commit that satisfies all four gates—temporal, spatial, conservation, and informational.  
+                            The pattern of likely commits emerges statistically from phase-matched candidates, not from multiple particles interfering with themselves in real space.</li>
+
+                            <li><strong>Adding a detector:</strong>  
+                            Placing a sensor or quantum dot near a slit changes the ledger structure.  
+                            The detector absorbs or re-emits a particle, triggering the <strong>new-particle rule</strong>:  
+                            the old interference network is cleared, and a new rounded wavefront begins from the detection site.</li>
+
+                            <li><strong>Result:</strong>  
+                            With both slits open and unmeasured, the commit field spans both paths, producing an interference map.  
+                            When a slit is monitored, the event chain is reset at the detector, collapsing the multi-path coherence into a single emission.</li>
+
+                            <li><strong>Why this matters:</strong>  
+                            The pattern changes because the causal structure changed, not because the particle “knew” it was observed.  
+                            Every detection spawns a fresh source, preserving causality and enforcing forward-only ledger growth.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            Interference is phase alignment across multiple candidate paths in the Event Ledger.  
+                            When measurement creates a new emission, the old coherence is replaced by a single rounded wavefront—  
+                            a direct result of the CBF new-particle rule.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-measurement" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Measurement Problem</h3>
+                <p>In CBF, measurement is when two or more systems co-author a commit through the four gates. No collapse, no observer magic.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Definition:</strong>  
+                            A <em>measurement</em> occurs when separate systems interact strongly enough to create a shared event in the <a href="./referencetable.html#ledger">Event Ledger</a>.  
+                            For a commit to succeed, all <strong>four commit gates</strong> must align: temporal, spatial, conservation, and informational.</li>
+
+                            <li><strong>Physical gates:</strong>  
+                            The first three—timing, position, and conservation—are ordinary physics.  
+                            They check that the exchange obeys phase, momentum, and energy rules.  
+                            When these pass, a candidate commit forms.</li>
+
+                            <li><strong>Informational gate:</strong>  
+                            The last gate ensures the new commit fits the global network of known states.  
+                            It binds the event into the universe’s consistent storyline.  
+                            This is not human consciousness; it is <em>contextual alignment</em> inside the global Event Ledger.</li>
+
+                            <li><strong>Why it looks mysterious:</strong>  
+                            When the informational gate lags—such as in delayed-choice or entanglement tests—the commit waits for all relevant systems to reconcile.  
+                            When reconciliation completes, the commit finalizes in one tick, giving the illusion of “collapse.”</li>
+
+                            <li><strong>Universality:</strong>  
+                            Every interaction, from photon absorption to human observation, uses the same four gates.  
+                            Human awareness is simply one more system participating in the synchronization.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            Measurement is not collapse.  
+                            It is the joint creation of an event when all four commit gates align, ensuring both physical and informational consistency across systems.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-particle-wave" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Particle–Wave Duality</h3>
+                <p>In CBF, particles are spheres of wave cells that expand in flight and compress in atoms. We see commits as particles and oscillation as waves.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Wave-cell structure:</strong>  
+                            Every particle is a coherent sphere of wave cells carrying both phase and momentum direction.  
+                            In flight, the sphere inflates as <a href="./referencetable.html#t">T</a>-mode translation dominates.  
+                            Inside atoms, it compresses as <a href="./referencetable.html#m">M</a>-mode maintenance holds it together.</li>
+
+                            <li><strong>Continuous oscillation:</strong>  
+                            Each wave cell alternates its budget between T and M every tick.  
+                            This oscillation is what we perceive as a wave—energy flowing between motion and maintenance phases.</li>
+
+                            <li><strong>Commit events:</strong>  
+                            A <a href="./referencetable.html#ledger">commit</a> happens when one region of the sphere satisfies all four gates—temporal, spatial, conservation, and informational.  
+                            That small region interacts with an atom or detector, leaving the imprint we call a “particle hit.”</li>
+
+                            <li><strong>Why it feels dual:</strong>  
+                            Between commits, the sphere acts like a field that spreads, interferes, and self-heals.  
+                            At the moment of commit, it localizes as if it were a single particle.  
+                            The apparent duality is simply the two phases of the same update cycle: propagation versus reconciliation.</li>
+
+                            <li><strong>Compression and inflation:</strong>  
+                            Bound systems keep their wave cells compressed by continuous M-mode upkeep.  
+                            Free particles inflate their cell lattice outward in T, distributing probability across space until the next commit resets it.</li>
+
+                            <li><strong>Human perspective:</strong>  
+                            What we call “particle detection” is just the winning section of the wave sphere that succeeded in committing.  
+                            What we call “wave behavior” is the collective oscillation of its wave-cell network between commits.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            A particle is always a sphere of wave cells.  
+                            In motion, it behaves like a wave of oscillating T and M budgets;  
+                            on commit, it appears as a point-like particle.  
+                            The duality is perception—one process viewed from two update phases.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+        <article id="sol-superposition" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Spatial Superposition</h3>
+                <p>
+                    A single particle travels as a coherent sphere of <a href="./referencetable.html#vectorca">wave cells</a> that can
+                    touch many atoms at once. Only one site commits when all four Ledger gates are satisfied.
+                </p>
+                </summary>
+
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Particle as a touching field:</strong>
+                            A particle in flight is a spherical front of wave cells. Each cell can <em>pollinate</em> a nearby atom. This produces many eligible
+                            candidates at once in the <a href="./referencetable.html#eventledger">Event Ledger</a>.</li>
+
+                            <li><strong>Commit rule: four gates must agree:</strong>
+                            A physical outcome appears only where all gates reconcile:
+                            <a href="./referencetable.html#temporalgate">temporal</a> for phase alignment,
+                            <a href="./referencetable.html#spatialgate">spatial</a> for momentum and placement,
+                            <a href="./referencetable.html#directionalgate">directional</a> for angular consistency,
+                            and the <a href="./referencetable.html#informationalgate">informational</a> gate for semantic consistency when knowledge is involved.
+                            Exactly one site becomes the recorded <a href="./referencetable.html#commit">commit</a>, others are pruned in the <a href="./referencetable.html#dfield">D-ledger</a>.</li>
+
+                            <li><strong>Why superposition is spatial:</strong>
+                            Before commit, the wavefront touches many atoms with nonzero eligibility. The particle is not many particles. It is one coherent front that offers many possible absorption sites. The final location is chosen by the gates, not by splitting the particle.</li>
+
+                            <li><strong>Interference and diffraction:</strong>
+                            Edges and apertures tear the phase map then the wavefront heals as it propagates. The healed front diffracts through the slit or slits, creating a richer set of directions. This increases the number of places where wave cells can touch atoms. The gate statistics over this expanded touching set produce the familiar fringe pattern.</li>
+
+                            <li><strong>Observation and uniqueness:</strong>
+                            When one site commits, competing offers are removed. The recorded event is unique. Other touched sites leave only pruning scars in the D-ledger that bias future attempts but do not count as additional particles.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong><br>
+                            Spatial superposition is a single wavefront touching many atoms. One site wins when temporal, spatial, directional, and informational gates agree. Interference patterns arise because diffraction increases the number and phasing of touch points before the single commit is chosen.
+                        </div>
+
+                        <p>See also: <a href="#sr-spatialcommits">Spatial Relativity of Commits</a>,
+                            <a href="#beat-matching">Beat-Matching</a>,
+                            <a href="#sol-lengthcontraction-cbf">Length Contraction</a>,
+                            <a href="#qm-measurement">Measurement and the Ledger Gates</a>.</p>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-spin-superposition" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Spin Superposition</h3>
+                <p>Spin in CBF is a quantum spinor in M, not a classical rotor. SU(2) dynamics and Pauli measurements select outcomes at commit.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>State:</strong>
+                            Each particle carries a two-component spinor <em>|ψ⟩ ∈ ℂ²</em> in the Maintenance channel. 
+                            Superposition is genuine: <em>|ψ⟩ = a|↑⟩ + b|↓⟩</em> with |a|²+|b|²=1.</li>
+
+                            <li><strong>Rotation (SU(2)):</strong>
+                            Internal spin updates are <em>U(n,θ)=exp(-i θ σ·n / 2)</em>. 
+                            The 720° property follows from SU(2) being a double cover of SO(3).</li>
+
+                            <li><strong>Measurement (Pauli):</strong>
+                            Along axis n, the observable is <em>S_n = (ħ/2) σ·n</em>. 
+                            Commit projects with <em>P_±=(I ± σ·n)/2</em>. 
+                            Outcomes are ±ħ/2 with Born weights <em>⟨ψ|P_±|ψ⟩</em>.</li>
+
+                            <li><strong>Stern–Gerlach:</strong>
+                            Spin couples via <em>H = -μ·B</em> with <em>μ = γ S</em>. 
+                            A field gradient produces <em>F = ∇(μ·B)</em>, splitting trajectories by ± branches. 
+                            The commit gate finalizes one eigenbranch with the Born distribution.</li>
+
+                            <li><strong>Entanglement:</strong>
+                            Pairs use a joint spinor in <em>ℂ² ⊗ ℂ²</em> (e.g., singlet). 
+                            The ledger forms a Simultaneous Commit Group and resolves a single global outcome, 
+                            producing quantum correlations without FTL signals or predetermined values.</li>
+
+                            <li><strong>Addition rules:</strong>
+                            Spin addition emerges from tensor products and Clebsch–Gordan reconciliation during commit 
+                            (e.g., singlet j=0, triplet j=1 for two spin-1/2).</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>
+                            Spin is a quantum spinor stored in M with SU(2) dynamics. 
+                            Measurements are Pauli projections at commit, yielding ±ħ/2 and the 720° feature. 
+                            Entangled outcomes arise from a single global commit across the SCG, matching Bell-test results without local hidden variables.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+        <article id="sol-uncertainty" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Uncertainty Principle</h3>
+                <p>In CBF, uncertainty comes from finite commit bandwidth, not fuzzy reality.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Finite sampling:</strong>
+                            The <a href="./referencetable.html#ledger">Event Ledger</a> records commits in discrete ticks with limited phase resolution.  
+                            Each tick can either refine <a href="./referencetable.html#t">T</a>-mode translation (momentum) or lock a sharp position, but not both at once.</li>
+
+                            <li><strong>Position commits:</strong>
+                            A sharp location means many nearby wave cells synchronized their phases to produce a single spatial commit.  
+                            This drains budget from tracking the continuous phase advance that carries momentum.</li>
+
+                            <li><strong>Momentum tracking:</strong>
+                            Smooth motion is represented by consistent phase advance between commits.  
+                            When translation dominates, individual position commits blur across multiple cells.</li>
+
+                            <li><strong>Budget tradeoff:</strong>
+                            <span class="tag">Δx Δp ≳ ℏ/2</span> emerges naturally from sharing a finite update budget.  
+                            Precision in one domain uses commit capacity that would have refined the other.</li>
+
+                            <li><strong>No hidden randomness:</strong>
+                            The particle always follows deterministic CA rules; the uncertainty comes from how finely the ledger can sample phase and timing.</li>
+
+                            <li><strong>Measurement link:</strong>
+                            When a measurement locks position, it forces a high-resolution spatial commit, leaving momentum unconstrained until later gates realign.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>
+                            Uncertainty is a computational bandwidth limit.  
+                            The same tick budget cannot refine both position and momentum, so precision in one drains the other.  
+                            Reality remains definite; our commits are just discretely timed.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+        <article id="sol-retrocausality" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Causality and Retrocausality</h3>
+                <p>CBF never runs events backward in time. Apparent retrocausality comes from informational gate caching, not reversed cause and effect.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Forward-only ledger:</strong>  
+                            The <a href="./referencetable.html#ledger">Event Ledger</a> appends commits in causal order.  
+                            Each tick consumes its local budget <a href="./referencetable.html#c">C = T + M</a> and adds one new layer to history.  
+                            Nothing ever rewinds or overwrites previous commits.</li>
+
+                            <li><strong>Informational gate caching:</strong>  
+                            When systems are not yet synchronized, the <em>informational gate</em> can hold uncommitted correlations in a temporary cache.  
+                            These cached relations store pending context so later events can finalize consistently without breaking conservation rules.</li>
+
+                            <li><strong>Late binding:</strong>  
+                            Once all participants share enough information, the cached gate resolves and the ledger writes a single consistent commit.  
+                            To observers, it can look like the earlier event “knew” about the later choice, but in CBF this is just deferred reconciliation of the informational cache.</li>
+
+                            <li><strong>Quantum experiments:</strong>  
+                            In delayed-choice and entanglement setups, the informational cache keeps options open until all relevant systems are linked.  
+                            When synchronization occurs, the commit appears to update both ends at once, giving a false impression of retrocausal influence.</li>
+
+                            <li><strong>Why it stays causal:</strong>  
+                            Every commit still obeys forward tick order in the ledger.  
+                            The informational cache adjusts eligibility, not the direction of time.</li>
+
+                            <li><strong>Predictive power:</strong>  
+                            CBF predicts that any setup showing “retrocausal” behavior will involve delayed informational synchronization, never negative tick flow.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            Retrocausality is an illusion created by informational gate caching.  
+                            The Event Ledger always processes forward; cached context allows later knowledge to align earlier commits without rewriting time.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-erasure" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Quantum Erasure</h3>
+                <p>CBF treats quantum erasure as deferred commit pruning. The ledger stores outcomes until the full informational context is known, then resolves backward through the chain.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Commit caching:</strong>  
+                            When a particle passes through a dual-path system, each path writes a provisional entry in the <a href="./referencetable.html#ledger">Event Ledger</a>.  
+                            These partial commits store timing, momentum, and phase data but remain unfinalized because the <strong>informational gate</strong> has not yet cleared.</li>
+
+                            <li><strong>Why the delay:</strong>  
+                            The ledger must know whether which-path information exists anywhere in the network.  
+                            Until that context is resolved, both paths stay cached as viable options.</li>
+
+                            <li><strong>Erasure condition:</strong>  
+                            When later equipment erases or scrambles which-path data, the informational gate reopens.  
+                            The ledger then reconciles the cached entries into a single interference-style commit, as if no path distinction ever existed.</li>
+
+                            <li><strong>Pruning mechanism:</strong>  
+                            The final decision propagates backward through the cached chain, pruning everything that would contradict the chosen informational context.  
+                            It does not rewrite history—those entries were never finalized.  
+                            They were pending buffers awaiting this global reconciliation.</li>
+
+                            <li><strong>Why it looks retrocausal:</strong>  
+                            Because the backward pruning touches events that occurred earlier in classical time order, observers think the later measurement changed the past.  
+                            In reality, the past was incomplete until the informational gate cleared.</li>
+
+                            <li><strong>Unified process:</strong>  
+                            The ledger always runs forward in tick order.  
+                            The erasure experiment simply delays the final commit until both the question and the answer are known, completing the ledger entry in one causal transaction.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            Quantum erasure is deferred reconciliation, not retrocausality.  
+                            Commits remain cached until the full informational context is available.  
+                            When the answer arrives, it prunes backward through the pending chain, finalizing one consistent history across all systems.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-entanglement" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Quantum Entanglement</h3>
+                <p>CBF explains entanglement as a single global commit across a Simultaneous Commit Group (SCG), not faster-than-light influence.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Shared state:</strong>
+                            When two systems interact strongly enough to exchange conservation constraints, their local wavefronts merge into a joint state 
+                            <em>|Ψ⟩ ∈ ℂⁿ ⊗ ℂᵐ</em>.  
+                            Each subsystem keeps its own ledger entries but shares a common commit eligibility through the <a href="./referencetable.html#ledger">Event Ledger</a>.</li>
+
+                            <li><strong>Simultaneous Commit Group (SCG):</strong>
+                            The ledger buffers all correlated participants in one group.  
+                            A successful commit must satisfy the four gates—temporal, spatial, conservation, and informational—for the entire group simultaneously.</li>
+
+                            <li><strong>Global reconciliation:</strong>
+                            The commit is solved as a single contextual event.  
+                            Once the ledger writes it, every member’s outcome becomes fixed at once, even if they are spacelike separated in classical geometry.</li>
+
+                            <li><strong>No faster-than-light signals:</strong>
+                            Correlations appear instant because there is only one global commit, not two independent local updates.  
+                            No information travels between wings; they are resolved together inside one ledger transaction.</li>
+
+                            <li><strong>Bell-test alignment:</strong>
+                            The joint commit violates local hidden-variable bounds but remains within the Tsirelson limit.  
+                            Outcomes are not predetermined; they are set contextually when the SCG passes the informational gate.</li>
+
+                            <li><strong>Universality:</strong>
+                            Spin pairs, photon polarization, or energy-time entanglement all use the same mechanism.  
+                            The type of variable differs, but the commit logic is identical: a single causal ledger entry consistent across all observers.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            Entanglement is not communication at a distance.  
+                            It is one contextual commit written across multiple systems within the same SCG.  
+                            Bell violations arise naturally because outcomes form through a single non-local reconciliation, not hidden variables.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-tunneling" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Quantum Tunneling</h3>
+                <p>Barrier crossing in CBF comes from self-healing wavefronts navigating hazard and path cost.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Self-healing CA particle:</strong>
+                            A particle is a coherent shell of wave cells that <em>heal</em> and re-vectorize after losses. 
+                            The shell keeps phase-coherent options alive by redistributing budget across directions in <a href="./referencetable.html#t">T</a>.</li>
+
+                            <li><strong>Barrier model:</strong>
+                            Inside a barrier the <a href="./referencetable.html#mcf">MCF</a> raises loss and phase lag, which increases local hazard <a href="./referencetable.html#h">h(x)</a>. 
+                            Two-lane update: monitor lane applies attenuation and phase delay, collapse lane applies a stochastic absorption hazard. 
+                            Budget in <a href="./referencetable.html#m">M</a> does maintenance, <a href="./referencetable.html#t">T</a> tries to advance.</li>
+
+                            <li><strong>Microchannels:</strong>
+                            The self-healing shell continuously re-aims around high-hazard cells, probing lower-cost paths through microscopic gaps, defects, or thin regions. 
+                            Partial attenuation shrinks amplitude but does not kill the shell if coherence holds.</li>
+
+                            <li><strong>Commit rule:</strong>
+                            A transmit commit occurs when a surviving front reaches the far side while passing the four gates 
+                            (temporal, spatial, conservation, informational). 
+                            Failed attempts write small <a href="./referencetable.html#d">D-field</a> scars that bias future paths away from dead zones.</li>
+
+                            <li><strong>Thickness and height:</strong>
+                            Transmission falls exponentially with effective path cost. 
+                            Thicker or higher-loss barriers increase attenuation and absorption probability, so fewer self-healed fronts make it through.</li>
+
+                            <li><strong>Resonance windows:</strong>
+                            Cavities or layered barriers can return phase that assists healing. 
+                            When accumulated phase aligns, the beat map improves and transmission spikes.</li>
+
+                            <li><strong>Equivalence with RF and materials:</strong>
+                            The same hazard accounting reproduces skin depth in conductors and evanescent coupling in dielectrics. 
+                            Tunneling is the barrier limit of the same budget law, not a special case.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>
+                            Tunneling is a self-healing wavefront finding a viable low-cost path through a lossy region. 
+                            Hazard attenuates most candidates, a few survive, and a transmit commit records success. 
+                            The D-field remembers failures, shaping future probability flow.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+
+        <article id="sol-cat" class="conclusion">
+            <details open>
+                <summary class="summary">
+                <h3>Schrödinger’s Cat (Cat in the Box)</h3>
+                <p>CBF resolves the paradox by treating observation as ledger synchronization, not wave collapse.</p>
+                </summary>
+                <div class="prediction-body">
+                    <div class="prediction-section">
+                        <ul>
+                            <li><strong>Local commit:</strong> The decay, detector, and poison system inside the box follow the same <a href="./referencetable.html#c">C = T + M</a> rule as anything else. 
+                            When the decay reaches its threshold, a commit is written to the box’s local Event Ledger. 
+                            The cat is either alive or dead from that tick onward.</li>
+
+                            <li><strong>Isolation boundary:</strong> The sealed box prevents information flow, so an outside observer’s ledger has not yet synchronized with the box’s internal ledger.  
+                            “Unobserved” means <em>not yet reconciled</em>, not <em>undecided</em>.</li>
+
+                            <li><strong>Observation:</strong> Opening the box merges the observer’s ledger slice with the box’s record.  
+                            The observer receives the existing commit rather than creating a new one.</li>
+
+                            <li><strong>Outcome:</strong> The cat’s state is definite the entire time.  
+                            Superposition describes the observer’s uncertainty, not the cat’s existence.  
+                            The universe never splits, because the Event Ledger appends commits in one linear timeline.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <strong>CBF Resolution:</strong>  
+                            The cat is not both dead and alive.  
+                            The Event Ledger operates on linear causal time, so only one consistent commit can exist.  
+                            Observation is synchronization between ledgers, not creation of reality.
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </article>
+    </section>
+
+    <section id="relativity" class="cat card">
+        <h3>Relativity & Time</h3>
+
+            <article id="sol-twin" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Twin Paradox</h3>
+                    <p>In CBF, aging depends on how each observer splits their causal budget. The traveler uses more T and less M, so their ledger queue grows and they age slower.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Budget law:</strong>  
+                                Every system follows <a href="./referencetable.html#c">C = T + M</a>.  
+                                <a href="./referencetable.html#t">T</a> handles motion and translation;  
+                                <a href="./referencetable.html#m">M</a> handles maintenance and internal processing (aging).</li>
+
+                                <li><strong>Earth twin:</strong>  
+                                The twin on Earth devotes most of their causal budget to M.  
+                                Their local queue drains quickly, keeping biological and atomic processes fully maintained—what we call “normal” aging.</li>
+
+                                <li><strong>Traveler twin:</strong>  
+                                The twin on the spaceship invests more budget into T to maintain high-speed translation.  
+                                With less M available, their internal maintenance ticks process more slowly, so fewer internal updates occur per global ledger tick.</li>
+
+                                <li><strong>Queue buffering:</strong>  
+                                Both twins experience time symmetry visually, since each sees the other’s clock running slow through queue buffering.  
+                                But when they reunite and the ledger synchronizes, the twin who spent more budget on T shows fewer completed maintenance commits—less elapsed aging.</li>
+
+                                <li><strong>No acceleration paradox:</strong>  
+                                Acceleration isn’t required in CBF.  
+                                The time difference comes directly from the ongoing T↔M tradeoff, not from frame changes or spacetime curvature.</li>
+
+                                <li><strong>Why time symmetry is illusionary:</strong>  
+                                The apparent symmetry between moving frames arises because each twin only sees the other’s queue buffering, not the true budget allocation.  
+                                Real ledger processing is asymmetrical—less M means slower internal evolution.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                The twin who spends more of their causal budget on translation and less on maintenance ages slower.  
+                                Time dilation is just a bookkeeping effect of C = T + M, not a paradox.  
+                                SR’s symmetry is visual only—each twin’s true aging rate is set by how much M they have left to process their own ledger queue.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <article id="sol-lengthcontraction" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Length Contraction</h3>
+                    <p>
+                        A projection created by pacing differences.  
+                        Motion alters how often a system commits to the
+                        <a href="./referencetable.html#ledger">Event Ledger</a>,
+                        and the slower frame’s <a href="./referencetable.html#alpha">α-slice</a>
+                        re-aligns those commits into a single view.
+                        The result looks shorter or slightly rotated toward the observer,
+                        even though nothing bends or compresses in the Ledger itself.
+                    </p>
+                    </summary>
+
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Ledger perspective:</strong>
+                                Every collapse happens at a definite place and tick.
+                                The object’s world-tube stays straight and unbroken.
+                                What changes is the angle at which the observer’s α-slice
+                                intersects that world-tube.
+                                </li>
+
+                                <li><strong>Commit pacing and motion:</strong>
+                                A moving system spends more of its causal budget on translation (<a href="./referencetable.html#t">T</a>)
+                                and less on maintenance (<a href="./referencetable.html#m">M</a>).
+                                Fewer commits per global tick mean that its internal updates occur
+                                less often than those of a stationary observer.
+                                This timing mismatch is the real source of both time dilation
+                                and the apparent shortening along motion.
+                                </li>
+
+                                <li><strong>Reprojection through the slow frame:</strong>
+                                The observer’s slower α-slice gathers arrivals that occur together
+                                in their pacing, even if those emissions left the moving system
+                                at different ticks.
+                                Earlier emissions from the trailing side have more time to advance
+                                before the image is assembled, so the object appears
+                                <em>tilted or bent toward the observer</em>.
+                                The slower frame always sees faster systems leaning in its direction,
+                                because its temporal gate must stretch their sparse commits
+                                into simultaneous arrivals.
+                                </li>
+
+                                <li><strong>Geometry of timing:</strong>
+                                What appears as contraction or rotation is the spatial imprint
+                                of timing reconciliation.
+                                A single α-slice through differently paced worldlines
+                                never cuts them at equal ticks,
+                                so its projection onto the observer’s coordinates becomes skewed.
+                                That skew is the visual or measured “shortening.”
+                                </li>
+
+                                <li><strong>Unified view:</strong>
+                                Whether caused by motion or by slower α regions near mass,
+                                the same rule applies:
+                                slower pacing pulls apparent direction toward itself.
+                                Motion and gravity are both forms of temporal-projection curvature,
+                                not mechanical deformation.
+                                </li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong><br>
+                                Length contraction is the visible footprint of pacing reconciliation.
+                                Fast systems commit less often; slow frames re-sync those commits
+                                through their α-slices, producing a projection that looks
+                                shortened or curved toward the observer.
+                                The Ledger remains unchanged—the geometry we see is the geometry
+                                of timing, not of matter.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <article id="sol-andromeda" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Andromeda Paradox</h3>
+                    <p>Time in CBF is linear in the Event Ledger but relative to each observer’s queue buffering. The paradox disappears once signaling limits are included.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Linear ledger time:</strong>  
+                                The <a href="./referencetable.html#ledger">Event Ledger</a> processes all commits in strict tick order.  
+                                There is only one global timeline of accepted events—no branching or multiple presents.</li>
+
+                                <li><strong>Observer queues:</strong>  
+                                Each observer maintains a local commit queue based on their motion and α(x) pacing.  
+                                The faster they move, the more events accumulate before synchronization, giving them a slightly different sense of “now.”</li>
+
+                                <li><strong>Relative perception:</strong>  
+                                Queue buffering lets both the stationary observer and the jogger perceive each other’s clocks as offset, even though both live on the same ledger timeline.  
+                                This creates the illusion that distant events—like the Andromedans deciding to attack—occur at different moments for each observer.</li>
+
+                                <li><strong>Signaling constraint:</strong>  
+                                True reconciliation only happens when information actually arrives through light-speed communication.  
+                                Because Andromeda is millions of years away, neither observer’s local queue can be updated in real time, so both share the same unresolved state.</li>
+
+                                <li><strong>What this means:</strong>  
+                                Both the person sitting and the person jogging exist on the same ledger tick as the Andromedans.  
+                                The perceived difference in “now” is just a phase lag in each observer’s buffered view, not a real difference in universal time.</li>
+
+                                <li><strong>Why the paradox vanishes:</strong>  
+                                In CBF, simultaneity is not absolute but derived from queue drain rate and signal connectivity.  
+                                The Event Ledger never splits; only the observers’ update schedules diverge temporarily.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                The Andromeda Paradox is an illusion of queue buffering.  
+                                Time in the ledger is linear, but observers drain their event queues at different rates.  
+                                Without direct signaling, distant events remain unsynchronized yet still occur on the same universal tick.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <article id="sol-arrow" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Arrow of Time</h3>
+                    <p>Time moves forward because the Event Ledger processes commits in tick order. Apparent symmetry is a queue effect, not reversal.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Ledger tick:</strong>
+                                Every update in the universe follows the same budget rule <a href="./referencetable.html#c">C = T + M</a>.  
+                                Translation (<a href="./referencetable.html#t">T</a>) handles motion, Maintenance (<a href="./referencetable.html#m">M</a>) handles local state.  
+                                Each tick finalizes new commits, extending the ledger in one direction.</li>
+
+                                <li><strong>Forward-only processing:</strong>
+                                The ledger is append-only; once a commit is written, it cannot be undone or rewritten.  
+                                This one-way growth defines the physical arrow of time.</li>
+
+                                <li><strong>Apparent symmetry:</strong>
+                                Time-symmetric laws emerge because queue buffering lets two observers see each other’s clocks as running slow.  
+                                Both drain and fill their commit queues at different rates, creating the illusion of reversible symmetry while processing remains strictly forward.</li>
+
+                                <li><strong>No backward ticks:</strong>
+                                Even when equations look time-reversible, the ledger never processes negative ticks.  
+                                Every event consumes its causal budget and moves the system toward higher reconciliation depth.</li>
+
+                                <li><strong>Entropy as queue density:</strong>
+                                Growing queues of unresolved commits correspond to rising entropy.  
+                                When reconciliation succeeds, local order increases but global backlog still grows, giving the overall sense of time’s flow.</li>
+
+                                <li><strong>Meaning of now:</strong>
+                                The present moment is the active tick being processed.  
+                                The past is committed history, the future is unprocessed budget still waiting in the queue.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Time’s arrow is the ledger’s tick processing direction.  
+                                All commits append forward under <em>C = T + M</em>.  
+                                Observer symmetries arise from queue buffering, not genuine reversibility.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <article id="sol-grandfather" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Grandfather Paradox</h3>
+                    <p>The Grandfather Paradox requires a block universe. CBF has no block—only an ever-growing ledger of forward commits.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>No pre-written timeline:</strong>  
+                                The <a href="./referencetable.html#ledger">Event Ledger</a> is not a static block of spacetime.  
+                                It is an ongoing computation that appends new commits one tick at a time.  
+                                Once written, past commits are immutable history, not interactive regions of space you can re-enter.</li>
+
+                                <li><strong>No past access:</strong>  
+                                Time travel to the past would require reopening a closed commit, which the ledger forbids.  
+                                Each entry has a permanent checksum linking it to previous commits.  
+                                Altering one would invalidate the entire chain.</li>
+
+                                <li><strong>Why loops fail:</strong>  
+                                A causal loop like “go back and stop your grandfather” has no ledger pathway.  
+                                The necessary retro-commit would conflict with already reconciled entries, so it fails the conservation and informational gates.</li>
+
+                                <li><strong>Block universe myth:</strong>  
+                                In classical relativity, time appears like a frozen 4D landscape.  
+                                CBF treats that geometry as the **rendered output** of prior commits, not an editable file.  
+                                The universe isn’t stored; it’s continually being processed.</li>
+
+                                <li><strong>Why time feels continuous:</strong>  
+                                Queue buffering smooths the append cycle into a seamless flow, creating the illusion that the future already exists.  
+                                In truth, it’s just the next tick waiting to be committed.</li>
+
+                                <li><strong>Self-consistency rule:</strong>  
+                                Any attempted retro action automatically fails reconciliation.  
+                                The ledger allows only consistent forward solutions—no paradoxes survive commit filtering.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                The Grandfather Paradox cannot occur because the universe is not a block.  
+                                The Event Ledger appends commits forward only.  
+                                The past is read-only memory; the future doesn’t exist yet.  
+                                No causal loop can be written into a system that never rewinds.
+                            </div>
+                        </div>
+                    </div>
+                </details>    
+            </article>
+
+
+            <article id="sol-gravity" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Gravity</h3>
+                    <p>In CBF, gravity is frame synchronization at two levels: wave-cell alignment for particles and queue buffering for matter.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Particle level:</strong>  
+                                Free particles adjust their phase and direction so their wave cells stay in sync with the surrounding <a href="./referencetable.html#alpha">α-field</a>.  
+                                This “frame syncing” naturally bends trajectories toward slower pacing regions, creating curvature-like motion without a force.</li>
+
+                                <li><strong>Atomic level:</strong>  
+                                Atoms are dense systems of internal particles whose <a href="./referencetable.html#t">T</a>-mode motion is constantly being re-aimed downward by local α gradients.  
+                                Queue buffering makes these falling translations accumulate as <a href="./referencetable.html#m">M</a>-mode vibration—what we experience as gravitational potential energy.</li>
+
+                                <li><strong>Energy exchange:</strong>  
+                                When the object is released, stored M relaxes back into T.  
+                                The system renormalizes its motion, converting vibration into translation.  
+                                However, deeper in the well, the baseline α is slower, so the process repeats at a lower overall tick rate.</li>
+
+                                <li><strong>Unified field view:</strong>  
+                                Gravity and time dilation are the same pacing effect seen from different sides:  
+                                α(x) sets the local clock rate, while <a href="./referencetable.html#g">g(x)</a> is the directional derivative of that pacing field.</li>
+
+                                <li><strong>No extra force law:</strong>  
+                                There is no separate gravitational “pull.”  
+                                It is simply the system’s continuous attempt to keep all wavefronts frame-synchronized while conserving <em>C = T + M</em>.</li>
+
+                                <li><strong>Potential energy as bookkeeping:</strong>  
+                                Stored M is just queued maintenance budget awaiting release.  
+                                The deeper you go, the longer each tick takes to process, which is why time runs slower in stronger gravity.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Gravity is the result of frame synchronization across α(x).  
+                                Particles bend because their wave cells align to slower ticks,  
+                                and matter stores that delay as M-mode vibration until released as T when the queue empties.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+        </section>
+
+        <section id="cosmo" class="cat card">
+            <h3>Gravity & Cosmology</h3>
+ 
+            <article id="sol-manyworlds" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Many-Worlds vs CBF</h3>
+                    <p>CBF allows only one successful commit per event, so there is only one world.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>One ledger:</strong>  
+                                The universe maintains a single <a href="./referencetable.html#ledger">Event Ledger</a>.  
+                                Every commit is appended in linear causal order, never duplicated or branched.</li>
+
+                                <li><strong>Alternatives:</strong>  
+                                Possible outcomes exist temporarily as pending entries in the buffer.  
+                                When reconciliation succeeds, one commit is written and the rest decay as <a href="./referencetable.html#d">D-field</a> scars.</li>
+
+                                <li><strong>No branching:</strong>  
+                                There is no mechanism for spawning parallel ledgers because budget and conservation rules must balance globally.  
+                                The same compute resources cannot sustain multiple copies of history.</li>
+
+                                <li><strong>Perceived probability:</strong>  
+                                The familiar quantum probabilities describe which pending paths are most likely to pass the commit gates, not parallel worlds being born.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Only one consistent commit can exist per event.  
+                                The universe evolves as a single, continuously updated ledger—not an expanding forest of worlds.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <article id="sol-blockuniverse" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>No Block Universe</h3>
+                    <p>CBF treats reality as an active computation that grows one commit at a time, not a static 4-D block.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Continuous creation:</strong>  
+                                The <a href="./referencetable.html#ledger">Event Ledger</a> is append-only.  
+                                Each new commit adds to the history chain, extending reality forward in causal time.</li>
+
+                                <li><strong>Past, present, future:</strong>  
+                                Past commits are recorded and immutable.  
+                                The present is the latest successful commit.  
+                                The future exists only as uncommitted possibilities in the buffer.</li>
+
+                                <li><strong>Time’s flow:</strong>  
+                                Time advances because new commits appear sequentially, not because observers move through a fixed spacetime block.</li>
+
+                                <li><strong>Relativity preserved:</strong>  
+                                Different observers may disagree on commit ordering, but all agree on the single growing ledger they share once synchronized.</li>
+
+                                <li><strong>Implication:</strong>  
+                                The universe is an ongoing process of reconciliation, not a completed structure waiting to be read.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Reality is not a frozen block of spacetime.  
+                                The Event Ledger is a live computation that appends new commits in causal order—an ever-evolving universe rather than a finished film reel.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <article id="sol-blackholes" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Black Holes and Singularities</h3>
+                    <p>CBF replaces infinite curvature with finite-precision stalls in α(x). Black holes are commit slow zones, not tears in space.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Finite pacing, not infinite gravity:</strong>  
+                                The <a href="./referencetable.html#alpha">α-field</a> defines the local tick rate of commit processing.  
+                                Near a dense object, α slows continuously toward zero but never reaches it, so there is no true singularity—only a region where new commits stall.</li>
+
+                                <li><strong>Queue saturation:</strong>  
+                                As α → 0, translation <a href="./referencetable.html#t">T</a> halts and all incoming motion converts into <a href="./referencetable.html#m">M</a> maintenance load.  
+                                The object becomes a queue-buffered ledger region storing immense amounts of unresolved state (potential energy).</li>
+
+                                <li><strong>Horizon definition:</strong>  
+                                The event horizon marks where local commit time exceeds the rest of the universe’s tick pace.  
+                                From outside, no new commits appear; inside, updates continue at vanishingly slow rates relative to external frames.</li>
+
+                                <li><strong>Information conservation:</strong>  
+                                All information remains encoded in the stalled ledger region.  
+                                Nothing is destroyed—commits are just deferred.  
+                                Slow leakage at the boundary (radiation or tunneling) gradually re-synchronizes stored data with the global ledger.</li>
+
+                                <li><strong>Singularity reinterpreted:</strong>  
+                                Infinite density is an artifact of continuous math.  
+                                The CBF ledger is discrete, so curvature saturates when cell spacing reaches the local tick precision limit.</li>
+
+                                <li><strong>Recycling mechanism:</strong>  
+                                When load eventually dissipates, stalled commits flush outward, reseeding the surrounding field with synchronized history—potentially forming jets or new star systems.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Black holes are not singularities.  
+                                They are regions where α-field pacing collapses toward zero and commits stall into M-mode storage.  
+                                The ledger never breaks or erases information; it simply slows its processing until reconciliation can resume.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article> 
+            <article id="sol-darkmatter" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Dark Matter & Scars</h3>
+                    <p>CBF explains dark matter as the residual pruning scars of failed or vetoed collapse paths stored in the D-field.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Two-tier structure:</strong>  
+                                The universe tracks events through two ledgers.  
+                                The <a href="./referencetable.html#s">S-ledger</a> records stable atomic commits that shape α(x) and gravitational curvature.  
+                                The <a href="./referencetable.html#d">D-field</a> stores all failed, vetoed, or incomplete collapse attempts as persistent computational scars.</li>
+
+                                <li><strong>Origin of scars:</strong>  
+                                When overlapping wavefronts or unstable atoms attempt commits that cannot reconcile, their budget drains without a successful event.  
+                                These failed collapses leave localized distortions in the D-field that bias future commits, even though they carry no mass themselves.</li>
+
+                                <li><strong>Macroscopic effect:</strong>  
+                                Regions with long histories of collapse activity—supernova remnants, galaxy formation zones, or decayed atomic regions—accumulate dense scar networks.  
+                                The scars act like invisible scaffolding that guides later gravitational pacing, producing halo-like lensing without new matter.</li>
+
+                                <li><strong>Microphysics link:</strong>  
+                                Each scar represents residual hazard written as <a href="./referencetable.html#h">h(x)</a> ∝ E² × loss(x, ω).  
+                                In conductive or lossy materials this shows up as absorbed field power; in space it persists as inert dark-matter structure.</li>
+
+                                <li><strong>Persistence:</strong>  
+                                Scars decay slowly because they exist outside normal atomic maintenance cycles.  
+                                Their cumulative bias explains why galaxies retain massive halos long after their baryonic cores settle.</li>
+
+                                <li><strong>Observation tie-ins:</strong>  
+                                CBF reproduces gravitational-lensing offsets (such as the Bullet Cluster) by weighting each region’s effective gravity by its stability factor η = λ_keep / (λ_keep + λ_fail).  
+                                Hot plasma contributes weakly (η ≪ 1); long-lived stars dominate (η ≈ 1).</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Dark matter is the scar tissue of the universe—residual D-field structures left by unresolved or failed commits.  
+                                They guide future gravitational pacing but add no new mass, giving halos and lensing their shape through history, not substance.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+            <article id="sol-darkenergy" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>Dark Energy / Expansion</h3>
+                    <p>CBF interprets cosmic expansion as slow tick-rate drift between galactic frames, not the stretching of space itself.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Global tick drift:</strong>  
+                                Each region of the universe runs on its local pacing field α(x).  
+                                Over vast distances, tiny calibration offsets accumulate, producing an apparent expansion when comparing remote ledgers.</li>
+
+                                <li><strong>Calendar-leap analogy:</strong>  
+                                The drift acts like a cosmic leap-year correction.  
+                                Locally, physics remains perfectly synchronized, but between far-separated galaxies the tick alignment drifts, 
+                                giving redshift patterns that mimic expansion.</li>
+
+                                <li><strong>No space stretching:</strong>  
+                                Space itself does not grow.  
+                                Photon travel obeys the same hop length and tick duration.  
+                                The perceived wavelength increase comes from comparing the emitter’s αₑ to the absorber’s αₐ, not from expanding distance.</li>
+
+                                <li><strong>Energy accounting:</strong>  
+                                Because photons conserve their <a href="./referencetable.html#t">T</a>-budget through propagation, 
+                                a slower absorbing frame measures a lower frequency without any energy loss in transit.  
+                                The shift is relational, not dissipative.</li>
+
+                                <li><strong>Cosmic acceleration illusion:</strong>  
+                                Over billions of years, accumulated tick-rate drift makes distant galaxies appear to recede faster, 
+                                creating the impression of accelerating expansion without new energy input.</li>
+
+                                <li><strong>Dark energy redefined:</strong>  
+                                The so-called dark energy term represents global timing correction across the ledger, 
+                                ensuring that far-field reconciliations stay self-consistent despite gradual α(x) divergence.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Cosmic expansion is not spatial stretching.  
+                                It is the slow drift of tick pacing between distant frames.  
+                                Redshift reflects the difference between photon emitter and absorber α-rates, 
+                                not a loss of energy to expanding space.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>     
+            <article id="sol-cmb" class="conclusion">
+                <details open>
+                    <summary class="summary">
+                    <h3>CMB and Redshift</h3>
+                    <p>CBF explains cosmic redshift as a pacing difference between emitter and absorber frames, not as photons stretched by expanding space.</p>
+                    </summary>
+                    <div class="prediction-body">
+                        <div class="prediction-section">
+                            <ul>
+                                <li><strong>Frame comparison:</strong>  
+                                A photon always propagates with the same hop length and tick rate c = a/τ inside the <a href="./referencetable.html#ledger">Event Ledger</a>.  
+                                Redshift arises when the emitter and absorber run at slightly different α(x) pacing.  
+                                The photon’s <a href="./referencetable.html#t">T</a>-budget is constant; only the receiving frame’s clock measures a slower beat.</li>
+
+                                <li><strong>No stretching:</strong>  
+                                Space does not expand between galaxies.  
+                                The wavelength increase seen by observers comes from comparing two independent frame rates—α_emit and α_absorb—not from stretching wavefronts in transit.</li>
+
+                                <li><strong>Energy conservation:</strong>  
+                                The photon’s internal C = T + M bookkeeping remains exact through propagation.  
+                                What changes is the tick-rate baseline of the observer, so energy is never lost to empty space.</li>
+
+                                <li><strong>Blackbody precision:</strong>  
+                                Because every photon preserves its phase density, CBF automatically maintains the perfect blackbody curve of the CMB (|μ|, |y| ≲ 10⁻⁵).  
+                                No frequency-dependent drain is needed; α-rate differences alone account for the uniform redshift.</li>
+
+                                <li><strong>Brightness and distance duality:</strong>  
+                                CBF respects the Tolman relation D_L = (1 + z)² D_A because the same pacing offset that redshifts light also stretches apparent timing intervals in the ledger’s accounting.</li>
+
+                                <li><strong>Redshift drift:</strong>  
+                                As the global α calibration slowly changes, ongoing measurements see the expected secular drift (dz/dt) matching the history of tick-rate divergence, not dynamic metric expansion.</li>
+
+                                <li><strong>CMB origin:</strong>  
+                                The background itself is the frozen statistical residue of ancient large-scale commits—massive early synchronization events whose collective emission remains phase-coherent today.</li>
+                            </ul>
+
+                            <div class="callout">
+                                <strong>CBF Resolution:</strong>  
+                                Cosmic redshift is relational, not expansive.  
+                                Photons never lose energy to stretching space.  
+                                The CMB’s smooth spectrum, brightness law, and drift behavior all follow from comparing emitter and absorber pacing in the universal ledger.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+        </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <div class="container foot">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="dot" aria-hidden="true"></span>
+        <span>© <span id="y">2025</span> CBF • Jamie Whitten</span>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/devblog.html">Dev Blog</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./pagescript.js"></script>
+</body>
+</html>                

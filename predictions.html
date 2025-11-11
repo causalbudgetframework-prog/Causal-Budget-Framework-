@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Conclusions</title>
+  <meta name="description" content="Causal Budget Framework — Conclusions skeleton page using site-wide dark theme." />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="pagestyles.css" />
+  <script src="./contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/conclusions.html"> Conclusions</a>
+        <a href="/referencetable.html">Reference Table</a>
+        <a href="/devblog.html">Dev Blog</a>
+        <a href="/stresstests.html">Stress Tests</a>
+        <a href="/predictions.html"class="active">Predictions</a>
+        <a href="/ai-assisted-math.html">Appendix</a>
+         <a href="/theory.html"class="nav-cta">Theory</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="/conclusions.html">Conclusions</a>
+          <a href="/referencetable.html">Reference Table</a>
+          <a href="/devblog.html">Dev Blog</a>
+          <a href="/stresstests.html">Stress Tests</a>          
+          <a href="/predictions.html">Predictions</a>
+          <a href="/ai-assisted-math.html">Appendix</a>
+          <a href="/theory.html">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <!-- Page -->
+  <div class="layout container">
+    <aside class="sidebar">
+      <div class="side-brand">
+          <div class="dot"></div>
+          <div>
+          <h1>CBF Predictions</h1>
+          <small>Falsifiable tests and experimental signatures for CBF</small>
+          </div>
+      </div>
+
+      <nav class="toc" id="toc">
+          <a class="cat-title active" data-cat="quantum">Quantum Mechanics</a>
+          <div class="items" id="items-quantum" style="display:block;">
+              <a href="#first-item">Collapse Timing Dependence on Spatial Separation</a>
+              <a href="#pred-decoherence-scars">Decoherence Without Dissipation (D-field Scars)</a>
+              <a href="#pred-highorder-interference">High-Order Interference Pattern Deviations</a>
+              <a href="#pred-phase-reset">Phase-Reset Memory in Re-Interference</a>
+              <a href="#pred-jitter-coherence">Collapse-Timing Jitter vs Source Coherence</a>
+              <a href="#pred-weak-hysteresis">Weak-Measurement Hysteresis</a>
+              <a href="#pred-polarization-scar">Polarization-Dependent D-Field Write Rate</a>
+          </div>
+
+          <a class="cat-title" data-cat="relativity">Special Relativity</a>
+          <div class="items" id="items-relativity">
+              <a href="#pred-queue-burst">Queue-Burst Sensitivity in Time Dilation</a>
+              <a href="#pred-planck-dispersion">Planck-Scale Dispersion in Ultra-High-Energy Particles</a>
+              <a href="#pred-ledger-memory">Event Ledger Memory Effects</a>
+              <a href="#pred-crossframe-jitter">Cross-Frame Jitter Effects</a>
+              <a href="#pred-alpha-coupling">Unified α-Field Coupling to Acceleration (SR–GR Bridge)</a>
+          </div>
+          
+          <a class="cat-title" data-cat="gravity">Gravity & Cosmology</a>
+          <div class="items" id="items-gravity">
+              <a href="#soon-grav">Coming soon…</a>
+          </div>
+
+          <a class="cat-title" data-cat="em">Electromagnetism & Materials</a>
+          <div class="items" id="items-em">
+              <a href="#soon-em">Coming soon…</a>
+          </div>    
+
+      </nav>
+    </aside>
+
+    <main class="content">
+      <!-- New: Predictions & Tests section -->
+      <section id="quantum" class="cat card">
+        <h3>Quantum Mechanics</h3>
+
+        <!-- QM: 1. Collapse timing vs separation -->
+        <article id="first-item" class="conclusion">
+          <div class="prediction-card near">
+              <div class="prediction-header">
+              <h3 class="prediction-title">1. Collapse Timing Dependence on Spatial Separation</h3>
+              <div class="prediction-tags">
+                  <span class="tag tag-timeline tag-near">Near Future</span>
+                  <span class="tag tag-domain">QM</span>
+                  <span class="tag tag-deviation">Small deviation (~ps)</span>
+              </div>
+              </div>
+              <div class="prediction-body">
+              <div class="prediction-section">
+                  <strong>CBF Prediction:</strong>
+                  <p>
+                  Wavefront collapse time increases with spatial extent of the wavefunction. For a 
+                  wavefront spanning distance L, collapse delay beyond baseline:
+                  <span class="equation">Δτ_collapse ≈ L/c + τ₀</span>
+                  </p>
+              </div>
+              <div class="prediction-section">
+                  <strong>Standard QM:</strong>
+                  <p>
+                  Instantaneous collapse regardless of spatial extent. No delay from wavefunction size.
+                  </p>
+              </div>
+              <div class="prediction-section">
+                  <strong>Experimental Signature:</strong>
+                  <ul>
+                  <li>Prepare large (~cm scale) single-photon wavefunction using beam splitters</li>
+                  <li>Measure time between arrival at detector and when interference pattern updates</li>
+                  <li>CBF predicts ~30 ps delay for L = 1 cm. Standard QM: 0 delay</li>
+                  <li>Requires femtosecond timing resolution + single-photon detection</li>
+                  </ul>
+              </div>
+              <div class="falsification-box">
+                  <strong>Falsification Threshold:</strong> If collapse timing is completely independent 
+                  of spatial extent (no L/c term detectable), Event Ledger mechanism is falsified.
+              </div>
+              </div>
+          </div>
+        </article>
+
+        <!-- QM: 2. D-field scars -->
+        <article id="pred-decoherence-scars" class="conclusion">
+          <div class="prediction-card now">
+            <div class="prediction-header">
+              <h3 class="prediction-title">2. Decoherence Without Dissipation (D‑field Scars)</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-now">Testable Now</span>
+                <span class="tag tag-domain">QM</span>
+                <span class="tag tag-deviation">Qualitative difference</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  Vetoed branches reduce coherence by writing <em>D‑field</em> scars (history of pruned attempts) without depositing heat in the system or bath. 
+                  Coherence can fall substantially while measured thermal energy remains flat within instrumentation limits.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard QM:</strong>
+                <p>
+                  Environment‑induced decoherence is usually tied to uncontrolled coupling that also exchanges energy. 
+                  Pure dephasing is acknowledged, but is typically modeled as weak, source‑specific noise rather than a persistent history bias.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li><b>Platform:</b> single‑photon Mach–Zehnder or superconducting‑qubit Ramsey interferometry at cryogenic temperature.</li>
+                  <li><b>Protocol:</b> run repeated interaction‑free veto trials (dark‑port clicks or high‑hazard paths) to accumulate scars, then remove the veto.</li>
+                  <li><b>Measure simultaneously:</b> (i) fringe visibility/contrast, (ii) precise calorimetry or noise thermometry of the interferometer region, and (iii) residual path bias after veto removal.</li>
+                  <li><b>CBF signal:</b> visibility drops faster than any measurable heat uptake, plus a small post‑removal path bias that relaxes on a finite timescale (scar decay).</li>
+                </ul>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Controls / Confound Rejection:</strong>
+                <ul>
+                  <li>Swap in a <em>sham veto</em> with identical optics but no hazard, to confirm no comparable bias forms.</li>
+                  <li>Vary veto rate: CBF predicts scar size scales with cumulative veto count, not with optical loss or bath temperature.</li>
+                  <li>Temperature guard: verify Johnson noise and black‑body photon flux are unchanged between runs.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong> If decoherence is always accompanied by commensurate energy exchange within sensitivity, and no post‑veto bias is observed, the D‑field scar mechanism is falsified.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Prediction 3 -->
+        <article id="pred-highorder-interference" class="conclusion">
+          <div class="prediction-card near">
+            <div class="prediction-header">
+              <h3 class="prediction-title">3. High-Order Interference Pattern Deviations</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-near">Near Future</span>
+                <span class="tag tag-domain">QM</span>
+                <span class="tag tag-deviation">Small (~10⁻⁴ relative)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+                <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                    In large-N slit gratings, a finite temporal coincidence window of the Event Ledger
+                    limits perfect phase reconciliation for very high fringe orders. Visibility decreases
+                    with order even when geometric coherence is satisfied:
+                    <span class="equation">V<sub>CBF</sub> ≈ V<sub>QM</sub> · (1 − n²·τ<sub>gate</sub>/T<sub>coh</sub>)</span>
+                    where <em>n</em> is fringe order, <em>τ<sub>gate</sub></em> is the Ledger’s effective timing gate,
+                    and <em>T<sub>coh</sub></em> is source coherence time.
+                </p>
+                </div>
+
+                <div class="prediction-section">
+                <strong>Standard QM:</strong>
+                <p>
+                    For path differences within the coherence length, visibility is order-independent.
+                    No systematic <em>n</em>-dependent drop beyond optical imperfections.
+                </p>
+                </div>
+
+                <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                    <li>High-quality transmission grating with <b>N ≥ 1000</b> slits and sub-µrad angular stability.</li>
+                    <li>Measure visibility for <b>n = 10–20</b> while holding geometry and illumination constant.</li>
+                    <li>CBF expects a small, systematic reduction at high orders, target scale <b>~10⁻⁴</b> relative to low orders.</li>
+                    <li>Use intensity-linear detectors and flat-field calibration to reach <b>&lt;0.1%</b> visibility uncertainty.</li>
+                </ul>
+                </div>
+
+                <div class="prediction-section">
+                <strong>Controls / Confounds:</strong>
+                <ul>
+                    <li><b>Grating MTF:</b> Characterize grating transfer function at high spatial frequencies and deconvolve it.</li>
+                    <li><b>Source linewidth:</b> Lock laser and verify <em>T<sub>coh</sub></em> ≫ optical path spread across measured orders.</li>
+                    <li><b>Detector linearity:</b> Calibrate pixel response, avoid clipping, correct for blooming/PRNU.</li>
+                    <li><b>Aperture vignetting:</b> Keep pupil fixed, confirm identical NA across orders.</li>
+                </ul>
+                </div>
+
+                <div class="falsification-box">
+                <strong>Falsification Threshold:</strong>
+                If, after deconvolving grating MTF and detector effects, high-order visibility matches
+                standard QM (no residual <em>∝ n²</em> dependence within the error budget), the finite
+                coincidence-window prediction is falsified.
+                </div>
+            </div>
+            </div>
+        </article>
+
+        <article id="pred-phase-reset" class="conclusion">
+          <div class="prediction-card near">
+            <div class="prediction-header">
+              <h3 class="prediction-title">4. Phase-Reset Memory in Re-Interference</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-near">Near Future</span>
+                <span class="tag tag-domain">QM</span>
+                <span class="tag tag-deviation">Moderate (~1–5 %)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  After deliberate coherence loss, partial visibility can re-emerge once D-field scars decay.
+                  The Ledger retains latent phase correlations that slowly “heal,” restoring a fraction of interference contrast.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard QM:</strong>
+                <p>
+                  Once a superposition decoheres into a mixed state, re-combining beams without a fresh coherent source cannot
+                  restore visibility beyond instrumental drift.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Alternate destructive “veto” runs and idle intervals Δt between interferometer shots.</li>
+                  <li>Measure visibility recovery V(Δt) ≈ V₀ (1 − e<sup>−Δt/τ<sub>scar</sub></sup>).</li>
+                  <li>CBF predicts τ<sub>scar</sub> on the order of seconds–minutes, depending on environment.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong> If visibility never rebounds beyond statistical noise, D-field memory is falsified.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-jitter-coherence" class="conclusion">
+          <div class="prediction-card now">
+            <div class="prediction-header">
+              <h3 class="prediction-title">5. Collapse-Timing Jitter vs Source Coherence</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-now">Testable Now</span>
+                <span class="tag tag-domain">QM</span>
+                <span class="tag tag-deviation">Statistical (~ps variance)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  Commit-time jitter of correlated detections scales inversely with source coherence time:
+                  <span class="equation">σ<sub>CBF</sub> ≈ τ₀ (T<sub>coh,ref</sub>/T<sub>coh</sub>)</span>.
+                  Longer-coherence sources yield tighter coincidence histograms once instrumental jitter is removed.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard QM:</strong>
+                <p>
+                  Timing variance arises only from detector response and optical dispersion; coherence time affects visibility, not jitter width.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Use heralded-photon pairs with variable linewidth (etalon or cavity tuning).</li>
+                  <li>Measure coincidence histogram width σ vs. T<sub>coh</sub>.</li>
+                  <li>CBF predicts σ ∝ 1/T<sub>coh</sub>; standard QM predicts flat σ.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong> If coincidence-time variance stays constant once detectors are calibrated, commit-latency scaling is falsified.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-weak-hysteresis" class="conclusion">
+          <div class="prediction-card near">
+            <div class="prediction-header">
+              <h3 class="prediction-title">6. Weak-Measurement Hysteresis</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-near">Near Future</span>
+                <span class="tag tag-domain">QM</span>
+                <span class="tag tag-deviation">Small phase drift (~mrad)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  Sequential weak measurements accumulate a tiny Ledger load, producing a cumulative phase lag:
+                  <span class="equation">δφ ≈ ζ N<sub>meas</sub> τ₀ / T<sub>cycle</sub></span>.
+                  Later weak values drift systematically relative to early trials.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard QM:</strong>
+                <p>
+                  Weak measurements are non-invasive; ensemble averages remain invariant to measurement order.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Perform repeated weak-value extractions on a stable qubit or photon ensemble.</li>
+                  <li>Track mean weak phase vs. repetition count N<sub>meas</sub>.</li>
+                  <li>CBF predicts a linear drift; standard QM predicts flat phase within noise.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong> No measurable drift (|δφ| &lt; 0.1 mrad over 10⁴ runs) falsifies cumulative Ledger load.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-polarization-scar" class="conclusion">
+          <div class="prediction-card now">
+            <div class="prediction-header">
+              <h3 class="prediction-title">7. Polarization-Dependent D-Field Write Rate</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-now">Testable Now</span>
+                <span class="tag tag-domain">QM</span>
+                <span class="tag tag-deviation">Qualitative difference</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  D-field pruning rate depends on polarization topology:
+                  linear polarization (spin 0) writes scars more efficiently than circular or elliptical (spin ±1).
+                  Spin-locked modes self-cancel partial pruning through rotational averaging.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard QM:</strong>
+                <p>
+                  Decoherence and scattering rates depend only on coupling strength and environment, not on polarization handedness.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Run identical single-photon interferometers with linear and circular polarization.</li>
+                  <li>Measure long-term visibility decay V(t).</li>
+                  <li>CBF predicts V<sub>lin</sub> &lt; V<sub>circ</sub> over time; standard QM predicts equality.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong> Equal decay curves within 0.5 % uncertainty falsify spin-weighted D-field coupling.
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Relativity section placeholder -->
+      <section id="relativity" class="cat card" style="display:none;">
+        <article id="pred-queue-burst" class="conclusion">
+          <div class="prediction-card far">
+            <div class="prediction-header">
+              <h3 class="prediction-title">1. Queue-Burst Sensitivity in Time Dilation</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-far">Far Future</span>
+                <span class="tag tag-domain">SR</span>
+                <span class="tag tag-deviation">Very small (~10⁻⁶ at v≈0.9c)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  Proper-time dilation depends very weakly on the <em>burstiness of acceleration</em>, not only on
+                  instantaneous speed. When the same final velocity <em>v</em> is reached via short, intense
+                  bursts versus smooth acceleration, the Event Ledger briefly saturates its maintenance queue,
+                  producing a tiny transient excess delay. For equal average <em>γ</em>,
+                  <span class="equation">τ<sub>burst</sub>/τ<sub>smooth</sub> ≈ 1 + ε · (γ − 1) · Q</span>
+                  where <em>Q</em> is a dimensionless burstiness parameter (e.g., normalized rms acceleration),
+                  and <em>ε</em> ≈ 10⁻⁶ at <em>v</em> ≈ 0.9c.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard SR:</strong>
+                <p>
+                  Ideal clocks’ rates depend on instantaneous velocity and gravitational potential only.
+                  For the same worldline endpoints and the same <em>v(t)</em>, no additional
+                  history-dependent overshoot is expected beyond γ(v).
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li><b>Storage-ring clocks:</b> Compare lifetime/clock drift for bunched versus deliberately
+                      de-bunched beams tuned to the same average <em>γ</em> (muons or highly charged ions).</li>
+                  <li><b>Space clocks:</b> Two identical optical clocks on a spacecraft, one experiencing short
+                      thruster bursts to reach <em>v</em>, the other a smooth thrust profile to the same <em>v</em>.
+                      Compare differential ticks during and shortly after maneuvers.</li>
+                  <li>Target sensitivity: fractional timing differences at the <b>10⁻⁶ × (γ−1)</b> level.</li>
+                </ul>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Controls / Confounds:</strong>
+                <ul>
+                  <li>Remove gravitational redshift via symmetric up/down burns or differential modeling.</li>
+                  <li>Account for synchrotron radiation and beam heating in rings (lifetime systematics).</li>
+                  <li>Thermal/servo transients in optical cavities must be &lt; 10⁻⁷ fractional during burns.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong>
+                If bunched and smooth profiles at the same <em>γ</em> yield identical proper-time within
+                <b>10⁻⁸</b> fractional (after systematics), queue-burst buffering is falsified.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-planck-dispersion" class="conclusion">
+          <div class="prediction-card spec">
+            <div class="prediction-header">
+              <h3 class="prediction-title">2. Planck-Scale Dispersion in Ultra-High-Energy Particles</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-spec">Speculative</span>
+                <span class="tag tag-domain">SR</span>
+                <span class="tag tag-deviation">Tiny (~10⁻¹² at E<sub>Planck</sub>)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  Finite <em>tick precision</em> in the Ledger’s update cycle introduces a minute, energy-dependent
+                  dispersion at extreme energies.  The effect arises because worldlines quantize
+                  translation and maintenance credits in discrete <em>τ₀</em> steps rather than in a continuous metric.
+                  Group velocity for massless carriers:
+                  <span class="equation">v<sub>g</sub>/c ≈ 1 − (1/12)(k a<sub>eff</sub>)²</span>
+                  where <em>a<sub>eff</sub> = c τ₀</em> defines the Planck-tick scale.  
+                  Detectable departures occur only when
+                  <em>E ≳ 10²⁰ eV</em> (so <em>k a<sub>eff</sub> ≈ 1</em>), giving
+                  <em>Δv/c ≈ 10⁻¹²</em>.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard SR:</strong>
+                <p>
+                  All photons and other massless quanta propagate exactly at <em>c</em>,
+                  independent of energy or wavelength.
+                  No Planck-scale dispersion is permitted.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li><b>Astrophysical:</b> energy-resolved arrival times of γ-rays (1–100 TeV)
+                      from GRBs, AGN flares, and magnetar bursts.</li>
+                  <li><b>Cosmic-ray:</b> compare air-shower front curvature for
+                      E &gt; 10²⁰ eV events across detectors (Auger, TA).</li>
+                  <li>CBF expects a cumulative lag
+                      <span class="equation">Δt ≈ L (ka<sub>eff</sub>)² / 12c</span>;
+                      for L ≈ 10⁹ ly and E ≈ 10 TeV, Δt ≈ 10⁻⁴ s.</li>
+                  <li>Current Fermi-LAT limits:
+                      |Δv/c| &lt; 10⁻¹⁷ → CBF requires ≈10⁵ improvement to reach test sensitivity.</li>
+                </ul>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Controls / Confounds:</strong>
+                <ul>
+                  <li>Model intrinsic emission delays per GRB energy band
+                      to separate source structure from propagation effects.</li>
+                  <li>Cross-check with neutrino and UHECR datasets
+                      for identical energy-lag trend.</li>
+                  <li>Correlate multiple instruments (Fermi, MAGIC, HAWC, CTA) for systematic-bias rejection.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong>
+                If no measurable energy-dependent arrival-time dispersion is seen up to
+                10²⁰ eV (|Δv/c| &lt; 10⁻¹⁷), the finite-tick precision model of
+                spacetime translation is falsified.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-ledger-memory" class="conclusion">
+          <div class="prediction-card near">
+            <div class="prediction-header">
+              <h3 class="prediction-title">3. Clock Drift in Alternating Acceleration (Ledger Memory)</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-near">Near Future</span>
+                <span class="tag tag-domain">SR</span>
+                <span class="tag tag-deviation">Small (~10⁻¹⁵ fractional)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  Alternating acceleration sequences (equal positive and negative thrusts, net velocity ≈ 0)
+                  produce a small residual proper-time lag because each acceleration burst saturates the
+                  local Ledger queue before fully discharging.  The result is a hysteresis-like “tick memory”:
+                  <span class="equation">Δτ ≈ N · ε<sub>burst</sub> · τ₀</span>,
+                  where N is the number of acceleration reversals.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard SR:</strong>
+                <p>
+                  Proper time depends only on the total spacetime path, not on the acceleration history.
+                  Perfectly symmetric forward–back motion cancels exactly, yielding zero net drift.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Place two identical optical clocks on a centrifuge arm, one experiencing oscillating angular acceleration, the other steady rotation.</li>
+                  <li>After N ≈ 10⁴ reversals, compare accumulated tick difference.</li>
+                  <li>CBF predicts residual lag of order 10⁻¹⁵ s after hours; SR predicts none.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong>  No cumulative drift (|Δτ| &lt; 10⁻¹⁶ after 10⁴ reversals) falsifies Ledger-memory hysteresis.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-crossframe-jitter" class="conclusion">
+          <div class="prediction-card now">
+            <div class="prediction-header">
+              <h3 class="prediction-title">4. Cross-Frame Jitter in Simultaneity Tests</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-now">Testable Now</span>
+                <span class="tag tag-domain">SR</span>
+                <span class="tag tag-deviation">Statistical (~fs)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  The global Ledger synchronizes events in discrete α-paced ticks rather than continuously.
+                  Simultaneity comparisons between moving frames therefore show tiny stochastic jitter
+                  around the ideal Lorentz prediction:
+                  <span class="equation">σ<sub>sim</sub> ≈ τ₀ · √(v²/c²)</span>.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard SR:</strong>
+                <p>
+                  Lorentz transformation is exact and deterministic; any jitter arises solely from
+                  measurement noise, not intrinsic tick discreteness.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Two-way optical time-transfer between ground and LEO clock pair at varying velocities.</li>
+                  <li>Analyze residual timing variance after subtracting modeled Doppler and gravitational effects.</li>
+                  <li>CBF predicts an irreducible floor of ~10⁻¹⁵ s (≈ τ₀) scaling with relative velocity.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong>  If simultaneity variance continues to shrink linearly with hardware precision (no plateau near τ₀), discrete α-tick pacing is falsified.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="pred-alpha-coupling" class="conclusion">
+          <div class="prediction-card near">
+            <div class="prediction-header">
+              <h3 class="prediction-title">5. Unified α-Field Coupling to Acceleration (SR–GR Bridge)</h3>
+              <div class="prediction-tags">
+                <span class="tag tag-timeline tag-near">Near Future</span>
+                <span class="tag tag-domain">SR/GR</span>
+                <span class="tag tag-deviation">Conceptual (~10⁻⁹ fractional)</span>
+              </div>
+            </div>
+
+            <div class="prediction-body">
+              <div class="prediction-section">
+                <strong>CBF Prediction:</strong>
+                <p>
+                  The same α(x) pacing field that produces gravitational redshift also governs velocity-based
+                  time dilation.  In uniformly accelerated frames, α depends on proper acceleration a via
+                  <span class="equation">α = √(1 − a·x/c²)</span>,
+                  matching GR’s potential redshift at low curvature.  
+                  CBF predicts a tiny cross-term when gravitational and kinematic α gradients coexist,
+                  observable as mixed redshift–Doppler asymmetry.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Standard Relativity:</strong>
+                <p>
+                  SR and GR treat kinematic and gravitational redshift as distinct contexts; their equivalence
+                  principle is conceptual but not normally expressed as a single pacing field.
+                </p>
+              </div>
+
+              <div class="prediction-section">
+                <strong>Experimental Signature:</strong>
+                <ul>
+                  <li>Compare identical optical clocks in a centrifuge (centripetal a = 10⁴ m/s²) and in a vertical gravitational potential producing equivalent g.</li>
+                  <li>CBF predicts identical α-ratio within ~10⁻⁹ fractional if both accelerations produce the same local pacing gradient.</li>
+                  <li>Residual mismatch between the two frames tests the unified α-field mapping.</li>
+                </ul>
+              </div>
+
+              <div class="falsification-box">
+                <strong>Falsification Threshold:</strong>
+                If redshift and acceleration-based dilation differ by &gt;10⁻⁹ after correcting for all known SR/GR terms, α-field unification fails.
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Gravity & Cosmology section placeholder -->
+      <section id="gravity" class="cat card" style="display:none;">
+        <h3>Gravity & Cosmology</h3>
+        <article id="soon-grav" class="conclusion">
+          <details open>
+            <summary class="summary">
+              <h3>Gravity & cosmology predictions coming soon</h3>
+              <p>Bullet Cluster stability-weighting, coherence-only halos, and α-gradient decoherence.</p>
+            </summary>
+            <div class="content">We will add lensing vs stability η, scar halo decay times, and mass-proximate interferometer shifts.</div>
+          </details>
+        </article>
+      </section>
+
+      <!-- Electromagnetism & Materials section placeholder -->
+      <section id="em" class="cat card" style="display:none;">
+        <h3>Electromagnetism & Materials</h3>
+        <article id="soon-em" class="conclusion">
+          <details open>
+            <summary class="summary">
+              <h3>EM & materials predictions coming soon</h3>
+              <p>Barrier equivalence law and loss-driven hazard mappings.</p>
+            </summary>
+            <div class="content">Expect RF skin-depth ↔ tunneling equivalence curves and MCF parameter matching experiments.</div>
+          </details>
+        </article>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <div class="container foot">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="dot" aria-hidden="true"></span>
+        <span>© <span id="y">2025</span> CBF • Jamie Whitten</span>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/devblog.html">Dev Blog</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./pagescript.js"></script>
+</body>
+</html>            

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Demo: Vector CA Diffraction</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="../../pagestyles.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <main class="content">
+      <section class="card">
+        <div class="demo-hero">
+          <div class="shot" style="flex:1;">
+            <video src="./vectorca.mp4" autoplay loop muted playsinline style="width:100%;border-radius:10px;"></video>
+          </div>
+          <div style="flex:1;min-width:300px;">
+            <h1>Vector CA: Diffraction and Wave Growth</h1>
+            <p>
+              This proof-of-concept demonstrates the <strong>Vector Cellular Automaton (Vector CA)</strong> model for wave propagation.
+              In this version, each wave cell carries a direction vector, and new cells spawn outward along those directions.
+              When the expanding wavefront encounters the wall, the vectors bend and multiply, creating a diffracted edge pattern.
+            </p>
+            <p>
+              The result is a “growing” wavefront that naturally rounds edges and fans into open regions—showing how diffraction
+              can emerge directly from local vector updates without any trigonometric rules or global field solving.
+              The pattern reproduces the same widening seen in real diffraction through slits.
+            </p>
+            <p>
+              The code driving this animation still has a minor <strong>angle bug</strong> in the update logic, visible as slight
+              misalignments in some of the propagated vectors. However, the proof works: the CA successfully generates the expected
+              curved wavefront and shows multiplication of active cells along edge boundaries.
+            </p>
+            <p>
+              This is the foundation for using Vector CA as a complete field model for CBF, where each wave cell evolves direction,
+              amplitude, and phase locally, forming healing hemispheres and diffraction patterns as emergent behavior.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- IMAGES -->
+      <section id="images" class="card">
+        <h2 class="section-title">Illustrations</h2>
+        <div class="image-grid">
+          <figure class="img">
+            <img src="./diffraction.png" alt="Vector CA diffraction pattern" style="max-width:640px;">
+            <figcaption>Vector CA diffraction frame — showing curvature and edge multiplication.</figcaption>
+          </figure>
+          <!-- You can add more images here -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+</body>
+</html>

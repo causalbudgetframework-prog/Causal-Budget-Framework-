@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Reference Table</title>
+  <link rel="icon" href="/favicon.ico" />
+  <script src="./contact-popup.js"></script>
+  <!-- Paste the CSS from section 2 here OR import your shared CSS, then add the “Reference Table” block -->
+  <style>
+:root{
+  /* Core palette (from home) */
+  --bg-0:#0b0f14; --bg-1:#0f141b; --bg-2:#121923;
+  --panel:#151e29; --panel-2:#1a2532;
+  --text-0:#eaf2ff; --text-1:#c7d2e5; --muted:#93a4bf;
+  --link:#79c0ff; --link-visited:#a78bfa;
+  --brand:#4dd0e1; --brand-2:#22c55e;
+  --hot:#ef4444; --warn:#f59e0b; --ok:#22c55e;
+
+  --radius-lg:18px; --radius-md:14px; --radius-sm:10px;
+  --shadow-1:0 10px 25px rgba(0,0,0,.35);
+  --shadow-2:0 6px 18px rgba(0,0,0,.3);
+
+  --container:1180px;
+  --header-h:80px;             /* JS updates */
+  --header-offset-factor:0.35; /* adjust page top spacing */
+}
+
+/* Background like home */
+html{min-height:100%;}
+body{
+  margin:0; color:var(--text-0);
+  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter;
+  background:
+    radial-gradient(1200px 1200px at 10% -10%, rgba(21,32,48,.8) 0%, rgba(21,32,48,0) 55%),
+    radial-gradient(1000px 900px at 110% 20%, rgba(14,23,36,.7) 0%, rgba(14,23,36,0) 60%),
+    var(--bg-0);
+  background-attachment: fixed, fixed, fixed;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 2px, rgba(255,255,255,0) 2px 8px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.01) 0 1px, rgba(255,255,255,0) 1px 6px);
+  opacity:.35;
+}
+#app, header, main, footer, .container { position:relative; z-index:1; }
+
+a{color:var(--link); text-decoration:none;}
+a:hover{text-decoration:underline;}
+.container{width:100%; max-width:var(--container); margin:0 auto; padding:0 20px;}
+
+/* Header / Nav (reuse) */
+.site-header{position:sticky; top:0; z-index:50; backdrop-filter: blur(8px);
+  background: color-mix(in oklab, var(--bg-2) 80%, transparent);
+  border-bottom:1px solid color-mix(in oklab, var(--panel) 70%, transparent);}
+.nav{display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px;}
+.brand{display:flex; align-items:center; gap:12px; font-weight:700; letter-spacing:.2px;}
+.brand .dot{width:10px;height:10px;border-radius:999px;background:var(--brand); box-shadow:0 0 20px var(--brand);}
+.brand .title{font-size:1.05rem; color:var(--text-0);}
+.nav-links{display:flex; align-items:center; gap:18px;}
+.nav-links a{color:var(--text-1); padding:10px 8px; border-radius:8px;}
+.nav-links a:hover{background: color-mix(in oklab, var(--panel) 65%, transparent); text-decoration:none; color:var(--text-0);}
+.nav-cta{padding:8px 14px; border-radius:10px; background:linear-gradient(180deg, var(--brand), #1294a1); color:#001318; font-weight:700; box-shadow:var(--shadow-2);}
+.nav-links a.active{color:var(--muted); pointer-events:none; cursor:default; background:none; opacity:.85;}
+
+.burger{display:none; padding:10px; border-radius:10px; border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); background: color-mix(in oklab, var(--panel) 60%, transparent);}
+.burger svg{display:block;}
+@media (max-width:880px){
+  .nav-links{display:none;}
+  .burger{display:inline-flex;}
+  .drawer{position:fixed; inset:0 0 0 40%; background:var(--bg-1); transform:translateX(100%); transition:transform .2s ease; box-shadow:-20px 0 40px rgba(0,0,0,.35); z-index:100;}
+  .drawer.open{transform:translateX(0);}
+  .drawer .panel{padding:24px;}
+  .drawer a{display:block; padding:12px 10px; color:var(--text-1); border-radius:10px;}
+  .drawer a:hover{background: color-mix(in oklab, var(--panel) 65%, transparent);}
+  .drawer a.active{color:var(--muted); pointer-events:none;}
+}
+
+/* Layout spacing under header */
+.ref-layout{margin-top: calc(var(--header-h) * var(--header-offset-factor));}
+
+/* Page blocks */
+.wrap h1{margin:8px 0 6px; font-size:1.7rem;}
+.subtitle{color:var(--text-1); margin:0 0 12px;}
+
+/* Legend */
+.legend{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 18px;}
+.pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background: color-mix(in oklab, var(--panel) 70%, transparent); border:1px solid color-mix(in oklab, var(--panel) 65%, transparent);}
+.swatch{width:14px;height:14px;border-radius:4px; display:inline-block;}
+.sw-cbf{background:#4dd0e1;}
+.sw-bridge{background:#a78bfa;}
+.sw-ca{background:#7dd3fc;}
+
+/* TOC block */
+.tocblock.card{background: color-mix(in oklab, var(--panel) 90%, transparent); border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); border-radius: var(--radius-md); padding:16px; box-shadow: var(--shadow-2);}
+.toclist{display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:8px; padding-left:18px; margin:8px 0 0;}
+.toclist a{display:inline-block; padding:6px 8px; border-radius:10px;}
+.toclist a:hover{background: color-mix(in oklab, var(--panel) 65%, transparent); text-decoration:none;}
+
+/* Section headings */
+.section{padding:16px 0;}
+.section h2{font-size:1.2rem; margin:0 0 8px;}
+.note{color:var(--text-1); margin:6px 0 10px;}
+.tags{display:inline-flex; gap:6px; margin-right:8px;}
+.tag{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; font-size:.78rem; border:1px solid rgba(255,255,255,.12); background: color-mix(in oklab, var(--panel) 70%, transparent);}
+.tag-foundation{ background: color-mix(in oklab, var(--brand) 18%, var(--panel)); }
+
+/* Cards + table */
+.card{background: color-mix(in oklab, var(--panel) 90%, transparent); border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); border-radius: var(--radius-md); padding: 12px; box-shadow: var(--shadow-2);}
+.table-wrap{overflow:auto; border-radius: var(--radius-sm);}
+.ref-table{width:100%; border-collapse:separate; border-spacing:0;}
+.ref-table thead th{
+  text-align:left; font-weight:700; color:var(--text-0);
+  background: color-mix(in oklab, var(--panel-2) 65%, transparent);
+  position:sticky; top:0; z-index:1;
+  padding:10px; border-bottom:1px solid rgba(255,255,255,.08);
+}
+.ref-table tbody td{
+  padding:10px; vertical-align:top; color:var(--text-1);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.ref-table tbody tr:hover{ background: color-mix(in oklab, var(--panel) 65%, transparent); }
+.symbol{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text-0); font-weight:700;}
+
+/* Category tinting via data-cat */
+.ref-table tbody tr[data-cat="CBF"] td{ background: color-mix(in oklab, var(--brand) 8%, transparent); }
+.ref-table tbody tr[data-cat="Bridge"] td{ background: color-mix(in oklab, #a78bfa 8%, transparent); }
+.ref-table tbody tr[data-cat="CA"] td{ background: color-mix(in oklab, #7dd3fc 8%, transparent); }
+
+/* Inline notes */
+.inline-note{margin-top:8px; padding:8px 10px; border-radius:10px;
+  background: color-mix(in oklab, var(--panel) 60%, transparent);
+  border:1px solid rgba(255,255,255,.08); color:var(--text-1);
+}
+
+/* Footer */
+footer{border-top:1px solid color-mix(in oklab, var(--panel) 70%, transparent); margin-top: 24px;}
+.foot{display:flex; gap:16px; align-items:center; justify-content:space-between; min-height:72px; color:var(--muted);}
+
+/* Anchor offsets below sticky header */
+[id]{scroll-margin-top: calc(var(--header-h) * var(--header-offset-factor) + 10px);}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+/* ===============================
+   Reference Table Hero Section
+   =============================== */
+.hero-ref {
+  margin: 10px 0 24px;
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--panel) 90%, transparent) 0%,
+    color-mix(in oklab, var(--panel-2) 85%, transparent) 100%);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  padding: 28px 30px 22px;
+}
+
+.hero-text h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+.hero-text p {
+  color: var(--text-1);
+  margin: 6px 0 16px;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.legend-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px 24px;
+}
+
+.legend-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quicknav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.quicknav a {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--panel) 75%, transparent);
+  color: var(--link);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid color-mix(in oklab, var(--panel) 65%, transparent);
+  transition: all .2s ease;
+}
+.quicknav a:hover {
+  background: color-mix(in oklab, var(--link) 15%, var(--panel));
+  color: var(--text-0);
+  text-decoration: none;
+}
+
+/* Responsive stacking */
+@media (max-width:720px){
+  .legend-nav { flex-direction: column; align-items: flex-start; }
+  .hero-ref { padding: 20px; }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/conclusions.html">Conclusions</a>
+        <a href="/referencetable.html" class="active">Reference Table</a>
+        <a href="/devblog.html">Dev Blog</a>
+        <a href="/predictions.html">Predictions</a>
+        <a href="/ai-assisted-math.html">AI Assisted Math</a>
+         <a href="/theory.html"class="nav-cta">Theory</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+            <a href="#" data-contact-popup>Contact</a>
+          <a href="/conclusions.html">Conclusions</a>
+          <a href="/referencetable.html" class="active">Reference Table</a>
+          <a href="/devblog.html">Dev Blog</a>
+          <a href="/predictions.html">Predictions</a>
+          <a href="/ai-assisted-math.html">AI Assisted Math</a>
+          <a href="/theory.html">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <!-- Page -->
+  <main class="container ref-layout">
+    <div class="wrap">
+        <!-- HERO HEADER FOR REFERENCE TABLE -->
+        <section class="hero-ref">
+        <div class="hero-text">
+            <h1>Quick Reference Tables</h1>
+            <p>Key equations and parameters in the <strong>Causal Budget Framework</strong>, organized for rapid lookup.</p>
+        </div>
+
+        <div class="legend-nav">
+            <div class="legend-row">
+            <span class="pill"><span class="swatch sw-cbf"></span><b>CBF-native</b></span>
+            <span class="pill"><span class="swatch sw-bridge"></span><b>Bridge</b></span>
+            <span class="pill"><span class="swatch sw-ca"></span><b>CA substrate</b></span>
+            </div>
+
+            <ul class="quicknav">
+            <li><a href="#foundation">Foundation</a></li>
+            <li><a href="#qm">Quantum Mechanics</a></li>
+            <li><a href="#sr">Special Relativity</a></li>
+            <li><a href="#gr">General Relativity</a></li>
+            <li><a href="#em">Electromagnetism</a></li>
+            <li><a href="#constants">Constants</a></li>
+            <li><a href="#glossary">Glossary</a></li>
+            </ul>
+        </div>
+        </section>
+
+        <!-- FOUNDATION SECTION -->
+        <section id="foundation" class="section">
+            <h2>Foundation Parameters &amp; Budget Law</h2>
+
+            <div class="card">
+            <!-- Core Budget Rule -->
+            <h3 id="core-budget">Core Budget Rule <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                            <th style="width:24%">Symbol</th>
+                            <th style="width:22%">Meaning</th>
+                            <th>Equation / Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">C</td>
+                                <td>Total causal budget per tick</td>
+                                <td><b>C = T + M</b>. Causal update law per tick, defines the discrete space–time trade-off.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">C² = T² + M²</td>
+                                <td>Causal geometry identity</td>
+                                <td>Lorentz-like invariant of the discrete causal metric.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">T</td>
+                                <td>Translation share (motion)</td>
+                                <td>T is the compute fraction advancing the wavefront; relates to momentum via the bridge <code>p = ℏk</code>.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">M</td>
+                                <td>Maintenance share (upkeep)</td>
+                                <td>
+                                    <code>M = 1/γ(v) = √(1 − v²/c²)</code>. Compute fraction sustaining internal state. Rest-cost link: <code>ℏω₀ = m c²</code>.
+                                    <div class="inline-note">
+                                    Spin persistence consumes M each tick; see <a href="#spin-coupling">Spin–Oscillation Coupling</a>.
+                                    </div>                
+                                </td>
+                            </tr>                    
+                            <tr data-cat="CBF">
+                                <td class="symbol">ω₀</td>
+                                <td>Baseline maintenance frequency</td>
+                                <td><b>ℏω₀ ≡ m c²</b>. In CBF, ω₀ is the per-tick maintenance cost that <i>defines</i> rest mass. Goal: derive ω₀ from CA binding dynamics / beat-matching stability.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">f₀</td>
+                                <td>Gate bandwidth</td>
+                                <td>
+                                    Global temporal gate cadence used in beat-matching and commit timing.
+                                    Controls how often phase alignments are checked per baseline tick.  
+                                    Appears in commit pacing:
+                                    <code>τ_commit = τ₀ + 1 / [ f₀ ( |Δf_M| + M_ch (1 − cos θ) ) ]</code>.  
+                                    See <a href="#beat-modes">Beat-Matching</a>.
+                                </td>
+                            </tr> 
+                            <tr data-cat="CBF">
+                                <td class="symbol">M_ch</td>
+                                <td>Channel maintenance share</td>
+                                <td>
+                                    Effective maintenance fraction for an <i>interaction channel</i> between two participants.
+                                    For collinear motion:
+                                    <code>M_ch = 1 / γ(w)</code>,
+                                    where
+                                    <code>w = (u₁ − u₂) / (1 − u₁u₂ / c²)</code> is the relativistic relative speed.  
+                                    Represents how much of the shared causal budget is reserved for synchronization rather than motion.  
+                                    Used in <a href="#beat-modes">beat-matching</a> to modulate the reconciliation delay term
+                                    <code>M_ch (1 − cos θ)</code>.
+                                </td>
+                            </tr>                       
+                            <tr data-cat="CBF">
+                                <td class="symbol">α(x)</td>
+                                <td>Lapse / clock-pace</td>
+                                <td>Local pacing fraction of the global causal rate. Pipeline: <b>S(x) → α(x) → g(x)</b>.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">τ₀</td>
+                                <td>Baseline tick</td>
+                                <td>Global update period, light crosses one lattice cell.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">a</td>
+                                <td>Lattice spacing</td>
+                                <td>Base spatial stride (one γ-length).</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">τ_commit</td>
+                                <td>Commit delay</td>
+                                <td>Wait before Event Ledger accepts a joint update. Beat-matching and confidence-gating are equivalent semantics.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">τ_queue, ρ_q</td>
+                                <td>Queue buffering</td>
+                                <td>Backlog-induced delay and density; produces SR symmetry via buffered commits.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">ρ_q(x)</td>
+                                <td>Queue load (dimensionless)</td>
+                                <td>
+                                    Local commit demand / capacity. Higher <code>ρ_q</code> → lower <code>α(x)</code> (slower pacing).  
+                                    Weak-field link: <code>ρ_q ∝ GM/(2 r c²)</code> ⇒ <code>α ≈ (1 − ρ_q)/(1 + ρ_q)</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td class="symbol">c = a / τ₀</td>
+                                <td>Speed of light</td>
+                                <td>Universal hop speed set by lattice stride and tick (often normalized to 1).</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td class="symbol">γ(v), β = v/c</td>
+                                <td>Lorentz factor &amp; normalized speed</td>
+                                <td><code>γ = 1/√(1 − β²)</code>. Exchange rate between T and M; β used in SR, Doppler, pacing.</td>
+                            </tr>
+                                <tr data-cat="Bridge">
+                                <td class="symbol">ψ</td>
+                                <td>Wave amplitude</td>
+                                <td>Complex field for interference and spatial reconciliation (used for Born-like maps).</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td class="symbol">Δω, 2π / |Δω|</td>
+                                <td>Beat mismatch &amp; alignment period</td>
+                                <td>Desynchronization measure and its reconciliation timescale.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- Two-Layer Symmetry card -->
+            <h3>Two‑Layer Time Symmetry <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:24%">Layer</th>
+                                <th style="width:22%">What It Uses</th>
+                                <th>What It Means</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>CA (compute) level</td>
+                                <td class="symbol">C = T + M</td>
+                                <td>The per‑tick update law. Forward‑only, causal. Produces motion and upkeep. <b>No Lorentz required.</b></td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Ledger (reconcile) level</td>
+                                <td class="symbol">τ_commit, τ_queue, ρ_q</td>
+                                <td>Queue buffering + phase alignment enforce symmetric commit timing across frames.</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Observer (geometric) level</td>
+                                <td class="symbol">C² = T̃² + M̃²,  γ = 1/M</td>
+                                <td>Measured symmetry of reconciled histories. Lorentz factor <i>describes</i> outcomes, it does not drive the CA.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- Parametrizations: clarify shares vs geometry -->
+            <h3>Parametrizations <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:24%">Type</th>
+                                <th style="width:22%">Symbols</th>
+                                <th>Formulation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Compute shares (preferred)</td>
+                                <td class="symbol">ε_T, ε_M</td>
+                                <td><b>ε_T + ε_M = 1</b>, with <code>ε_M = 1/γ</code> and <code>ε_T = (γ − 1)/γ</code>. These are the per-tick budget fractions used by CBF for motion and upkeep.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Geometric components</td>
+                                <td class="symbol">T̃, M̃, C</td>
+                                <td><b>C² = T̃² + M̃²</b>, so <code>T̃ = √(C² − M̃²)</code>. This is the invariant causal geometry. <i>Do not</i> apply <code>√(1−M²)</code> to the compute shares.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- CA Substrate -->
+            <h3>Cellular Automaton (CA) Substrate <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:24%">Concept</th>
+                                <th style="width:22%">Meaning</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CA">
+                                <td class="symbol">CA (discrete substrate)</td>
+                                <td>Finite-state update grid</td>
+                                <td>Underlying compute fabric that runs the per-tick rule.
+                                    Readers: “CA” = Cellular Automaton (discrete cells, local rules).</td>
+                            </tr>
+                            <tr data-cat="CA">
+                                <td class="symbol">Huygens mapping</td>
+                                <td>Wavelet emission picture</td>
+                                <td>Each active cell behaves like a tiny emitter; secondary wavelets reconstruct the front.
+                                    This historical picture matches the CA-style local propagation used here.</td>
+                            </tr>
+                            <tr data-cat="CA">
+                                <td class="symbol">Diffraction in CA</td>
+                                <td>Edge-induced angular spread</td>
+                                <td>Discrete Huygens updates reproduce diffraction patterns naturally
+                                    (slits, edges). No continuum PDEs are required to get realistic spreads.</td>
+                            </tr>
+                            <tr data-cat="CA">
+                                <td class="symbol">Vector CA</td>
+                                <td>Non‑pixelized motion</td>
+                                <td>Cells carry <i>percentage displacement vectors</i> rather than snap-to-pixel moves.
+                                    “Healing” uses neighboring wave cells to preserve smooth fronts while conserving momentum.</td>
+                            </tr>
+                            <tr data-cat="CA">
+                                <td class="symbol">Wave Cells</td>
+                                <td>Front agents with momentum</td>
+                                <td>Constituents of the wavefront. They propagate momentum, can “heal” broken fronts,
+                                    and <i>diffract by spawning children</i> near edges/obstacles consistent with local rules.</td>
+                            </tr>
+                            <tr data-cat="CA">
+                                <td class="symbol">Child creation</td>
+                                <td>Local branching</td>
+                                <td>At discontinuities, parent wave cells create child cells with adjusted directions, forming the diffracted front while conserving budget.</td>
+                            </tr>
+                            <tr data-cat="CA">
+                                <td class="symbol">Momentum bookkeeping</td>
+                                <td>Directional consistency</td>
+                                <td>Wave-cell vectors add to preserve net momentum in free space; obstacles re-weight via the Material Coupling Field and Ledger rules.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- TICK DEFINITIONS -->
+            <h3>Cellular Automaton (CA) Tick Definitions <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Symbol</th>
+                                <th style="width: 35%;">Meaning</th>
+                                <th style="width: 43%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CA">
+                                <td class="symbol">a</td>
+                                <td>Lattice spacing</td>
+                                <td>
+                                    The baseline causal stride — one spatial cell of the universal lattice.  
+                                    Chosen as the <b>γ-length</b>, roughly 100× smaller than an atom and the smallest photon wavelength.  
+                                    It defines the visible spatial resolution of the substrate.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CA">
+                                <td class="symbol">τ₀</td>
+                                <td>Global baseline tick</td>
+                                <td>
+                                    The time for light to traverse one lattice spacing:  
+                                    <div><code>c = a / τ₀</code></div>
+                                    This sets the universal causal speed limit.  
+                                    Each tick advances all wavefronts by one γ-length stride.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CA">
+                                <td class="symbol">τ_eff(x)</td>
+                                <td>Local effective tick</td>
+                                <td>
+                                    Local pacing relative to the global tick:
+                                    <code>τ_eff(x) = τ₀ / α(x)</code>.  
+                                    Lower <code>α(x)</code> means a slower local commit rate and deeper event queues,
+                                    producing gravitational time dilation.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CA">
+                                <td class="symbol">ℓ_P</td>
+                                <td>Planck precision scale</td>
+                                <td>
+                                    The <b>Planck length</b> acts as decimal precision, not a physical pixel.
+                                    It is much smaller than <code>a</code>, ensuring light waves glide smoothly between lattice sites
+                                    rather than hopping discretely.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Scale hierarchy:</b> <code>ℓ_P ≪ a(γ-length) ≪ atomic scale</code>.  
+                Photons traverse one γ-length per tick <code>τ₀</code>, defining <code>c = a / τ₀</code>.  
+                For matter, only the ratios <code>T:M</code> and <code>a:τ₀</code> matter, so absolute tick size is irrelevant as long as pacing is consistent.
+            </div>
+
+            <!-- CAUSAL GEOMETRY SUMMARY -->
+            <h3>Causal Geometry Summary <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Relation</th>
+                                <th style="width: 75%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol"><code>C = T + M</code></td>
+                                <td>
+                                    The <b>cellular rule</b>: each tick divides its causal budget between translation (<code>T</code>) and maintenance (<code>M</code>).
+                                    This runs the simulation step-by-step without invoking relativity directly.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="Bridge">
+                                <td class="symbol"><code>C² = T² + M²</code></td>
+                                <td>
+                                    The <b>geometric identity</b>: expresses the same update law as a Lorentz-like invariant.  
+                                    When averaged over many ticks, this reproduces the Minkowski metric used in SR.
+                                    It shows that each local tick traces a causal interval of unit length.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol"><code>c = a / τ₀</code></td>
+                                <td>
+                                    Defines the causal stride of the lattice.  
+                                    Light advances one cell <code>a</code> every tick <code>τ₀</code>, forming the discrete analog of a null worldline (<code>M = 0</code>).
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol"><code>Δs² = c²Δt² − Δx²</code></td>
+                                <td>
+                                    Continuous version of <code>C² = T² + M²</code>.  
+                                    The discrete hop (<code>a</code>, <code>τ₀</code>) converges to this relation in the large-scale limit, guaranteeing Lorentz symmetry
+                                    without needing to impose it externally.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol"><code>v = (Δx / Δt) = c · (T / C)</code></td>
+                                <td>
+                                    Effective velocity derived from local budget allocation.
+                                    Photons use all translation budget (<code>T = C</code> → <code>v = c</code>);
+                                    matter divides it (<code>M > 0</code> → <code>v &lt; c</code>).
+                                </td>
+                            </tr>                   
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Takeaway:</b> The causal lattice already encodes special relativity.
+                The per-tick rule <b>C = T + M</b> is the discrete engine, while
+                <b>C² = T² + M²</b> is its smooth geometric projection.
+                Light’s speed <code>c = a / τ₀</code> fixes the conversion between spatial and temporal grid steps,
+                giving rise to invariant causal intervals without extra postulates.
+            </div>                
+
+            <!-- EVENT LEDGER (Definition) -->
+            <h3 id="event-ledger">Event Ledger <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:24%;">Aspect</th>
+                                <th style="width:76%;">Definition / Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Event Ledger <br> (Global commit/<br>reconciliation engine)</td>
+                                <td>
+                                    A global engine or graph that <b>commits</b> superposition proposals into finalized history of events.
+                                    Uses four <a href="#gates"> gates—temporal (when), spatial (where), directional (coupling)</a>, and  <a href="#informational-gate">informational (if)</a>—to decide eligibility.
+                                    Supports two pacing semantics (<a href="#beat-modes">Beat-Matching / Confidence-Gating</a>) and two buffers
+                                    (Collapse and Queue).
+                                    Accepted commits update <a href="#gravity-fields"><code>S(x)</code></a> (working memory → α, g); pruned paths archive to <a href="#gravity-fields"><code>D(x)</code></a>.
+                                    Performs <b>reverse pathfinding</b> when informational reconciliation is required
+                                    (quantum-erasure class phenomena): tracing measurement nodes backward through the causal graph
+                                    to identify and prune inconsistent ancestors.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Gates</td>
+                                <td>
+                                    Temporal (when), Spatial (where), Directional (coupling), Informational (if).
+                                    Eligibility requires satisfying all four.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Pacing</td>
+                                <td>
+                                    <a href="#beat-modes">Beat-Matching</a> (streaming micro-commits) and Confidence-Gating (reciprocal, batched view).
+                                    Commit delay: <code>τ_commit = τ₀ + 1 / [ f₀ ( |Δf_M| + <a href="#core-budget">M_ch</a> (1 − cos θ) ) ]</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Buffers</td>
+                                <td>
+                                    <b>Collapse Buffering</b> = sync time before a commit can finalize.  
+                                    <b>Queue Buffering</b> = serialized waiting when new proposals arrive mid-reconciliation.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Batching</td>
+                                <td>
+                                    Multi-site commits finalize as <b>SCGs</b> (Simultaneous Commit Groups): one global write read by all frames (see <a href="#scg">SCG</a>).
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Outputs</td>
+                                <td>
+                                    Accepted commits update <b>S(x)</b> (working memory → sets <b>α(x)</b> pacing and contributes to <b>g(x)</b> steering).  
+                                    Rejected/pruned paths write inert scars to <b>D(x)</b>.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Causality</td>
+                                <td>
+                                    No action at a distance: one shared-ledger commit satisfies all constraints at once; respects <code>c = a/τ₀</code>.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- Event Ledger Parameters (2nd half of foundation) -->
+            <h3>Event Ledger Parameters <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:24%">Symbol</th>
+                                <th style="width:22%">Meaning</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- CBF FIRST -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">τ₀</span></td>
+                                <td>Fundamental tick duration</td>
+                                <td>CBF uses τ₀ for the baseline tick. Calibration example (not fixed): τ₀ ≈ 10⁻²³ s.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">a</td>
+                                <td>Spatial resolution (lattice spacing)</td>
+                                <td>Calibration example (not fixed): a ≈ 10⁻¹² m (picometer scale).</td>
+                            </tr>
+
+                            <!-- BRIDGE SECOND -->
+                            <tr data-cat="Bridge">
+                                <td class="symbol">c = a/τ₀</td>
+                                <td>Speed of causality</td>
+                                <td>With the example values above, c ≈ 3×10⁸ m/s.</td>
+                            </tr>
+
+                            <!-- CBF CONT'D -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">δ</td>
+                                <td>Coincidence window width</td>
+                                <td>Temporal gate opens for duration δ each tick to count phase alignments (beat-matching semantics).</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">η</td>
+                                <td>Stability weight</td>
+                                <td>0 ≤ η ≤ 1. Used in S-ledger for gravity sourcing; η &lt; 1 reduces contribution from unstable matter.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">TTL</td>
+                                <td>Time-to-live (attenuation / entropy budget)</td>
+                                <td>
+                                    Represents the remaining amplitude or coherence budget of a propagating wave train.
+                                    Not a literal counter, but a continuous measure of how much <b>amplitude</b> survives before collapse becomes inevitable.
+                                    TTL drains through the local <b>Material Coupling Field</b> via loss, absorption, and scattering:
+                                    <code>dA/dt ∝ −A·h(x,ω)</code>, where <i>h(x,ω)</i> increases with frequency.
+                                    Higher oscillation rates (<b>ω</b>) deplete TTL faster, since each cycle dissipates more energy into the medium.
+                                    When amplitude falls below the Ledger’s commit threshold, the wave path ends—its residual entropy recorded as a pruning weight in the <b>D-ledger</b>.
+                                </td>
+                            </tr>                      
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Precision note:</b> In CBF the Planck length (ℓ<sub>P</sub> ≈ 1.6×10⁻³⁵ m) is a hidden precision layer (like a numerical epsilon), not the visible grid spacing <i>a</i>. This allows smooth waves on a discrete substrate.
+            </div>
+
+            <!-- ATOMS & PARTICLES -->
+            <h3>Atoms &amp; Particles <span class="tag tag-foundation">Foundation</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 26%;">Entity</th>
+                                <th style="width: 32%;">Role</th>
+                                <th style="width: 42%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Particles</td>
+                                <td>Finite T+M wavefront packets</td>
+                                <td>
+                                    Particles are discrete causal carriers, each holding a finite budget of translation (T) and maintenance (M).
+                                    They deliver energy and information into atomic systems.
+                                    In flight, they follow the CA rule <code>C = T + M</code> with no internal clock (for photons M = 0).
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Atoms</td>
+                                <td>Persistent state machines</td>
+                                <td>
+                                    Atoms are bounded configurations of collapsed wavefronts that
+                                    <b>convert probability into persistent history</b>.
+                                    Each atom manages a local maintenance loop (ω₀) and exchanges T+M with surrounding particle fields.
+                                    Their internal coherence is tracked by a <b>Decay TTL</b> (entropy horizon).
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Decay TTL</td>
+                                <td>Atomic maintenance entropy</td>
+                                <td>
+                                    Measures how long an atomic configuration can maintain Ledger coherence before its maintenance budget is exhausted.
+                                    Failed reconciliations increase entropy, lowering TTL.
+                                    When TTL → 0, the atom decays, releasing stored T+M as new wavefronts and updating the D-ledger with a strong pruning scar.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td class="symbol">Big Bang / first collapse</td>
+                                <td>Origin of atomic inventory</td>
+                                <td>
+                                    Building blocks for Atoms and particles were seeded in the first large-scale collapses.
+                                    The atomic population is finite and recycled through decay and recombination—there is no continuous creation field.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Causal exchange</td>
+                                <td>Atom–particle energy flow</td>
+                                <td>
+                                    Particles send T+M into atoms (inputs); atoms emit particle wavefronts as outputs.
+                                    This closed exchange makes atoms the <b>processing nodes of reality</b>, turning probabilistic wave data into observable events.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Interpretation:</b> In CBF, atoms are limited historical resources—persistent commit nodes that stabilize probability.
+                Their decay returns stored causal energy (T+M) to the field, maintaining the global conservation of causal budget.
+            </div>
+
+        </section>
+
+        <!-- QUANTUM MECHANICS -->
+        <section id="qm" class="section">
+            <h2>Quantum Mechanics</h2>
+
+            <div class="card">
+            <!-- WAVE MECHANICS -->
+            <h3>Wave Mechanics <span class="tag tag-qm">QM</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Quantity</th>
+                                <th style="width: 30%;">Equation</th>
+                                <th style="width: 40%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Phase</td>
+                                <td class="symbol">θ = k·r − ωt</td>
+                                <td>Instantaneous phase of a wave cell at position <b>r</b> and tick <b>t</b>.
+                                    Each cell carries its own θ used for Ledger phase alignment.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Dispersion relation</td>
+                                <td class="symbol">ω² = c²k² + ω₀²</td>
+                                <td>Derived directly from the CBF causal metric <code>C² = T² + M²</code>.
+                                    Links wave propagation to maintenance frequency.</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>De Broglie wavelength</td>
+                                <td class="symbol">λ = h/p = 2π/k</td>
+                                <td>Spatial period of the translation component.
+                                    In CBF this arises from oscillation cadence in the Event Ledger.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Born rule (commit frequency)</td>
+                                <td class="symbol">P(r) ∝ |ψ(r)|²</td>
+                                <td>Statistical outcome of phase-coincidence commits:
+                                    <code>P ∝ |Σᵢ e^{iθᵢ}|²</code>.
+                                    Bright fringes = high commit density.</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Energy quantization</td>
+                                <td class="symbol">E = ℏω</td>
+                                <td>Planck bridge: oscillation rate ↔ energy. 
+                                    In CBF, <code>ℏω₀</code> defines maintenance cost at rest; 
+                                    <code>ℏω</code> tracks active oscillation.</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Momentum quantization</td>
+                                <td class="symbol">p = ℏk</td>
+                                <td>Spatial propagation rate ↔ momentum; 
+                                    implemented via wave-cell direction vectors.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- INTERFERENCE -->
+            <h3>Interference <span class="tag tag-qm">QM</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Phenomenon</th>
+                                <th style="width: 30%;">Description</th>
+                                <th style="width: 40%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Single slit (width w)</td>
+                                <td class="symbol">Minima at sin θ = nλ/w</td>
+                                <td>Diffraction arises naturally: edges spawn new momentum directions (k-fan).
+                                    Temporal gate beat-matches their phases at detection.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Double slit (separation d)</td>
+                                <td class="symbol">Maxima at d sin θ = nλ</td>
+                                <td>Two coherent k-bundles interfere. 
+                                    The Event Ledger compares arrival phases and commits where alignment peaks.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>N slits (grating)</td>
+                                <td class="symbol">Sharp peaks at d sin θ = nλ</td>
+                                <td>N phase sources sum coherently; the Ledger’s temporal gate reconciles all to a common commit rhythm.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            
+            <p class="inline-note">
+                <strong>Note:</strong> In CBF, interference is a <em>phase-coincidence statistic</em>, not physical overlap. 
+                The Ledger’s temporal gate counts coincidences, producing the Born-rule pattern automatically. 
+                (Basically, it takes time for interference to collect at the detector.)
+            </p>
+
+            <!-- ENTANGLEMENT & SHARED LEDGER -->
+            <h3>Entanglement &amp; Shared Ledger <span class="tag tag-qm">QM</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Concept</th>
+                                <th style="width: 75%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Entangled pair</td>
+                                <td>
+                                    Two wave systems share one ledger entry.
+                                    Each carries complementary state constraints but no independent collapse path.
+                                    When either side meets all gate conditions, the joint commit resolves for both.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Simultaneous Commit Group (SCG)</td>
+                                <td>
+                                    A set of correlated events that finalize in the same reconciliation window of the Event Ledger.
+                                    Members may be widely separated in space but share the same causal solution.
+                                    Each SCG is a <b>commit batch</b>—all entries satisfy global conservation together.
+                                    Observers in different frames may timestamp the events differently,
+                                    yet all reference the same SCG identifier in the shared history.
+                                    This resolves Bell-type correlations without superluminal signaling.
+                                </td>
+                            </tr>       
+                            <tr data-cat="CBF">
+                                <td class="symbol">Measurement</td>
+                                <td>
+                                    A local detector satisfies the informational gate on one side,
+                                    forcing the Ledger to choose a globally consistent outcome.
+                                    The distant partner's state is updated as part of the same commit, not by signal transfer.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Erasure / delayed choice</td>
+                                <td>
+                                    Removing which-path information reopens the informational gate,
+                                    allowing the same joint entry to reconcile differently.
+                                    The Ledger never “rewinds” — it simply finishes an unresolved commit.
+                                </td>
+                                </tr>
+                            <tr data-cat="CBF">
+                            <td class="symbol">Link to SR</td>
+                                <td>
+                                    See <a href="#shared-ledger">Shared-Ledger Processing</a> for timing and ordering rules.
+                                    Correlations arise from one synchronized commit across both sites,
+                                    enforcing conservation through the common Event Ledger.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Interpretation:</b> Entanglement in CBF is not action at a distance,
+                but <i>one shared commit</i> written consistently for all participants.
+                Information coherence, not energy transfer, maintains the connection.
+            </div>
+            
+            <!-- QUANTUM AGENTS & COLLAPSE -->
+            <h3>Quantum Agents &amp; Collapse <span class="tag tag-qm">QM</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 28%;">Quantity / Rule</th>
+                                <th style="width: 32%;">Equation</th>
+                                <th style="width: 40%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Wave-cell coherence</td>
+                                <td class="symbol">L_coh, T_coh</td>
+                                <td>Wave cells carry phase θ and remain mutually coherent over a finite span (space/time). Coherence bounds how many contributors sum in the Ledger’s temporal gate.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Hazard rate</td>
+                                <td class="symbol">h(x, ω)</td>
+                                <td>Local collapse hazard from material environment (absorption, scattering, loss). Governs attempt rate for commits along the path.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Material Coupling Field</td>
+                                <td class="symbol">MCF(x, ω)</td>
+                                <td>Summarizes index shift, loss, absorption, scattering. Sets propagation cost and feeds h(x, ω). <i>Not</i> a gravitation or pacing field.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Survival probability</td>
+                                <td class="symbol">P_surv = exp(−∫ h dt)</td>
+                                <td>Probability a wave-cell train reaches the detector uncollapsed. Multiplies the interference envelope before the Ledger counts coincidences.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Commit frequency (Born)</td>
+                                <td class="symbol">P(r) ∝ |Σ_i e^{iθ_i}|²</td>
+                                <td>Ledger counts phase coincidences within the gate; bright fringes are high commit-density regions. No in-flight state collapse required.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Emission / re-emission</td>
+                                <td class="symbol">channel: M_ch, gate: τ_commit</td>
+                                <td>Emitter creates coherent wave cells; in media, absorption can spawn re-emitted trains with new phases set by the local gate and channel maintenance share M_ch.</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">M_ch = 1 / γ(w)</td>
+                                <td>Channel maintenance share</td>
+                                <td>
+                                    Effective maintenance fraction for an interaction channel between moving participants.
+                                    Relative speed <code>w = (u₁ − u₂)/(1 − u₁u₂/c²)</code>.
+                                    Used in <a href="#beat-modes">beat-matching</a> to weight the reconciliation delay term
+                                    <code>M_ch(1 − cos θ)</code>.  
+                                    Defined formally in <a href="#core-budget">Core Budget Rule</a>.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Π(β, θ) = γ(1 − β cos θ)</td>
+                                <td>Directional / Doppler factor (at detection)</td>
+                                <td>
+                                    Couples spatial and temporal reconciliation at the observer.
+                                    Converts emission frequency and direction (<code>β = v/c</code>) into the observed beat rate.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Photon vs matter</td>
+                                <td class="symbol">photons: ω0 = 0, M = 0</td>
+                                <td>Photons follow null paths (pure T-flow). Matter has ω0 &gt; 0 and consumes M for upkeep; their internal frequency is ω = ω0·M.</td>
+                            </tr>                     
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>CBF stance vs. standard QM:</b> Interference is a phase-coincidence statistic governed by the Event Ledger’s temporal gate.
+                Photons do not change in flight; redshift and frequency changes come from endpoint pacing fields and detection semantics, not mid-path “stretching.”
+            </div>
+
+        </section>
+
+        <!-- SPECIAL RELATIVITY -->
+        <section id="sr" class="section">
+            <h2>Special Relativity</h2>
+
+            <div class="card">
+            <!-- ENERGY-MOMENTUM -->
+            <h3 id="energy-momentum">Energy–Momentum Relations <span class="tag tag-sr">SR</span></h3> 
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 38%;">Quantity</th>
+                                <th style="width: 31%;">Equation (SI)</th>
+                                <th style="width: 31%;">CBF / normalized (c = 1)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="Bridge">
+                                <td>Total energy</td>
+                                <td class="symbol">E² = (pc)² + (mc²)²</td>
+                                <td class="symbol">E² = p² + ω₀²</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Rest energy</td>
+                                <td class="symbol">E₀ = mc² = ℏω₀</td>
+                                <td class="symbol">E₀ = ω₀</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Relativistic energy</td>
+                                <td class="symbol">E = γmc²</td>
+                                <td class="symbol">E = γω₀</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Budget interpretation</td>
+                                <td colspan="2">
+                                    In CBF the Ledger’s queue buffering enforces the relation above.
+                                    The Lorentz factor <b>γ</b> describes how much of each tick’s causal budget appears as translation vs. maintenance once reconciled:
+                                    <code>M = 1/γ</code>, <code>T = (γ − 1)/γ</code>.
+                                </td>
+                            </tr>                    
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- COLLAPSE & QUEUE PROCESS -->
+            <h3 id="collapse">Collapse &amp; Queue Process <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Stage</th>
+                                <th style="width: 75%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Superposition</td>
+                                <td>
+                                    A particle’s wave cells interact with many potential absorbers (atoms) simultaneously.
+                                    Each atom holds a provisional entry in the Event Ledger, representing a candidate outcome.
+                                    These candidates coexist until one path satisfies all gate conditions.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Commit</td>
+                                <td>
+                                    The <b>winner</b> of the superposition — the atom whose timing, momentum, and direction align within all three gates —
+                                    is chosen for the next Ledger entry.
+                                    This commit converts probability into a stable event in the shared history graph.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Collapse Buffering</td>
+                                <td>
+                                    The synchronization period required for two entities (e.g., emitter and absorber) to align their frames
+                                    before a commit can finalize.
+                                    Duration set by <code>τ_commit</code>, determined by beat-matching and directional channel terms.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Queue Buffering</td>
+                                <td>
+                                    If a new collapse proposal arrives while another commit is still reconciling,
+                                    it enters a queue until the current synchronization finishes.
+                                    This ensures causal order: commits are serialized even when candidate events overlap in time.
+                                    <div class="inline-note" style="margin-top:0.5rem;">
+                                    <b>Queue load view:</b> For steady traffic, the average wait scales with load ρ_q:
+                                    <code>τ_queue ≈ (ρ_q / (1 − ρ_q)) × ⟨ <a href="#beat-modes">beat-matching</a> ⟩</code>.
+                                    This links microscopic gate pacing to macroscopic time dilation through cumulative buffering.
+                                    </div>
+                                    <div class="inline-note" style="margin-top:0.35rem;">
+                                    Per-interaction gate times accumulate in <b>local</b> ticks: <code>Δt = τ_eff(x) = τ₀ / α(x)</code>.  
+                                    See also: <a href="#alpha">α(x): The Universal Pacing Field</a>.
+                                    </div>                
+                                </td>
+                            </tr>                  
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Interpretation:</b>
+                The sequence <i>Superposition → Commit → Collapse Buffering → Queue Buffering</i> is the event life cycle in CBF.
+                Superposition defines possibilities, commit defines outcome, collapse buffering defines synchronization,
+                and queue buffering preserves causality across overlapping events.
+            </div>
+
+            <!-- COMMIT GATES -->
+            <h3 id="gates">Commit Gates <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 24%;">Gate Type</th>
+                                <th style="width: 36%;">Condition</th>
+                                <th style="width: 40%;">CBF Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Temporal gate (WHEN)</td>
+                                <td class="symbol">
+                                    Δθ_M = |θ_src − θ_abs| &lt; δ
+                                </td>
+                                <td>
+                                    Opens when maintenance-phase difference is within tolerance δ. The effective
+                                    reconciliation rate depends on <b>both</b> maintenance mismatch and directional/channel
+                                    misalignment:
+                                    <br>
+                                    <code>r_gate = f₀ * (|Δf_M| + M_ch (1 − cos θ))</code>
+                                    <br>
+                                    where <i>f₀</i> is the gate bandwidth (baseline cadence).
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Spatial gate (WHERE)</td>
+                                <td class="symbol">Δp = |p_in − p_out| &lt; ε_p</td>
+                                <td>
+                                    Enforces local momentum and energy conservation.
+                                    Determines <b>where</b> the commit lands in space;
+                                    yields Born-rule weighting <code>P(r) ∝ |ψ(r)|²</code>.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Directional gate (COUPLING)</td>
+                                <td class="symbol">Penalty ∝ M_ch(1 − cos θ)</td>
+                                <td>
+                                    Couples spatial and temporal reconciliation.
+                                    Adds delay or attenuation for angular misalignment.
+                                    Produces Doppler-like and aberration-like effects at detection.
+                                </td>
+                            </tr>               
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- INFORMATIONAL GATE & KNOWLEDGE VETO -->
+            <h3 id="informational-gate">Fourth Informational Commit Gate (IF) <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Gate</th>
+                                <th style="width: 38%;">Condition</th>
+                                <th style="width: 40%;">CBF Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Informational Gate (IF)</td>
+                                <td>
+                                Determines whether a path remains eligible for commit once global knowledge,
+                                coherence, or veto conditions are applied.
+                                </td>
+                                <td>
+                                The logical layer above the physical gates.
+                                It does not alter energy or momentum, but decides if a channel can still
+                                participate in reconciliation based on informational consistency.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Knowledge veto</td>
+                                <td>
+                                Triggered when a measurement, obstacle, or known hazard removes a path
+                                before the temporal gate aligns.
+                                </td>
+                                <td>
+                                The Ledger marks this path as <b>vetoed</b> and skips its commit.
+                                The pruned entry writes a low-amplitude scar to the <b>D-ledger</b>,
+                                biasing future reconciliations without transferring energy.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Quantum Bomb example</td>
+                                <td>One arm blocked by a live detector or bomb</td>
+                                <td>
+                                The informational gate vetoes that arm pre-commit.
+                                The remaining coherent path commits at the “dark” detector, revealing
+                                information through absence of interaction.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Quantum Erasure</td>
+                                <td>Erasure removes which-path information</td>
+                                <td>
+                                The informational gate re-opens the previously vetoed path by restoring coherence.
+                                Interference returns because the global knowledge constraint no longer blocks reconciliation.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Coherence flag</td>
+                                <td>Boolean state per candidate path</td>
+                                <td>
+                                Each provisional commit carries a coherence flag.
+                                The informational gate toggles it false (veto) or true (eligible) as
+                                global information updates, ensuring self-consistent history resolution.
+                                </td>
+                            </tr>             
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Interpretation:</b>
+                The Informational Gate governs <i>eligibility</i> of paths based on knowledge coherence.
+                Quantum-bomb and erasure experiments demonstrate this logic gate in action—
+                pruning or restoring channels without energy exchange.
+                It completes the four-gate stack:
+                <b>WHEN</b> (temporal), <b>WHERE</b> (spatial), <b>COUPLING</b> (directional), and <b>IF</b> (informational).
+            </div>
+
+            <!-- SHARED-LEDGER PROCESSING (No "action at a distance") -->
+            <h3 id="shared-ledger">Shared-Ledger Processing <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 26%;">Concept</th>
+                                <th style="width: 74%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Joint commit</td>
+                                <td>
+                                Spatially separated candidates (A, B, …) are finalized as a single history entry in the shared Event Ledger.
+                                The commit is written once and read by all frames; there is no message sent between sites.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">How it finalizes</td>
+                                <td>
+                                The same gates decide eligibility: <a href="#gates">temporal</a> (phase), spatial (momentum), directional (channel), and informational (knowledge).
+                                Ledger waits until all constraints are simultaneously satisfiable, then writes one coherent commit.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Entanglement correlations</td>
+                                <td>
+                                Correlations arise because the Ledger solves one global consistency problem for the pair,
+                                not because signals traverse space. The <b>informational gate</b> enforces which-path and erasure logic.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">No-signaling</td>
+                                <td>
+                                Local outcomes’ statistics (marginals) are unchanged by remote settings until classical comparison.
+                                The Ledger’s commit preserves causal order and respects the speed limit <code>c = a/τ₀</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Ordering</td>
+                                <td>
+                                Space-like separated writes are recorded with a consistent partial order; each frame can index them differently,
+                                but the finalized event is the same entry for all (see <a href="#two-frame-buffer">Two-Frame Buffer Symmetry</a>).
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Interpretation:</b> What looks like “action at a distance” is a single shared-ledger commit that satisfies all gate constraints at once.
+                No superluminal messages, no stretched space—just one globally consistent write.
+            </div>
+
+            <h4 id="beat-modes" style="margin-top:1rem;">Beat-Matching vs. Confidence-Gating</h4>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Mode</th>
+                                <th style="width: 38%;">Mechanism</th>
+                                <th style="width: 40%;">Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Beat-Matching</td>
+                                <td>
+                                    Streaming micro-commits accumulate whenever phase alignments occur.  
+                                    <code>τ_commit = τ₀ + 1 / [ f₀ ( |Δf_M| + M_ch (1 − cos θ) ) ]</code>
+                                </td>
+                                <td>
+                                    Continuous, low-confidence mode.  
+                                    Produces apparent smooth time evolution and interference as averaged commit density.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Confidence-Gating</td>
+                                <td>
+                                    Ledger waits for full reconciliation before writing a single high-confidence commit.  
+                                    Its effective pacing is the <b>reciprocal</b> of the beat-matching rate.
+                                </td>
+                                <td>
+                                    Batched, high-confidence mode.  
+                                    Yields the same Lorentz-symmetric outcomes as beat-matching when integrated over shared ticks.
+                                </td>
+                            </tr>                   
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Time dilation driver:</b> Increasing the mismatch term |Δf_M| or the directional term M_ch (1 − cos θ)
+                enlarges the gating delay τ_commit. When many interactions are in flight, queue buffering accumulates these waits,
+                making the observed clock run slower relative to a lightly loaded frame.
+                See also: <a href="#two-frame-buffer">Two-Frame Buffer Symmetry</a>.
+            </div>
+            <div class="inline-note">
+                <b>Interpretation:</b>  
+                The four gates (temporal, spatial, directional, informational) define how the Event Ledger filters potential commits.  
+                Beat-matching and confidence-gating are two timing semantics for the temporal gate—streaming vs. batched reconciliation.
+                Both enforce symmetry and preserve energy-momentum consistency across frames.
+            </div>            
+
+            <!-- TIME DILATION & LENGTH -->
+            <h3>Time Dilation &amp; Length Contraction <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 28%;">Effect</th>
+                                <th style="width: 31%;">Formula</th>
+                                <th style="width: 41%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Time dilation</td>
+                                <td class="symbol">Δt = γ Δτ</td>
+                                <td>
+                                    Emerges from <a href="#gates">gate delays</a> (beat-matching) plus
+                                    <a href="#gates">directional coupling</a> and accumulated
+                                    <a href="#collapse">queue buffering</a>. The CA rule C = T + M never applies Lorentz at runtime.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td>Operational length (no physical shrink)</td>
+                                <td class="symbol">L_oper = c × (Δt_roundtrip / 2)</td>
+                                <td>
+                                    Distances don’t change; <b>schedules</b> do.
+                                    Apparent L ≈ L₀/γ is an observer reconstruction from asymmetric commit timing.
+                                    See <a href="#two-frame-buffer">Two-Frame Buffer Symmetry</a>.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="Bridge">
+                                <td>Proper time</td>
+                                <td class="symbol">dτ = √(1 − v²/c²) dt</td>
+                                <td class="symbol">dτ = M dt</td>
+                                </tr>
+
+                                <tr data-cat="CBF">
+                                <td>Where to find the mechanics</td>
+                                <td class="symbol">—</td>
+                                <td>
+                                    Gate mechanics and pacing: <a href="#gates">Commit Gates</a>.  
+                                    Reciprocal measurements across frames: <a href="#two-frame-buffer">Two-Frame Buffer Symmetry</a>.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!-- PHOTON–MATTER UNIFICATION -->
+            <h3>Photon–Matter Unification <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 24%;">Species</th>
+                                <th style="width: 18%;">ω₀</th>
+                                <th style="width: 20%;">Dispersion</th>
+                                <th style="width: 20%;">Budget Split (T : M)</th>
+                                <th style="width: 18%;">Speed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Photon</td>
+                                <td>0</td>
+                                <td class="symbol">ω = ck</td>
+                                <td>T = 1 , M = 0</td>
+                                <td>= c (null path)</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>Massive particle</td>
+                                <td>> 0</td>
+                                <td class="symbol">ω² = c²k² + ω₀²</td>
+                                <td>T &lt; 1 , M &gt; 0</td>
+                                <td>&lt; c</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>CBF interpretation</td>
+                                <td colspan="4">
+                                    Photon and matter obey the same update rule.
+                                    Mass arises when a fraction of the causal budget is locked into maintenance (ω₀ &gt; 0).
+                                    The <b>speed limit</b> c comes directly from the lattice ratio a/τ₀, not from imposed symmetry.
+                                </td>
+                            </tr>                   
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>CBF stance:</b> Lorentz symmetry is an <i>observed consequence</i> of queue buffering and maintenance trade-offs, 
+                not a built-in transformation law.  The Event Ledger’s reconciliation produces the metric identity 
+                <code>C² = T² + M²</code> automatically.
+            </div>
+
+            <!-- TWO-FRAME BUFFER SYMMETRY -->
+            <h3 id="two-frame-buffer">Two-Frame Buffer Symmetry <span class="tag tag-sr">SR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 28%;">Scenario</th>
+                                <th style="width: 40%;">Ledger Mechanics</th>
+                                <th style="width: 32%;">Observed Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">A and B in uniform relative motion</td>
+                                <td>
+                                    Each frame has its own maintenance rate (<b>M_A</b>, <b>M_B</b>) and tick pacing.
+                                    The Event Ledger inserts symmetric queue delays to align cross-frame commits:
+                                    <code>τ_commit^A = τ₀ + 1/|Δf_M(A,B)|</code>, 
+                                    <code>τ_commit^B = τ₀ + 1/|Δf_M(B,A)|</code>.
+                                </td>
+                                <td>
+                                    Each side measures the other as time-dilated. Reciprocity arises from equal-and-opposite buffering; no preferred frame is invoked.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Shared detection event</td>
+                                <td>
+                                    A and B propose a joint commit; the Ledger holds both in the queue until phase coincidence within the temporal gate δ.
+                                    The final commit is a single history entry written to both ledgers.
+                                </td>
+                                <td>
+                                    A and B agree on the event itself (same commit), while disagreeing on the elapsed local ticks leading to it (differential buffering → apparent γ).
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Beat mismatch drives delay</td>
+                                <td>
+                                    Maintenance frequency mismatch sets the buffering scale:
+                                    <code>Δf_M = |f_{M,A} − f_{M,B}|</code>, with <code>f_{M}=ω/2π= (ω₀ M)/2π</code> for matter.
+                                    Smaller <code>Δf_M</code> → longer wait; larger mismatch → quicker disambiguation.
+                                </td>
+                                <td>
+                                    Macroscopic “time dilation” is the statistical shadow of these waits; γ is a diagnostic, not a runtime input.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">Directional coupling</td>
+                                <td>
+                                    The gate includes directional misalignment: <code>+ M_ch(1 − cos θ)</code> (channel maintenance share).
+                                    Collinear motion minimizes extra delay; transverse increases it.
+                                </td>
+                                <td>
+                                    Doppler/aberration appear as changes in reconciliation cadence at detection (not in-flight edits to photons).
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td class="symbol">No Lorentz at runtime</td>
+                                <td>
+                                    The CA runs the budget rule <b>C = T + M</b>, writes proposals; the Ledger enforces symmetry by buffering.
+                                    The geometric identity <b>C² = T̃² + M̃²</b> is reconstructed from the finalized commits.
+                                </td>
+                                <td>
+                                    Observers summarize with <code>γ = 1/M</code> (normalized), but γ is inferred after reconciliation, not applied during updates.
+                                </td>
+                            </tr>                   
+                        </tbody>
+                    </table>
+                </div>
+
+            <div class="inline-note">
+                <b>Interpretation:</b> Mutual dilation is a property of the commit queues on both sides. 
+                There is no global simultaneity plane to carry; the Event Ledger’s single shared commit guarantees agreement on events while preserving reciprocal timing asymmetries.
+            </div>
+
+        </section>
+
+
+        <!-- GENERAL RELATIVITY (CBF-correct) -->
+        <section id="gr" class="section">
+            <h2>General Relativity</h2>
+
+            <div class="card">
+                <h3 id="universal-pacing">α(x): The Universal Pacing Field <span class="tag tag-gr">GR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:25%;">Aspect</th>
+                                <th style="width:75%;">Description / Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Definition</td>
+                                <td>
+                                Local pacing field controlling both proper-time and signal propagation rate.
+                                <code>dτ = α dt</code>, <code>v_effective = α × c</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Gravity</td>
+                                <td>
+                                Queue buffering from interaction density lowers α near massive regions,
+                                producing gravitational time dilation and steering via −∇α.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Material coupling</td>
+                                <td>
+                                α also includes optical pacing: <code>α_total = α_gravity × 1/n(ω)</code>.
+                                Refraction and gravitational slowdown are one mechanism.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Steering field</td>
+                                <td>
+                                Directional bias from gradients: <code>g(x) = −∇α(x)</code>.
+                                Bends trajectories toward slower-paced regions.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Observable effects</td>
+                                <td>
+                                Redshift <code>(f_obs/f_emit = α_obs/α_emit)</code>, Shapiro delay, light bending,
+                                and optical slowdown all stem from α-variations.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Interpretation</td>
+                                <td>
+                                α is the local tick-rate multiplier of the universe—how fast commits clear.
+                                Lower α → deeper queue → slower clocks and signal pacing.
+                                Space itself never stretches; α(x) simply changes the rhythm of causality.
+                                </td>
+                            </tr>                 
+                        </tbody>
+                    </table>
+                </div>
+
+                
+                <div class="inline-note">
+                    <b>Interpretation:</b>
+                    α(x) unifies gravity, refraction, and time dilation as one pacing law.
+                    Variations in α encode the universe’s causal tempo rather than geometric curvature.
+                </div>
+                
+                <h3>Budget Law with Pacing &amp; Steering <span class="tag tag-gr">GR</span></h3>
+
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width:26%;">Statement</th>
+                                <th style="width:74%;">CBF Visualization</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Local budget with alpha -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">Local budget</td>
+                                <td>
+                                The per-tick causal budget at x is the pacing field itself:
+                                <div><code>C(x) = T(x) + M(x) = α(x)</code></div>
+                                Lower <b>α(x)</b> means fewer “compute quanta” per global tick available to split between motion and upkeep.
+                                </td>
+                            </tr>
+
+                            <!-- Pacing inside T and M -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">Pacing inside T and M</td>
+                                <td>
+                                α(x) scales both translation and maintenance <i>shares</i> locally:
+                                <div><code>T(x) = α(x) · ε_T</code>, <code>M(x) = α(x) · ε_M</code>, with <code>ε_T + ε_M = 1</code></div>
+                                Photons: <code>M = 0</code> ⇒ <code>T = α(x)</code>.  
+                                Matter: internal rate follows <code>ω = ω₀ · M(x)</code>.
+                                </td>
+                            </tr>
+
+                            <!-- Effective speed and proper time -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">Effective speed &amp; proper time</td>
+                                <td>
+                                Causal stride and clock-pace are both set by α:
+                                <div><code>v_effective = α(x) · c</code> (photons/null flow), &nbsp; <code>dτ = α(x) · dt</code></div>
+                                In media: <code>α_total(x, ω) = α_gravity(x) × 1/n(ω)</code> (gravity and refraction are one pacing mechanism).
+                                </td>
+                            </tr>
+
+                            <!-- Steering from gradient -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">Steering from ∇α</td>
+                                <td>
+                                Unequal pacing across a wavefront bends motion toward slower regions:  
+                                <div><code>g(x) = −∇α(x)</code></div>
+                                Per local tick the wave-cell velocity is updated by the pull-arrow:
+                                <div><code>v_next = v_now + g(x) · Δt</code> with <code>Δt = τ_eff(x) = τ₀ / α(x)</code></div>
+                                Photons keep null speed by renormalizing: <code>|v_next| → c</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">Oscillation depends on α(x)</td>
+                                <td>
+                                Maintenance oscillation slows where pacing is slow:  
+                                <div><code>M(x) = α(x) · ε_M</code>, so <code>ω(x) = ω₀ · M(x) = ω₀ · α(x) · ε_M</code></div>
+                                Proper time relation <code>dτ = α dt</code> and endpoint ratio
+                                <code>f_obs / f_emit = α_obs / α_emit</code> express gravitational redshift without editing photons in flight.
+                                </td>
+                            </tr>      
+                            <!-- Queue buffering link -->
+                            <tr data-cat="CBF">
+                                <td class="symbol">Queue link (dilation)</td>
+                                <td>
+                                Lower α indicates higher local interaction density (deeper queue), which increases reconciliation wait:
+                                <div><code>τ_commit = τ₀ + 1 / [ f₀ ( |Δf_M| + M_ch (1 − cos θ) ) ]</code></div>
+                                Many in-flight interactions add queue buffering (see <a href="#beat-modes">beat-matching</a> &amp; <a href="#gates">gates</a>) → observed time dilation.
+                                </td>
+                            </tr>                
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div class="inline-note">
+                    <b>Takeaway:</b> In CBF the core rule becomes <b>C(x) = T(x) + M(x) = α(x)</b>. 
+                    The <i>value</i> of α sets how much budget exists locally; its <i>gradient</i> (−∇α) steers motion.
+                    Gravity and refraction are both α-pacing phenomena; no rods shrink and no space stretches—only commit rhythm and direction change.
+                </div>
+
+
+                <!-- FIELDS & LEDGERS -->
+                <h3 id="gravity-fields" >Gravity Fields & Ledgers <span class="tag tag-gr">GR</span></h3>
+
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr data-cat="CBF">
+                                <td class="symbol">g(x)</td>
+                                <td>Pull-arrow</td>
+                                <td>
+                                    Directional steering per tick: bends the translation part T of wave/particle motion.  
+                                    Operationally: <code>Δv ∝ g(x) Δt</code> in the small deflection limit.
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>                            
+                            <tr data-cat="CBF">
+                                <td class="symbol">S(x)</td>
+                                <td>Shared stability ledger (gravitational working memory)</td>
+                                <td>
+                                    Stores only the subset of history required for causal continuity—<b>the active scaffold</b>, not a full archive.
+                                    Updated by all successful <b>ledger commits</b> (atomic or event-based); inconsistent or redundant paths are pruned by the
+                                    <a href="#gates">Informational Gate</a> and leave inert scars in <code>D(x)</code>.
+                                    <br><br>
+                                    <b>Sourcing:</b> Sourced primarily by <b>stable atomic commits</b> with stability weight <code>η</code> (long-lived states contribute more).
+                                    <br>
+                                    <b>Pipeline:</b> <b>S(x) → α(x)</b> (clock pace / queue depth) and contributes to <b>g(x)</b> (steering via −∇α).
+                                    Dense S(x) regions slow local ticks (time dilation) and bend trajectories toward lower α.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td class="symbol">D(x)</td>
+                                <td>Pruning / dark-matter ledger</td>
+                                <td>
+                                    Archive of rejected or failed branches (Informational Gate pruning).  
+                                    Inert “scars” bias probability flow but do not contribute clock pacing like <code>S(x)</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td class="symbol">W(x)</td>
+                                <td>Spatial weighting</td>
+                                <td>
+                                    Replaces “stretched space” language: W biases spatial reconciliation density.  
+                                    Use instead of a literal conformal stretch. (Avoid “ψ stretches distances”.)
+                                </td>
+                            </tr>                 
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- SCHWARZSCHILD AS BRIDGE -->
+                <h3>Bridge Equations (CBF → Schwarzschild) <span class="tag tag-gr">GR</span></h3>
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 35%;">Relation</th>
+                                <th style="width: 65%;">CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="Bridge">
+                                <td><code>ρ_q(r) ∝ GM / (2rc²)</code></td>
+                                <td>
+                                Queue density produced by ledger commits from a mass <em>M</em>.  
+                                Higher <code>ρ_q</code> → deeper queue → lower pacing <code>α</code>.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td><code>α(r) = (1 − GM/2rc²)/(1 + GM/2rc²)</code></td>
+                                <td>
+                                Lapse derived from queue buffering: <code>α ≈ (1 − ρ_q)/(1 + ρ_q)</code>.  
+                                Time dilation emerges from slower local commit cadence.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td><code>ψ(r) = 1 + GM / (2rc²)</code></td>
+                                <td>
+                                Conformal factor from stability field <code>S(x)</code> (spatial reconciliation layer).  
+                                Expands distances as maintenance overhead increases.
+                                </td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td><code>g(x) = −∇α(x)</code></td>
+                                <td>
+                                Steering field from pacing gradient.  
+                                Causes “falling” motion and light bending without curvature tensors.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div class="inline-note">
+                    These bridge equations show how the queue-buffering and stability fields (<code>S, ρ_q</code>)
+                    reproduce the Schwarzschild metric in isotropic form.
+                    The classical tests (perihelion precession, Shapiro delay, light bending) follow automatically
+                    once α and ψ are substituted into the metric.
+                </div>
+
+                <!-- CLASSICAL TESTS, CBF READS -->
+                <h3>Classical Tests (CBF reads) <span class="tag tag-gr">GR</span></h3>
+
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 32%;">Test</th>
+                                <th style="width: 34%;">Bridge Formula</th>
+                                <th style="width: 34%;">CBF Mechanism</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="Bridge">
+                                <td>Perihelion precession</td>
+                                <td class="symbol">Δφ = 6π GM / [ a (1 − e²) c² ]</td>
+                                <td>
+                                    Slow secular rotation from cumulative steering by <b>g(x)</b> with α-dependent pacing.  
+                                    No space stretch; it’s path-integrated bias in commits.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Light bending</td>
+                                <td class="symbol">δθ = 4 GM / (b c²)</td>
+                                <td>
+                                    Null paths (M = 0) are deflected because T’s direction is bent each tick by <b>g(x)</b>.  
+                                    Path density also shaped by <b>D(x)</b> → lensing-like weighting.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Shapiro delay</td>
+                                <td class="symbol">Δt ≈ (4 GM / c³) ln (4 r₁ r₂ / b²)</td>
+                                <td>
+                                    Extra round-trip time from lower <b>α(x)</b> along the path (slower local commit pace).  
+                                    CA distance doesn’t change; timing does.
+                                </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Gravitational redshift</td>
+                                <td class="symbol">f_obs / f_emit = α_obs / α_emit</td>
+                                <td>
+                                    Endpoint comparison of lapse fields; photons unchanged in flight.  
+                                    Ledger applies the ratio at detection (Directional/Temporal gates).
+                                </td>
+                            </tr>  
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- GRAVITATIONAL WAVES -->
+                <h3>Gravitational Waves <span class="tag tag-gr">GR</span></h3>
+
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 34%;">Quantity</th>
+                                <th style="width: 66%;">CBF / Bridge</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="CBF">
+                                <td>Nature</td>
+                                <td>
+                                    Small, propagating perturbations in the stability sourcing (S-ledger) that modulate <b>α(x)</b> and <b>g(x)</b>.  
+                                    Propagate at <b>c</b> (null, ω0 = 0).
+                            </td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Wave equation (far field)</td>
+                                <td class="symbol">□ h_TT = 0 (with □ = −∂²/∂t² + ∇²)</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Dispersion</td>
+                                <td class="symbol">ω² = c² k²</td>
+                            </tr>
+                                <tr data-cat="Bridge">
+                                <td>Quadrupole radiation</td>
+                                <td class="symbol">P = (G / 5 c⁵) ⟨ Q̈_ij Q̈^ij ⟩</td>
+                            </tr>
+                            <tr data-cat="Bridge">
+                                <td>Strain</td>
+                                <td class="symbol">ΔL / L ≈ (1/2) h_TT</td>
+                            </tr>
+                            <tr data-cat="CBF">
+                                <td>CBF interpretation</td>
+                                <td>
+                                    Standard GR formulas summarize how S-ledger fluctuations look to observers.  
+                                    Runtime is still CA: commits paced by <b>α(x)</b> and steered by <b>g(x)</b>.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- WEAK-FIELD MAPPING -->
+                <h3>Weak-Field Mapping <span class="tag tag-gr">GR</span></h3>
+
+                <div class="table-wrap">
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Quantity</th>
+                                <th style="width: 70%;">Approximation / CBF Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-cat="Bridge">
+                                <td>Potential limit</td>
+                                <td>
+                                    For small source fields (<code>GM / (rc²) ≪ 1</code>),  
+                                    the lapse relates to the Newtonian potential:  
+                                    <code>α(x) ≈ 1 + Φ(x) / c²</code> or equivalently <code>Φ ≈ c² (α − 1)</code>.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="Bridge">
+                                <td>Acceleration</td>
+                                <td>
+                                    The pull-arrow field reproduces classical gravity in the weak limit:  
+                                    <code>g(x) ≈ −∇Φ</code>.  
+                                    In the CA, <code>g(x)</code> changes only particle direction per tick, never the grid itself.
+                                </td>
+                            </tr>
+
+                            <tr data-cat="CBF">
+                                <td>Operational view</td>
+                                <td>
+                                    Gravity appears as slightly slower pacing (<b>α</b> &lt; 1) and directional drift (<b>g</b>) for nearby commits.  
+                                    Over many ticks this integrates to the same <code>GM/r²</code> acceleration law observed macroscopically.
+                                </td>
+                            </tr>                  
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="inline-note">
+                    <b>Interpretation:</b>
+                    In the weak-field limit, CBF reproduces Newtonian behavior through pacing and steering,
+                    not geometric curvature.  α encodes time-rate variation; g encodes path bias.
+                    Their gradients yield the familiar potential and acceleration, confirming GR consistency
+                    without invoking spatial stretch.
+                </div>
+
+                <div class="inline-note">
+                    <b>CBF stance:</b> Gravity is pacing (<b>α</b>) and steering (<b>g</b>) sourced by stable commits (<b>S</b>) and shaped by pruning history (<b>D</b>).
+                    Space itself does not “stretch” in the CA; observers reconstruct GR geometry from the timing and path statistics of finalized commits.
+                </div>
+
+            </div>
+        </section>
+
+    <!-- ELECTROMAGNETISM -->
+    <section id="em">
+        <h2>Electromagnetism</h2>
+
+        <div class="card">
+
+            <!-- SPIN–OSCILLATION COUPLING -->
+            <h3 id="spin-coupling">Spin–Oscillation Coupling <span class="tag tag-em">CBF</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Concept</th>
+                            <th style="width: 70%;">CBF Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="CBF">
+                            <td>Spin as Maintenance</td>
+                            <td>
+                                Spin is stored in the <b>M</b> share of the causal budget—its persistence requires per-tick upkeep.  
+                                The system must expend maintenance work to preserve rotational identity and orientation coherence.
+                            </td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>Oscillation as Translation</td>
+                            <td>
+                                Oscillation lives in the <b>T</b> channel, representing periodic phase motion.  
+                                Together, <b>T</b> and <b>M</b> form a closed rotation in budget space, maintaining the <code>C = T + M</code> rule.
+                            </td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>Spin–Phase Relation</td>
+                            <td>
+                                A <b>half-turn</b> in spin phase corresponds to a <b>full oscillation cycle</b> in T.  
+                                This yields the ½-spin quantization rule naturally: two oscillations in T are required for a full spin rotation.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Polarization Connection</td>
+                            <td>
+                                Electromagnetic polarization is the wave-cell analog of spin precession.  
+                                Both arise from rotational motion in the <b>T–M plane</b> and share the same per-tick rotation law.  
+                                Sign of rotation in M encodes left- or right-handed helicity (fermion chirality).
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+                
+            <div class="inline-note">
+                Spin does not require a separate field in CBF—it is the rotational mode of the existing budget loop.  
+                Bound matter keeps finite spin by reserving M each tick; free photons express it as polarization in T.
+            </div>
+
+            <!-- MAXWELL EQUATIONS -->
+            <h3>Maxwell Equations <span class="tag tag-em">EM</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Equation</th>
+                            <th style="width: 35%;">Differential Form</th>
+                            <th style="width: 35%;">CBF Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="Bridge">
+                            <td>Faraday's law</td>
+                            <td class="symbol">∇ × E = − ∂B/∂t</td>
+                            <td>
+                                Curl-coupled update that converts stored magnetic “M” into electric “T”-like motion.
+                                In CBF, this is the wave-cell budget handoff across edges/faces per tick.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Ampère–Maxwell law</td>
+                            <td class="symbol">∇ × B = μ₀ j + μ₀ ε₀ ∂E/∂t</td>
+                            <td>
+                                Curl-coupled update that converts electric “T” into magnetic “M” plus source injection (current).
+                                Together with Faraday, gives self-propagating null flow (M = 0 for photons).
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Gauss's law (electric)</td>
+                            <td class="symbol">∇ · E = ρ/ε₀</td>
+                            <td>
+                                Charge is a node-source that injects/withdraws budget; in CBF this is a commit source at 0-cells.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Gauss's law (magnetic)</td>
+                            <td class="symbol">∇ · B = 0</td>
+                            <td>
+                                Exactness (no monopoles). On the lattice: “no net magnetic charge” via d₂ ∘ d₁ = 0 consistency.
+                            </td>
+                        </tr>                
+                    </tbody>
+                </table>
+            </div>
+
+             <!-- ENERGY & MOMENTUM -->
+            <h3>Energy &amp; Momentum <span class="tag tag-em">EM</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">Quantity</th>
+                            <th style="width: 30%;">Formula (SI)</th>
+                            <th style="width: 35%;">Normalized (ε₀ = μ₀ = 1)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="Bridge">
+                            <td>Energy density</td>
+                            <td class="symbol">u = 0.5 ( ε₀ E² + B²/μ₀ )</td>
+                            <td class="symbol">u = 0.5 ( E² + B² )</td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Poynting vector</td>
+                            <td class="symbol">S_EM = (1/μ₀) E × B</td>
+                            <td class="symbol">S_EM = E × B</td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Poynting theorem</td>
+                            <td class="symbol">∂u/∂t + ∇ · S_EM = − j · E</td>
+                            <td>
+                                Budget conservation: local “M” change + “T” flux equals work on charges.
+                                CBF view: the same per-tick budget law C = T + M, expressed as a continuum balance.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Momentum density</td>
+                            <td class="symbol">g_EM = ε₀ (E × B) = S_EM / c²</td>
+                            <td class="symbol">g_EM = E × B</td>
+                        </tr>              
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="inline-note">
+                <b>Symbol note:</b> We write the Poynting vector as <b>S_EM</b> to avoid confusion with the directional Doppler factor Π(β, θ) used elsewhere.
+            </div>
+
+            <!-- FIELD ASSIGNMENT ON LATTICE -->
+            <h3>Field Assignment on Lattice <span class="tag tag-em">EM</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Geometric Element</th>
+                            <th style="width: 25%;">Field</th>
+                            <th style="width: 25%;">Budget Role</th>
+                            <th style="width: 25%;">Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="CBF">
+                            <td>0-cells (nodes)</td>
+                            <td>Charge ρ, potential φ</td>
+                            <td>Source / sink</td>
+                            <td>Budget injection point (commit source)</td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>1-cells (edges)</td>
+                            <td>Electric field E, vector potential A</td>
+                            <td>Translation T</td>
+                            <td>Flow channels (propagating influence)</td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>2-cells (faces)</td>
+                            <td>Magnetic flux Φ (∫B·dS)</td>
+                            <td>Maintenance M</td>
+                            <td>Storage surfaces (phase memory)</td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>3-cells (volumes)</td>
+                            <td>Total charge Q (∫ρ dV)</td>
+                            <td>Source density</td>
+                            <td>Integrated commit budget within a region</td>
+                        </tr>              
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- CBF PACING, MEDIA & HAZARD -->
+            <h3>Pacing, Media, and Hazard <span class="tag tag-em">EM</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Concept</th>
+                            <th style="width: 70%;">CBF Form</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="CBF">
+                            <td>Photon propagation</td>
+                            <td>
+                                Null budget path (M = 0). Per tick τ₀ the wave-cell advances one lattice stride a in free space.
+                                Local pacing scales by α(x): <code>v_effective = α(x) × c</code>. Photons renormalize to null speed at each step.
+                            </td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>Material coupling (MCF)</td>
+                            <td>
+                                Unified pacing: <code>α_total(x, ω) = α_gravity(x) × 1/n(ω)</code>.  
+                                Hazard/attenuation: <code>h(x, ω)</code> reduces amplitude (TTL-like depletion) faster at higher oscillation.
+                                This models absorption, scattering, and loss without editing photons “in flight” beyond local pacing.
+                            </td>
+                        </tr>
+                        <tr data-cat="CBF">
+                            <td>Directional coupling</td>
+                            <td>
+                                At detection, the directional factor couples momentum and timing via the gate term
+                                <code>M_ch (1 − cos θ)</code>. (See <a href="#beat-modes">Beat-Matching</a>.)  
+                                Use Π(β, θ) in SR for observer-side Doppler; here we keep Poynting as S_EM to avoid symbol clash.
+                            </td>
+                        </tr>               
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FDTD (IMPLEMENTATION NOTES) -->
+            <h3>Discrete Update (FDTD-style) <span class="tag tag-em">EM</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Coefficient</th>
+                            <th style="width: 40%;">Formula</th>
+                            <th style="width: 30%;">Purpose (CBF language)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="Classical">
+                            <td class="symbol">C_a</td>
+                            <td class="symbol">C_a = (1 − σ Δt / (2 ε)) / (1 + σ Δt / (2 ε))</td>
+                            <td>E-field retention (M → M continuity under loss)</td>
+                        </tr>
+                        <tr data-cat="Classical">
+                            <td class="symbol">C_b</td>
+                            <td class="symbol">C_b = (Δt / ε) / (1 + σ Δt / (2 ε))</td>
+                            <td>Cross-cell transfer (M ↔ T coupling under loss)</td>
+                        </tr>
+                            <tr data-cat="Classical">
+                            <td class="symbol">S_CFL</td>
+                            <td class="symbol">S_CFL = c Δt / Δx ≤ 1/√2 (2D)</td>
+                            <td>Courant stability: ensures budget doesn’t outrun the lattice stride</td>
+                        </tr>            
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="inline-note">
+                <b>Note:</b> In normalized CBF units, the term σ Δt / (2 ε) is the fraction of budget lost per tick due to local absorption (part of the MCF).
+                Proper accounting yields machine-precision residuals (R ≈ 10⁻¹²) in standard FDTD tests—consistent with per-tick budget conservation.
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- PHYSICAL CONSTANTS -->
+    <section id="constants">
+      <h2>Physical Constants & Conversions</h2>
+
+        <div class="card">
+            <h3>Fundamental Constants <span class="tag tag-foundation">Bridge</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Constant</th>
+                            <th style="width: 10%;">Symbol</th>
+                            <th style="width: 20%;">Value (SI)</th>
+                            <th style="width: 50%;">Role in CBF</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="Bridge">
+                            <td>Speed of light</td>
+                            <td class="symbol">c</td>
+                            <td>2.997 924 58 × 10⁸ m/s</td>
+                            <td>
+                            Causal stride: <code>c = a / τ₀</code>.  
+                            Each tick τ₀ moves a photon one lattice step a.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Planck constant</td>
+                            <td class="symbol">h</td>
+                            <td>6.626 070 15 × 10⁻³⁴ J·s</td>
+                            <td>
+                            Bridge from phase rate → energy.  
+                            <code>E = hf</code> gives physical units to the update frequency.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Reduced Planck constant</td>
+                            <td class="symbol">ℏ</td>
+                            <td>1.054 571 817 × 10⁻³⁴ J·s</td>
+                            <td>
+                            Angular form: <code>ℏ = h / 2π</code>.  
+                            Used in <code>E = ℏω</code> and <code>p = ℏk</code>.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Gravitational constant</td>
+                            <td class="symbol">G</td>
+                            <td>6.674 × 10⁻¹¹ m³ / (kg·s²)</td>
+                            <td>
+                            Queue-depth coupling per unit mass.  
+                            Sets how much α(x) slows per stored S(x) commit.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Permittivity of free space</td>
+                            <td class="symbol">ε₀</td>
+                            <td>8.854 × 10⁻¹² F/m</td>
+                            <td>
+                            Storage capacity of the E-field.  
+                            Fraction of M reserved per unit electric tension.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Permeability of free space</td>
+                            <td class="symbol">μ₀</td>
+                            <td>1.257 × 10⁻⁶ H/m</td>
+                            <td>
+                            Storage capacity of the B-field.  
+                            Fraction of T bound into magnetic circulation.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Planck length</td>
+                            <td class="symbol">ℓ<sub>P</sub></td>
+                            <td>1.616 × 10⁻³⁵ m</td>
+                            <td>
+                            Precision floor, not cell spacing.  
+                            Sets decimal resolution of field updates.
+                            </td>
+                        </tr>
+                        <tr data-cat="Bridge">
+                            <td>Planck time</td>
+                            <td class="symbol">t<sub>P</sub></td>
+                            <td>5.391 × 10⁻⁴⁴ s</td>
+                            <td>
+                            Minimum temporal precision for ledger updates.  
+                            Sub-tick rounding, not the simulation rate.
+                            </td>
+                        </tr>            
+                    </tbody>
+                </table>
+            </div>
+
+
+            <h3>Unit Conversions <span class="tag tag-bridge">Classical</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Conversion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Energy (J)</td><td>Frequency (Hz)</td><td><code>f = E / h</code></td></tr>
+                        <tr><td>Energy (J)</td><td>Angular frequency (rad/s)</td><td><code>ω = E / ℏ</code></td></tr>
+                        <tr><td>Mass (kg)</td><td>Energy (J)</td><td><code>E = mc²</code></td></tr>
+                        <tr><td>Mass (kg)</td><td>Compton frequency (Hz)</td><td><code>f₀ = mc² / h</code></td></tr>
+                        <tr><td>Wavelength (m)</td><td>Wavenumber (rad/m)</td><td><code>k = 2π / λ</code></td></tr>
+                        <tr><td>Momentum (kg·m/s)</td><td>Wavenumber (rad/m)</td><td><code>k = p / ℏ</code></td></tr>
+                        <tr><td>Geometric (G = c = 1)</td><td>SI</td><td>Restore factors of G and c by dimensional analysis.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+            <h3>Common Composite Units <span class="tag tag-foundation">Foundation</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                    <tr>
+                        <th>Quantity</th>
+                        <th>SI Units</th>
+                        <th>Normalized (c = ℏ = 1)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-cat="Bridge"><td>Energy</td><td>J</td><td>Dimensionless compute rate</td></tr>
+                    <tr data-cat="Bridge"><td>Momentum</td><td>kg·m/s</td><td>Same as energy</td></tr>
+                    <tr data-cat="Bridge"><td>Mass</td><td>kg</td><td>Maintenance rate ω₀</td></tr>
+                    <tr data-cat="Bridge"><td>Length</td><td>m</td><td>1 / energy</td></tr>
+                    <tr data-cat="Bridge"><td>Time</td><td>s</td><td>1 / energy</td></tr>
+                    <tr data-cat="Bridge"><td>Action</td><td>J·s</td><td>Dimensionless (= ℏ)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="note">
+                <b>Interpretation:</b> Constants in CBF are not fixed background numbers; they are conversion bridges
+                between causal compute shares and physical measurement units.
+                The pair (a, τ₀) defines c, while h and ℏ give real-world scaling to frequency and momentum updates.
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SYMBOL GLOSSARY -->
+    <section id="glossary">
+        <h2>Symbol Glossary</h2>
+        <div class="card">
+            <h3>Greek Letters <span class="tag tag-foundation">Foundation</span></h3>    
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 10%;">Symbol</th>
+                        <th style="width: 30%;">Name</th>
+                        <th style="width: 60%;">CBF Meaning</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="Bridge"><td class="symbol">α</td><td>Alpha (lapse)</td><td>Local commit cadence / proper-time pacing. <code>dτ = α dt</code>. Lower α → deeper event queue, slower local clocks.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">β</td><td>Beta (shift / velocity)</td><td><code>β = v / c</code>. Normalized velocity. βⁱ: shift vector for frame drift or rotation (used in GR mapping).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">γ</td><td>Gamma (Lorentz / queue factor)</td><td>Time-symmetry ratio <code>γ = 1 / √(1 − β²)</code>. In CBF, also the stride count per tick for photons (γ-length ≈ 10⁻¹² m).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">δ</td><td>Delta</td><td>Coincidence window width (temporal gate span) or small perturbation in reconciliation.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">ε₀</td><td>Epsilon-zero</td><td>Vacuum permittivity, electric storage capacity (fraction of M reserved for E-field tension).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">η</td><td>Eta (stability)</td><td>Commit stability weight (0 ≤ η ≤ 1). Controls S(x) sourcing strength: η ≈ 1 for bound atoms, η ≪ 1 for transient events.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">θ</td><td>Theta (phase / angle)</td><td>Wave phase <code>θ = k·r − ωt</code> or measurement angle used in phase comparison during beat-matching.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">λ</td><td>Lambda (wavelength / rate)</td><td>λ = 2π/k (spatial period) or λ(t): instantaneous commit frequency.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">μ₀</td><td>Mu-zero</td><td>Vacuum permeability, magnetic storage capacity (fraction of T bound in circulation).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">ρ</td><td>Rho (density)</td><td>Mass or charge density; also used for queue load ρ_q = n_commit / n_capacity in pacing analysis.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">σ</td><td>Sigma</td><td>Conductivity or local loss coefficient in MCF; scales attenuation rate and TTL drain.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">τ</td><td>Tau</td><td>Fundamental tick or proper-time interval. Baseline tick τ₀ defines <code>c = a / τ₀</code>.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">φ</td><td>Phi</td><td>Scalar potential or orbital phase. Also used for radar-chart coordinate in φ-space composition laws.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">ψ</td><td>Psi</td><td>Wave amplitude or spatial reconciliation factor; in GR mapping ψ⁴ scales the 3-metric.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">ω</td><td>Omega</td><td>Angular frequency (rad/s). ω₀ = baseline maintenance frequency; ω = ω₀ M(x).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">Φ</td><td>Capital Phi</td><td>Field flux or Newtonian potential (low-energy limit of S(x) curvature).</td></tr>
+                        <tr data-cat="Bridge">
+                            <td class="symbol">Π(β, θ)</td>
+                            <td>Capital Pi (directional factor)</td>
+                            <td>
+                            Observer-side Doppler/directional factor at detection.  
+                            <code>Π(β, θ) = γ(1 − β cos θ)</code>.  
+                            <b>Note:</b> Poynting vector is denoted <b>S_EM</b> in this document to avoid symbol clash.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Latin Letters (Key Variables) <span class="tag tag-foundation">Foundation</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Symbol</th>
+                            <th style="width: 30%;">Name</th>
+                            <th style="width: 60%;">CBF Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cat="Bridge"><td class="symbol">a</td><td>Lattice spacing</td><td>Spatial stride between cells (γ-length ≈ 10⁻¹² m). One photon hop per τ₀.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">A</td><td>Vector potential</td><td>Magnetic potential (T·m). Label for cross-cell coupling channel in T.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">B</td><td>Magnetic field</td><td>Maintenance storage on faces (Tesla). Represents curl of T-flow loops.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">C</td><td>Total causal budget</td><td><code>C = T + M</code>. Per-tick compute share sum, normalized to α(x).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">E</td><td>Energy / Electric field</td><td>Total energy or local E-field. Represents work potential in T-channel.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">f</td><td>Frequency</td><td>Oscillation rate (Hz). f₀ = Compton frequency = mc²/h.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">G</td><td>Gravitational constant</td><td>Queue-depth coupling per mass; sets α-slowdown from S(x).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">h</td><td>Planck constant</td><td>Phase → energy bridge; assigns units to update frequency.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">j</td><td>Current density</td><td>Charge flow (A/m²), transfers T-budget between neighboring cells.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">k</td><td>Wavenumber</td><td>Spatial frequency (rad/m). <strong>k</strong> as vector carries propagation direction.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">M</td><td>Maintenance share / Mass</td><td>Fraction of C used for internal upkeep. M > 0 defines rest mass; M = 0 for photons.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">m</td><td>Mass</td><td>Physical mass (kg) = ℏω₀/c². Encodes baseline maintenance cost.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">p</td><td>Momentum</td><td><code>p = ℏk = γmv</code>. Translation energy per unit c.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">r</td><td>Position / radius</td><td><strong>r</strong>: position vector; r: radial coordinate for α(r), ψ(r).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">R</td><td>Areal radius</td><td>Schwarzschild areal radius; <code>R = r(1 + GM/2rc²)²</code>.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">S</td><td>Stability / Source ledger</td><td>S(x): gravitational working memory (RAM of reality). Feeds α(x) and g(x).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">t</td><td>Time</td><td>Global tick count × τ₀. Coordinate time of the shared Event Ledger.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">T</td><td>Translation share</td><td>Fraction of C used for motion / wave advance. Complements M via <code>C = T + M</code>.</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">u</td><td>Energy density</td><td>Local energy per volume: <code>u = (E² + B²)/2</code> (normalized units).</td></tr>
+                        <tr data-cat="Bridge"><td class="symbol">v</td><td>Velocity</td><td>Spatial translation rate: <code>v = α c T</code> for matter; <code>v = α c</code> for light.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Special Notation <span class="tag tag-bridge">Bridge</span></h3>
+            <div class="table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr><th>Notation</th><th>Meaning</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="equation">∇</td><td>Gradient/divergence/curl operator. Defines local field topology on lattice edges and faces.</td></tr>
+                        <tr><td class="equation">∇²</td><td>Laplacian (∂² sum). Governs diffusion or potential smoothing in α and ψ fields.</td></tr>
+                        <tr><td class="equation">□</td><td>D’Alembertian = −∂²/∂t² + ∇². The general wave operator over the causal grid.</td></tr>
+                        <tr><td class="equation">⟨...⟩</td><td>Ledger-averaged or time-averaged quantity over multiple commits.</td></tr>
+                        <tr><td class="equation">|ψ|²</td><td>Commit frequency density (Born-rule emergence).</td></tr>
+                        <tr><td class="equation">TT</td><td>Transverse-traceless gauge; purely shear mode for gravitational waves.</td></tr>
+                        <tr><td class="equation">SCG</td><td>Simultaneous Commit Group. Shared-ledger constraint linking entangled participants.</td></tr>
+                        <tr><td class="equation">FDTD</td><td>Finite-Difference Time-Domain method. Numerical validation of EM budget conservation.</td></tr>
+                        <tr><td class="equation">1PN</td><td>First Post-Newtonian term (O(c⁻²)) linking queue-based GR corrections.</td></tr>
+                        <tr>
+                            <td class="equation">S_EM</td>
+                            <td>Poynting vector (energy flux): <code>S_EM = (1/μ₀) E × B</code> (SI), <code>= E × B</code> (normalized).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="note">
+                <b>Summary:</b> Greek letters describe pacing, phase, and maintenance;
+                Latin letters mark lattice quantities and conserved budgets;
+                special symbols capture the Ledger’s computation rules.
+                Each appears in at least one equation of <code>C = T + M = α(x)</code>.
+            </div>
+
+        </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container foot">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="dot" aria-hidden="true"></span>
+        <span>© <span id="y">2025</span> CBF • Jamie Whitten</span>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/devblog.html">Dev Blog</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Header offset measurement (same approach as home/conclusions)
+    (function() {
+      const header = document.querySelector('.site-header');
+      function setHeaderOffset(){
+        const h = header ? header.offsetHeight : 80;
+        document.documentElement.style.setProperty('--header-h', h + 'px');
+      }
+      window.addEventListener('load', setHeaderOffset);
+      window.addEventListener('resize', setHeaderOffset);
+      setHeaderOffset();
+    })();
+
+    // Mobile drawer
+    (function(){
+      const burger = document.getElementById('burger');
+      const drawer = document.getElementById('drawer');
+      const closeDrawer = document.getElementById('closeDrawer');
+      function openDrawer(){ drawer.hidden = false; requestAnimationFrame(()=>{ drawer.classList.add('open'); }); burger && burger.setAttribute('aria-expanded','true'); }
+      function hideDrawer(){ drawer.classList.remove('open'); burger && burger.setAttribute('aria-expanded','false'); setTimeout(()=>{ drawer.hidden = true; }, 200); }
+      burger && burger.addEventListener('click', openDrawer);
+      closeDrawer && closeDrawer.addEventListener('click', hideDrawer);
+      drawer && drawer.addEventListener('click', (e)=>{ if(e.target === drawer) hideDrawer(); });
+    })();
+  </script>
+</body>
+</html>

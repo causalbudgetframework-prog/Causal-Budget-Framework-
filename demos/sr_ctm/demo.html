@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SR Particle Sandbox — Visual Only</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0a0a0a;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 10px;
+      color: #ff6b6b;
+      text-align: center;
+    }
+    .description {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ccc;
+      max-width: 900px;
+      line-height: 1.4;
+    }
+    .controls {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #333;
+    }
+    .reference-frame {
+      background: #ff6b6b22;
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #ff6b6b;
+      text-align: center;
+      min-width: 220px;
+    }
+    .reference-value {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #ff6b6b;
+    }
+    .creator {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: #2a2a4e;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #4a9eff;
+    }
+    .input-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    input[type="range"] { width: 140px; }
+    button {
+      padding: 10px 20px;
+      border: 2px solid #4a9eff;
+      background: #1a1a2e;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    button:hover { background: #4a9eff; color: #000; }
+    canvas {
+      border: 2px solid #333;
+      background: #000;
+      cursor: crosshair;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+      margin-bottom: 20px;
+    }
+    label { color: #ccc; font-size: 0.85em; }
+    .legend {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-width: 900px;
+      color: #cfcfcf;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ CBF vs SR Particle Demo</h1>
+  <div class="description">
+    Compare C = T + M budget framework against standard Special Relativity. Toggle between symmetric (SR) and directional (CBF) time dilation. In CBF mode, lower velocity particles run faster clocks because they allocate more budget to maintenance (M).
+  </div>
+
+  <div class="controls">
+    <div class="reference-frame">
+      <div>Your Frame</div>
+      <div class="reference-value"><span id="refFrameValue">0.30</span>c</div>
+      <input type="range" id="referenceFrame" min="0" max="0.99" step="0.01" value="0.30" />
+      <div style="font-size: 0.8em; margin-top: 5px; color: #aaa;">Grid drifts with your speed</div>
+    </div>
+
+    <div class="creator">
+      <div class="input-group">
+        <label>New Particle Speed</label>
+        <input type="range" id="particleSpeed" min="0" max="0.99" step="0.01" value="0.60" />
+        <span id="particleSpeedValue">0.60</span>c
+      </div>
+      <div class="input-group">
+        <label>Oscillation Base Freq</label>
+        <input type="range" id="particleFreq" min="0.2" max="5" step="0.1" value="2.0" />
+        <span id="particleFreqValue">2.0</span> Hz
+      </div>
+      <button id="createParticle">Add Particle</button>
+      <button id="addRandom">+5 Random</button>
+      <button id="clearAll">Clear</button>
+
+      <div class="input-group" style="min-width:260px">
+        <label>Clock Rule</label>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="clockmode" id="clockCBF" checked /> C = T + M (directional)</label>
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="clockmode" id="clockSR" /> SR (symmetric)</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="canvas" width="900" height="600"></canvas>
+  <div class="legend" id="legend"></div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI elements
+    const refSlider = document.getElementById('referenceFrame');
+    const refValue = document.getElementById('refFrameValue');
+    const pSpeed = document.getElementById('particleSpeed');
+    const pSpeedValue = document.getElementById('particleSpeedValue');
+    const pFreq = document.getElementById('particleFreq');
+    const pFreqValue = document.getElementById('particleFreqValue');
+    const addBtn = document.getElementById('createParticle');
+    const addRandomBtn = document.getElementById('addRandom');
+    const clearBtn = document.getElementById('clearAll');
+
+    // Clock rule controls
+    const clockCBF = document.getElementById('clockCBF');
+    const clockSR  = document.getElementById('clockSR');
+
+    // State
+    let particles = [];
+    let tGlobal = 0; // seconds
+    let observerV = parseFloat(refSlider.value);
+    let gridOffset = 0;
+    const gridSpacing = 50;
+    const REL_SCALE = 220;     // px/s scale factor (shared by grid & particles)
+
+    function gamma(v) { return 1/Math.sqrt(1 - v*v); } // c = 1 units
+
+    class Particle {
+      constructor(x, y, v, baseFreq) {
+        this.x = x; this.y = y;
+        this.v = Math.max(0, Math.min(0.99, v));
+        this.baseFreq = baseFreq; // Hz in rest frame
+        this.h = Math.floor(Math.random()*360);
+        this.age = 0;   // coordinate time since birth
+        this.tau = 0;   // proper time
+        this.phase = Math.random()*Math.PI*2;
+      }
+
+      // SR relative speed (Einstein velocity addition)
+      static relSR(vp, vo){
+        const num = (vp - vo);
+        const den = (1 - vp*vo);
+        return Math.max(-0.999, Math.min(0.999, num / den));
+      }
+
+      // Clock rate rules
+      static rateCBF(vp, vo){
+        // CBF: Clock rate based on relative budget allocation
+        // Observer at vo has C = vo + (1-vo), particle at vp has C = vp + (1-vp)
+        // Relative clock rate = 1 + (vo - vp) 
+        // Slower particles appear faster, faster particles appear slower
+        return Math.max(0.01, 1 + (vo - vp));
+      }
+      
+      static rateSR(vp, vo){
+        // Standard SR: Symmetric time dilation based on relative velocity
+        const w = Particle.relSR(vp, vo);
+        return Math.sqrt(Math.max(0.01, 1 - w*w));
+      }
+
+      step(dt) {
+        // Clock rate: toggle between directional CBF and symmetric SR
+        const rClock = (clockSR && clockSR.checked)
+          ? Particle.rateSR(this.v, observerV)      // SR: symmetric dilation
+          : Particle.rateCBF(this.v, observerV);    // CBF: directional dilation
+        
+        this.tau += dt * rClock;
+        this.age += dt;
+
+        // Relative velocity uses SR for visual consistency
+        const w = Particle.relSR(this.v, observerV);
+        this.x += (REL_SCALE * w) * dt;
+
+        // Oscillation follows the clock rate
+        const effFreq = this.baseFreq * rClock;
+        this.phase += 2*Math.PI*effFreq*dt;
+      }
+
+      draw() {
+        ctx.save();
+        const r = 8 + 4*Math.sin(this.phase);
+        const px = this.x, py = this.y;
+
+        // clock highlight when nearly same frame
+        const inSync = Math.abs(this.v - observerV) < 0.02;
+
+        // body with color indicating clock rate
+        const clockRate = (clockSR && clockSR.checked) 
+          ? Particle.rateSR(this.v, observerV) 
+          : Particle.rateCBF(this.v, observerV);
+        
+        // Color intensity based on clock rate (brighter = faster time)
+        const intensity = Math.min(100, 40 + clockRate * 60);
+        ctx.fillStyle = `hsl(${this.h} 80% ${intensity}%)`;
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = `hsl(${this.h} 70% 50% / 0.6)`; ctx.lineWidth = 2; ctx.stroke();
+
+        // velocity arrow
+        ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2 + this.v*2;
+        ctx.beginPath(); ctx.moveTo(px - 14, py); ctx.lineTo(px + 26 + this.v*28, py); ctx.stroke();
+
+        // on-head clock (proper time)
+        ctx.font = '12px Arial'; ctx.textAlign = 'center';
+        const sec = Math.floor(this.tau)%60;
+        const decimals = (this.tau%1).toFixed(2).slice(2);
+        const clockStr = `${sec.toString().padStart(2,'0')}:${decimals}`;
+        ctx.fillStyle = inSync ? '#ffffff' : '#9ab7ff';
+        ctx.fillText(clockStr, px, py - 18);
+
+        // label with clock rate
+        ctx.fillStyle = '#cfcfcf';
+        ctx.fillText(`v=${this.v.toFixed(2)}c  rate=${clockRate.toFixed(3)}`, px, py + 20);
+        ctx.restore();
+      }
+    }
+
+    function addParticleAt(x, y, v, f) {
+      particles.push(new Particle(x, y, v, f));
+    }
+
+    function addRandomParticles(n) {
+      const cx = canvas.width * 0.5;
+      const xSpread = canvas.width * 0.25;
+      for (let i=0; i<n; i++) {
+        const y = 160 + Math.random()*(canvas.height - 260);
+        const x = cx + (Math.random()*2 - 1) * xSpread;
+        const v = Math.max(0, Math.min(0.99, parseFloat(pSpeed.value) + (Math.random()*0.4 - 0.2)));
+        const f = Math.max(0.2, parseFloat(pFreq.value) + (Math.random()*0.8 - 0.4));
+        addParticleAt(x, y, v, f);
+      }
+    }
+
+    function drawMovingGrid(dt, gridSpeed) {
+      gridOffset -= gridSpeed * dt;
+      if (gridOffset <= -gridSpacing) gridOffset += gridSpacing;
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(100, 150, 255, 0.12)';
+      ctx.lineWidth = 1;
+
+      // verticals
+      for (let x = gridOffset; x < canvas.width + gridSpacing; x += gridSpacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      // horizontals
+      for (let y = 0; y < canvas.height + gridSpacing; y += gridSpacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function animate(ts) {
+      requestAnimationFrame(animate);
+      const dt = Math.min(0.05, (ts - (animate._lastTs||ts)) / 1000);
+      animate._lastTs = ts;
+      tGlobal += dt;
+
+      const gridSpeed = observerV * REL_SCALE;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,canvas.width, canvas.height);
+
+      drawMovingGrid(dt, gridSpeed);
+
+      particles.forEach(p => p.step(dt));
+      particles.forEach(p => p.draw());
+
+      // cull offscreen
+      particles = particles.filter(p => p.x > -60 && p.x < canvas.width + 60);
+
+      // legend update
+      const legend = document.getElementById('legend');
+      legend.innerHTML = '' +
+        '<strong>Legend:</strong> ' +
+        (clockSR && clockSR.checked
+          ? '<span style="color:#9ab7ff">SR Clock: dτ/dt = √(1−w²) where w = (v_p−v_obs)/(1−v_p⋅v_obs)</span> · <span style="color:#cfe2ff">Symmetric time dilation</span> · '
+          : '<span style="color:#9ab7ff">CBF Clock: dτ/dt = 1 + (v_obs − v_p)</span> · <span style="color:#cfe2ff">Slower particles run faster, faster run slower</span> · ')
+        + '<span style="color:#fff">Brightness indicates clock rate</span> · '
+        + `<span style="color:#ff6b6b">Observer v = ${observerV.toFixed(2)}c</span>`;
+    }
+
+    // Events
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      addParticleAt(x, y, parseFloat(pSpeed.value), parseFloat(pFreq.value));
+    });
+    addBtn.addEventListener('click', () => {
+      addParticleAt(canvas.width * 0.5, canvas.height * 0.6, parseFloat(pSpeed.value), parseFloat(pFreq.value));
+    });
+    addRandomBtn.addEventListener('click', () => addRandomParticles(5));
+    clearBtn.addEventListener('click', () => { particles = []; });
+
+    refSlider.addEventListener('input', () => {
+      observerV = parseFloat(refSlider.value);
+      refValue.textContent = observerV.toFixed(2);
+    });
+    pSpeed.addEventListener('input', () => { pSpeedValue.textContent = parseFloat(pSpeed.value).toFixed(2); });
+    pFreq.addEventListener('input', () => { pFreqValue.textContent = parseFloat(pFreq.value).toFixed(1); });
+
+    // Demo particles
+    addParticleAt(canvas.width*0.5 - 160, 220, 0.10, 2.0);
+    addParticleAt(canvas.width*0.5,       320, 0.60, 2.0);
+    addParticleAt(canvas.width*0.5 + 160, 420, 0.90, 2.0);
+
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

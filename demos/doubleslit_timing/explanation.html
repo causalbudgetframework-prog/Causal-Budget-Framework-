@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Demo: Timing of Interference</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="../../pagestyles.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+          <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <main class="content">
+      <section class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Timing of interference visualization" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Timing of Interference</h1>
+            <p>
+              This demo shows a single particle traveling through two slits as <strong>two healing fronts</strong> that wash over one another.
+              Each front expands outward from its slit as a hemispherical pulse. As they overlap, the combined phase begins forming an interference pattern,
+              but only after both fronts have crossed the region in front of the detector.
+            </p>
+            <p>
+              Watch closely as the wavefronts first reach the detector: the screen lights up <em>before</em> the interference pattern appears.
+              The centerline experiences constructive interference first, since both hemispheres meet there with nearly identical phase.
+              The side regions take longer, because the path differences require several phase cycles before alignment occurs.
+            </p>
+            <p>
+              The key observation is that <strong>interference takes time</strong>. It does not exist the instant the wavefronts touch the detector.
+              Instead, commits (Ledger events) are delayed while the two fronts exchange phase information. The interference pattern
+              “spreads sideways” as those commits resolve over time, revealing that interference is a temporal process of reconciliation,
+              not a static overlap.
+            </p>
+            <p>
+              In CBF terms, each bright fringe marks a region where the Event Ledger has found stable phase agreement between the two histories.
+              The dark regions are zones of ongoing negotiation, still waiting for a consistent commit. This is what gives interference its
+              unfolding, time-delayed character.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="/demos.html">Back to Demos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+</body>
+</html>

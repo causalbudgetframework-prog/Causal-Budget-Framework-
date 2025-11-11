@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CBF • Redshift (Photons don’t buffer) — Explanation</title>
+  <link rel="icon" href="/favicon.ico"/>
+  <link rel="stylesheet" href="../../pagestyles.css"/>
+  <link rel="stylesheet" href="../styles.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+
+  <!-- MathJax for inline LaTeX like \( \alpha, \psi \) -->
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="../../contact-popup.js"></script>
+
+</head>
+<body>
+  <!-- Header / Nav (same pattern as your example) -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#cbf">CBF Relation</a>
+      <a class="chip" href="#results">What to Expect</a>
+      <a class="chip" href="#code">Key Code</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Redshift demo: emitted and observed phase trains" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Redshift: Pacing Ratio, No Photon Buffer</h1>
+            <p>
+              This demo shows how observed frequency and temperature scale with the **pacing ratio**.
+              For photons in CBF, <strong>M = 0</strong> (no temporal queue), so the wavelength history is read
+              at detection via the local pacing factor <em>α</em>.
+            </p>
+            <p class="muted mono">
+              Core relations: <code>f_obs = f_emit × (α_obs / α_emit)</code> and
+              <code>1 + z = α_emit / α_obs</code>, so <code>T_now = T_emit / (1+z)</code>.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="/demos.html">Back to Demos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<section id="cbf" class="card">
+  <h2 class="section-title">How this maps to CBF</h2>
+  <p>
+    In CBF, photons carry no maintenance budget (<strong>M = 0</strong>) and therefore do not build a temporal queue.
+    Their frequency never changes in flight. What we call <em>redshift</em> arises only when the detector reads the frozen oscillation
+    pattern through a different local pacing factor, \( \alpha \).
+  </p>
+
+  <div class="callout info">
+    <div class="callout-title">What determines \( \alpha \)</div>
+    <p>
+      The pacing factor \( \alpha(x) \) sets how fast local clocks run relative to the universal baseline.
+      It reflects how much of each tick’s causal budget is devoted to translation versus maintenance:
+      \( \alpha = T / (T + M) \).  
+      Regions with deeper gravitational potential, higher curvature, or slower local clock rate have smaller \( \alpha \);  
+      low-gravity or later-epoch regions have larger \( \alpha \).
+    </p>
+    <p>
+      This single mechanism unifies <strong>gravitational and cosmological redshift</strong>:
+      both are simply differences in \( \alpha \) between emission and observation points.
+      For a photon emitted at \( \alpha_{\text{emit}} \) and detected at \( \alpha_{\text{obs}} \),
+      \( f_{\text{obs}} = f_{\text{emit}} \times (\alpha_{\text{obs}} / \alpha_{\text{emit}}) \),
+      and equivalently \( 1 + z = \alpha_{\text{emit}} / \alpha_{\text{obs}} \).
+    </p>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">CBF Summary</div>
+    <p>
+      Photons propagate with \( C = T \) only.  The observed frequency depends entirely on how the observer’s local
+      pacing \( \alpha_{\text{obs}} \) reads the emission pattern written at \( \alpha_{\text{emit}} \).
+      Thus gravitational redshift near a massive body and cosmological redshift across expanding epochs are
+      two expressions of the same pacing-ratio rule.
+    </p>
+  </div>
+</section>
+
+<section class="card" id="pacing-snapshot">
+  <h2 class="section-title">Photons as Pacing Snapshots</h2>
+  <p>
+    In CBF, a photon is not an energy packet. It is a <strong>pacing snapshot</strong> of an oscillation pattern. Think of a vinyl record:
+    the grooves are fixed at pressing, and the music you hear depends on the record player’s RPM. Likewise, a photon’s pattern is fixed at
+    emission, and what you “hear” at detection depends on the local pacing.
+  </p>
+  <ul>
+    <li><strong>At emission:</strong> The atom’s current \( C = T + M \) at \( \alpha_{\text{emit}} \) is <em>imprinted</em> into the oscillation pattern.
+      In CBF, oscillation arises from <em>atom \(T+M\) vibration</em>, so IR/visible/UV is literally the pattern produced by that budget at that moment.</li>
+    <li><strong>In transit:</strong> No internal clock, no buffering, no evolution. Photons have \( M = 0 \), so the same pattern simply propagates.</li>
+    <li><strong>At detection:</strong> The observer’s current \( C = T + M \) at \( \alpha_{\text{obs}} \) <em>reads</em> that pattern. The playback rate rescales by
+      the pacing ratio \( f_{\text{obs}} = f_{\text{emit}} \times (\alpha_{\text{obs}} / \alpha_{\text{emit}}) \). Thus, “IR at emitter” need not remain IR at detector.</li>
+  </ul>
+
+  <div class="callout info">
+    <div class="callout-title">Thermal Spectra</div>
+    <p>
+      A thermal field’s Planck distribution encodes the emitter’s state. When read at a different pacing, the <em>entire spectrum</em> shifts coherently:
+      \( T_{\text{now}} = T_{\text{emit}} \times (\alpha_{\text{obs}} / \alpha_{\text{emit}}) = T_{\text{emit}}/(1+z) \).
+    </p>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">No Photon Counting</div>
+    <p>
+      CBF does not conserve “photon number.” Each emission is a local <em>ledger transaction</em> converting stored \( M \) into propagating \( T \).
+      What is conserved is the total causal budget \( C \), not a particle inventory.
+    </p>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">Interference Clarity</div>
+    <p>
+      Interference is superposition at the reconciliation layer: overlapping field commits whose phases are compared when events are added to the ledger.
+      No self-interfering particles are required.
+    </p>
+  </div>
+</section>
+
+      <!-- WHAT TO EXPECT -->
+      <section id="results" class="card">
+        <h2 class="section-title">What to expect</h2>
+        <ul>
+          <li><strong>Live ratios:</strong> As you slide <em>α_emit</em> and <em>α_obs</em>, the panel updates
+              <code>f_obs / f_emit</code>, <code>z</code>, <code>1+z</code>, and <code>T_now</code> instantly.</li>
+          <li><strong>Phase trains:</strong> The emitted canvas shows the reference oscillation at <code>f_emit</code>.
+              The observed canvas shows the resampled train at <code>f_obs</code>.</li>
+          <li><strong>CMB preset:</strong> Tap “Preset: CMB (1+z≈1100)” to visualize the scaling from recombination to now,
+              using <code>α_emit = 1</code> and <code>α_obs = 1/1100</code>.</li>
+          <li><strong>Interference tab:</strong> A second tab illustrates that interference comes from the field’s phase
+              comparison, not from stored photon phase history.</li>
+        </ul>
+      </section>
+
+      <!-- CODE -->
+      <section id="code" class="card">
+        <h2 class="section-title">Key Code</h2>
+
+        <!-- 1) Derived quantities -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>1) Derived quantities: frequency ratio, redshift, and temperature mapping</span>
+            <button class="copy-btn" data-copy="#code1" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            This function computes the pacing-based scaling used throughout the UI. It implements
+            <code>f_obs = f_emit × (α_obs / α_emit)</code>,
+            <code>1+z = f_emit / f_obs</code>, and
+            <code>T_now = T_emit / (1+z)</code>.
+          </p>
+          <pre><code id="code1" class="language-js"></code></pre>
+          <script>
+            document.getElementById('code1').textContent = `function computeDerived(){
+  const freqRatio = state.alphaObs / state.alphaEmit;     // f_obs / f_emit
+  const fObs = state.fEmit * freqRatio;                   // observed frequency
+  const onePlusZ = state.fEmit / (fObs || 1e-9);          // 1 + z
+  const z = onePlusZ - 1;
+  const tNow = state.tEmit / (onePlusZ || 1e-9);          // T_now = T_emit / (1+z)
+  return { freqRatio, fObs, onePlusZ, z, tNow };
+}
+
+function updateDerivedUI(){
+  const d = computeDerived();
+  el('ratioOut').textContent     = \`f_obs / f_emit = \${Number(d.freqRatio).toFixed(6)}\`;
+  el('zOut').textContent         = \`\${d.z.toFixed(3)}\`;
+  el('onePlusZOut').textContent  = \`\${d.onePlusZ.toFixed(3)}\`;
+  el('tNowOut').textContent      = \`T_now = \${d.tNow.toFixed(2)} K\`;
+  el('emitMeta').textContent     = \`f_emit = \${state.fEmit.toFixed(3)} Hz, α_emit = \${state.alphaEmit.toFixed(3)}\`;
+  el('obsMeta').textContent      = \`f_obs = \${d.fObs.toFixed(3)} Hz, α_obs = \${state.alphaObs.toFixed(6)}\`;
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p>
+              <strong>Pacing ratio at commit:</strong> The detector samples the passing wave with its local clock.
+              Changing <em>α</em> changes the sample rate, which appears as a different observed frequency and, for a thermal source,
+              a rescaled temperature label.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2) Phase-train rendering -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>2) Emitted vs observed phase trains (no photon buffer)</span>
+            <button class="copy-btn" data-copy="#code2" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            Two canvases render side-by-side oscillations. The observed one is not “stretched in flight,”
+            it is simply drawn at the detector’s sampled rate <code>f_obs</code>.
+          </p>
+          <pre><code id="code2" class="language-js"></code></pre>
+          <script>
+            document.getElementById('code2').textContent = `function drawAxis(ctx){
+  ctx.strokeStyle = '#6b7280';
+  ctx.lineWidth = 1; ctx.beginPath();
+  ctx.moveTo(0, ctx.canvas.height/2);
+  ctx.lineTo(ctx.canvas.width, ctx.canvas.height/2);
+  ctx.stroke();
+}
+
+function drawSine(ctx, f, color){
+  ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+  const timeSpan = 2.5; // seconds across width
+  const now = performance.now()/1000;
+  drawAxis(ctx);
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+  for (let x=0; x<ctx.canvas.width; x++){
+    const t = now - (ctx.canvas.width - x)/ctx.canvas.width * timeSpan;
+    const y = Math.sin(2*Math.PI*f*t);
+    const ypx = (ctx.canvas.height/2) * (1 - y);
+    if (x===0) ctx.moveTo(x, ypx); else ctx.lineTo(x, ypx);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function loop(){
+  if (state.running){
+    const d = computeDerived();
+    if (activeTab==='redshift'){
+      drawSine(ctxEmit, state.fEmit, '#10b981'); // emitted reference
+      drawSine(ctxObs,  d.fObs,      '#60a5fa'); // observed pacing
+    } else {
+      drawInterference(); // second tab
+    }
+  }
+  rafId = requestAnimationFrame(loop);
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p>
+              <strong>No temporal storage:</strong> The observed plot is a live readout at the detector’s pace.
+              This visualizes the “no photon buffering” rule: the phase history is reconciled at the boundary, not carried as an internal queue.
+            </p>
+          </div>
+        </div>
+
+        <!-- 3) Preset & UI wiring -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>3) CMB preset and slider wiring</span>
+            <button class="copy-btn" data-copy="#code3" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            The CMB preset uses <code>α_emit = 1</code> and <code>α_obs = 1/1100</code> for a quick visual of recombination-to-now scaling.
+            Sliders update state and refresh the derived panel and plots.
+          </p>
+          <pre><code id="code3" class="language-js"></code></pre>
+          <script>
+            document.getElementById('code3').textContent = `el('presetCMB').addEventListener('click', ()=>{
+  state.alphaEmit = 1.0;
+  state.alphaObs  = 1.0/1100.0;
+  state.fEmit     = 5;
+  state.tEmit     = 3000;
+  el('alphaEmit').value = state.alphaEmit;
+  el('alphaObs').value  = state.alphaObs;
+  el('fEmit').value     = state.fEmit;
+  el('tEmit').value     = state.tEmit;
+  syncSliders();
+});
+
+function syncSliders(){
+  el('alphaEmitOut').textContent = Number(state.alphaEmit).toFixed(3);
+  el('alphaObsOut').textContent  = Number(state.alphaObs).toFixed(6);
+  el('fEmitOut').textContent     = \`\${state.fEmit.toFixed(1)} Hz\`;
+  el('tEmitOut').textContent     = \`\${state.tEmit.toFixed(0)} K\`;
+  updateDerivedUI();
+}
+
+['alphaEmit','alphaObs','fEmit','tEmit'].forEach(id=>{
+  el(id).addEventListener('input', e=>{
+    state[id === 'alphaEmit' ? 'alphaEmit' :
+          id === 'alphaObs'  ? 'alphaObs'  :
+          id === 'fEmit'     ? 'fEmit'     : 'tEmit'] = parseFloat(e.target.value);
+    syncSliders();
+  });
+});`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p>
+              <strong>Cosmic scaling:</strong> The CMB preset is an illustration of reading a very old phase label at a much slower local clock.
+              In CBF terms, the long flight does not accumulate a buffer, the redshift appears when the Event Ledger compares pacing at commit.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+<script>
+  // Ensure MathJax typesets this section even if injected after load
+  window.addEventListener('load', () => {
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise([document.getElementById('pacing-snapshot')]);
+    }
+  });
+</script>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.hidden = false; d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.classList.remove('open'); d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>CBF • Wavefront + Detector (Phase Addition)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#151e29; --text:#eaf2ff; --muted:#9fb0c9; --brand:#4dd0e1;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:1080px;margin:20px auto;padding:0 16px;display:grid;gap:12px}
+  .row{display:grid;grid-template-columns: 1fr 1fr; gap:12px}
+  .card{background:linear-gradient(180deg,#192333,#131c2a);border:1px solid #243348;border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.35);padding:12px}
+  h1{font-size:1.1rem;margin:6px 0 2px}
+  .controls{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem;color:var(--muted)}
+  .controls label{display:flex;align-items:center;gap:8px;border:1px solid #2a3a4d;padding:6px 10px;border-radius:10px;background:#0f1622}
+  .controls input[type=range]{width:160px}
+  canvas{width:100%;height:480px;display:block;background:#0a111a;border-radius:10px}
+  .note{font-size:.9rem;color:var(--muted);margin:6px 0 0}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+  .badge{background:#0e1622;border:1px solid #253446;border-radius:999px;padding:4px 10px}
+  a{color:#79c0ff;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Expanding Wavefront, Phase Oscillation, and Detector Fringes (Phase Addition)</h1>
+  <div class="controls card">
+    <label>Wavelength λ
+      <input id="lambda" type="range" min="20" max="120" step="1" value="60">
+      <span id="lambdaVal"></span> px
+    </label>
+    <label>Slit width a
+      <input id="slit" type="range" min="10" max="200" step="1" value="120">
+      <span id="slitVal"></span> px
+    </label>
+    <label>Screen distance L
+      <input id="dist" type="range" min="150" max="480" step="1" value="360">
+      <span id="distVal"></span> px
+    </label>
+    <label>Sources across slit
+      <input id="sources" type="range" min="5" max="201" step="2" value="101">
+      <span id="sourcesVal"></span>
+    </label>
+    <label>Animation speed
+      <input id="speed" type="range" min="0" max="3" step="0.05" value="1.2">
+      <span id="speedVal"></span>x
+    </label>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <canvas id="left"></canvas>
+      <div class="legend">
+        <span class="badge">Left: expanding wavefront from slit, hue = phase (k·r − ωt)</span>
+        <span class="badge">Slit at x = 0, screen at x = L</span>
+      </div>
+      <p class="note">
+        The hue cycles with phase as the wave expands. This is a visualization aid, not literal color.
+        The slit emits many Huygens sources across width <em>a</em>.
+      </p>
+    </div>
+    <div class="card">
+      <canvas id="right"></canvas>
+      <div class="legend">
+        <span class="badge">Right (left pane): detector screen brightness ∝ |Σ e<sup>iθᵢ</sup>|²</span>
+        <span class="badge">Right (right pane): intensity vs screen height</span>
+        <span class="badge">Peaks = bright fringes, troughs = dark fringes</span>
+      </div>
+      <p class="note">
+        We compute complex phase addition of all slit sources for each detector position y:
+        θᵢ = k·rᵢ − ωt, amplitude ∼ e<sup>iθᵢ</sup>/rᵢ, then intensity(y) = |Σ<sub>i</sub> e<sup>iθᵢ</sup>/rᵢ|².
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+const cLeft = document.getElementById('left');
+const cRight = document.getElementById('right');
+const dpr = Math.max(1, window.devicePixelRatio || 1);
+const H = 480 * dpr;
+cLeft.width = cRight.width = 500 * dpr;   // logical width, we will scale drawing
+cLeft.height = cRight.height = H;
+
+const ctxL = cLeft.getContext('2d');
+const ctxR = cRight.getContext('2d');
+
+const ui = {
+  lambda: document.getElementById('lambda'),
+  slit: document.getElementById('slit'),
+  dist: document.getElementById('dist'),
+  sources: document.getElementById('sources'),
+  speed: document.getElementById('speed'),
+  lambdaVal: document.getElementById('lambdaVal'),
+  slitVal: document.getElementById('slitVal'),
+  distVal: document.getElementById('distVal'),
+  sourcesVal: document.getElementById('sourcesVal'),
+  speedVal: document.getElementById('speedVal'),
+};
+
+function readParams(){
+  const λ = +ui.lambda.value; ui.lambdaVal.textContent = λ;
+  const a = +ui.slit.value; ui.slitVal.textContent = a;
+  const L = +ui.dist.value; ui.distVal.textContent = L;
+  const N = +ui.sources.value; ui.sourcesVal.textContent = N;
+  const speed = +ui.speed.value; ui.speedVal.textContent = speed.toFixed(2);
+  return { λ, a, L, N, speed };
+}
+Object.values(ui).forEach(el=>{
+  if(el instanceof HTMLInputElement) el.addEventListener('input', ()=>{ /* reactive */ });
+});
+
+let t = 0;
+function hueFromPhase(phi){
+  // map phase ∈ (-π, π] to 0..360
+  const n = (phi/(2*Math.PI) + 1) % 1;
+  return 360*n;
+}
+
+function drawLeft({λ,a,L,N,speed}, dt){
+  const w = cLeft.width, h = cLeft.height;
+  ctxL.clearRect(0,0,w,h);
+
+  // coordinates: put slit at (x0, y0mid)
+  const x0 = Math.floor(80 * dpr);
+  const yMid = Math.floor(h/2);
+
+  // draw background grid faint
+  ctxL.fillStyle = '#0a111a';
+  ctxL.fillRect(0,0,w,h);
+
+  // slit as vertical aperture
+  ctxL.save();
+  ctxL.strokeStyle = '#2a3a4d';
+  ctxL.lineWidth = 2*dpr;
+  ctxL.beginPath();
+  ctxL.moveTo(x0, yMid - (a/2)*dpr);
+  ctxL.lineTo(x0, yMid + (a/2)*dpr);
+  ctxL.stroke();
+  ctxL.restore();
+
+  // Huygens sources along the slit
+  const k = 2*Math.PI/λ;
+  const ω = (2*Math.PI/λ) * 120 * dpr; // arbitrary speed tied to λ for aesthetics
+  const phaseTime = ω * t;
+
+  for(let i=0;i<N;i++){
+    const ty = yMid - (a/2)*dpr + (i/(N-1))*a*dpr;
+    // draw a small bright tick for source
+    ctxL.fillStyle = '#4dd0e1';
+    ctxL.fillRect(x0-2*dpr, ty-1*dpr, 4*dpr, 2*dpr);
+  }
+
+  // visualize expanding phase field as colored dots on a grid to the right of slit
+  const step = 10 * dpr;
+  for(let gy = step/2; gy < h; gy += step){
+    for(let gx = x0 + step/2; gx < w; gx += step){
+      // distance to each source, approximate by mid-slit to color (visual only)
+      const r = Math.hypot(gx - x0, gy - yMid);
+      const phi = (k*r - phaseTime) % (2*Math.PI);
+      const hue = hueFromPhase(phi);
+      ctxL.fillStyle = `hsl(${hue} 90% 60% / 0.38)`;
+      ctxL.fillRect(gx - step/2 + 1, gy - step/2 + 1, step - 2, step - 2);
+    }
+  }
+
+  // screen line
+  const xScreen = x0 + L*dpr;
+  ctxL.save();
+  ctxL.strokeStyle = '#7fc7ff';
+  ctxL.lineWidth = 2*dpr;
+  ctxL.beginPath();
+  ctxL.moveTo(xScreen, 10*dpr);
+  ctxL.lineTo(xScreen, h - 10*dpr);
+  ctxL.stroke();
+  ctxL.restore();
+
+  // label
+  ctxL.fillStyle = '#9fb0c9';
+  ctxL.font = `${12*dpr}px system-ui,Segoe UI,Roboto`;
+  ctxL.fillText('Slit', x0-10*dpr, yMid - (a/2)*dpr - 8*dpr);
+  ctxL.fillText('Detector screen', xScreen - 40*dpr, 18*dpr);
+
+  // advance time
+  t += dt * 0.001 * speed;
+}
+
+function computeAndDrawRight({λ,a,L,N,speed}){
+  const w = cRight.width, h = cRight.height;
+  ctxR.clearRect(0,0,w,h);
+
+  // panels: left half is the screen brightness map, right half is intensity plot
+  const split = Math.floor(w*0.55);
+  // draw backgrounds
+  ctxR.fillStyle = '#0a111a';
+  ctxR.fillRect(0,0,split,h);
+  ctxR.fillStyle = '#0a0f16';
+  ctxR.fillRect(split,0,w-split,h);
+
+  // geometry
+  const x0 = 20 * dpr;           // not used here, pure calc space
+  const yMid = Math.floor(h/2);
+  const k = 2*Math.PI/λ;
+  const ω = (2*Math.PI/λ) * 120 * dpr;
+  const phaseTime = ω * t;
+
+  // source y positions across the slit
+  const src = [];
+  for(let i=0;i<N;i++){
+    src.push( yMid - (a/2)*dpr + (i/(N-1))*a*dpr );
+  }
+
+  // for each detector y, sum complex contributions from all sources
+  const Ny = Math.floor(h); // sample per pixel row (high-res)
+  const intens = new Float32Array(Ny);
+  const xScreen = split - 10*dpr; // draw screen 10px from split
+
+  for(let py=0; py<Ny; py++){
+    const y = py + 0.5; // center
+    let Re = 0, Im = 0;
+    for(let i=0;i<N;i++){
+      const yy = src[i];
+      const r = Math.hypot(L*dpr, y - yy);
+      const phi = k*r - phaseTime;
+      const amp = 1 / Math.max(r, 1);        // 1/r falloff
+      Re += amp * Math.cos(phi);
+      Im += amp * Math.sin(phi);
+    }
+    const I = Re*Re + Im*Im;
+    intens[py] = I;
+  }
+
+  // normalize intensity
+  let maxI = 0;
+  for(let py=0;py<Ny;py++){ if(intens[py]>maxI) maxI=intens[py]; }
+  const norm = maxI>0 ? (1/maxI) : 1;
+
+  // draw screen strip with brightness
+  const img = ctxR.createImageData(8*dpr, h);
+  for(let py=0; py<Ny; py++){
+    const v = Math.pow(intens[py]*norm, 0.8); // gamma
+    const r = Math.min(255, Math.floor(255*v));
+    const g = Math.min(255, Math.floor(255*v));
+    const b = Math.floor(255*Math.min(1, v*1.3));
+    for(let px=0; px<img.width; px++){
+      const idx = (py*img.width + px)*4;
+      img.data[idx]   = r;
+      img.data[idx+1] = g;
+      img.data[idx+2] = 255; // bluish
+      img.data[idx+3] = 255;
+    }
+  }
+  ctxR.putImageData(img, xScreen, 0);
+
+  // find local maxima (bright fringes) and minima (dark)
+  const peaks = [];
+  const troughs = [];
+  for(let py=2; py<Ny-2; py++){
+    const v = intens[py];
+    if(v>intens[py-1] && v>intens[py+1] && v>0.02*maxI) peaks.push(py);
+    if(v<intens[py-1] && v<intens[py+1]) troughs.push(py);
+  }
+
+  // mark peaks/troughs
+  ctxR.save();
+  ctxR.strokeStyle = '#4dd0e1';
+  ctxR.fillStyle = '#4dd0e1';
+  peaks.forEach(py=>{
+    ctxR.beginPath();
+    ctxR.arc(xScreen + 12*dpr, py, 3.5*dpr, 0, Math.PI*2);
+    ctxR.fill();
+  });
+  ctxR.strokeStyle = '#ff6b6b';
+  ctxR.fillStyle = '#ff6b6b';
+  troughs.forEach(py=>{
+    ctxR.beginPath();
+    ctxR.arc(xScreen + 24*dpr, py, 2.5*dpr, 0, Math.PI*2);
+    ctxR.fill();
+  });
+  ctxR.restore();
+
+  // intensity plot on the right side
+  ctxR.save();
+  ctxR.translate(split + 10*dpr, 0);
+  const plotW = w - (split + 20*dpr);
+  const plotH = h - 20*dpr;
+
+  // axes
+  ctxR.strokeStyle = '#274058';
+  ctxR.lineWidth = 1*dpr;
+  ctxR.beginPath();
+  ctxR.moveTo(0, 10*dpr);
+  ctxR.lineTo(0, h-10*dpr);
+  ctxR.lineTo(plotW, h-10*dpr);
+  ctxR.stroke();
+
+  // plot
+  ctxR.strokeStyle = '#78c2ff';
+  ctxR.lineWidth = 2*dpr;
+  ctxR.beginPath();
+  for(let py=0; py<Ny; py++){
+    const x = (intens[py]*norm) * (plotW - 6*dpr);
+    const y = py;
+    if(py===0) ctxR.moveTo(x, y);
+    else ctxR.lineTo(x, y);
+  }
+  ctxR.stroke();
+
+  // labels
+  ctxR.fillStyle = '#9fb0c9';
+  ctxR.font = `${12*dpr}px system-ui,Segoe UI,Roboto`;
+  ctxR.fillText('Intensity', 6*dpr, 20*dpr);
+  ctxR.fillText('Bright peaks (cyan) • Dark troughs (red)', 6*dpr, 36*dpr);
+  ctxR.restore();
+}
+
+let last = performance.now();
+function frame(now){
+  const dt = now - last; last = now;
+  const params = readParams();
+  drawLeft(params, dt);
+  computeAndDrawRight(params);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

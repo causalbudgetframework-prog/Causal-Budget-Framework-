@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CBF • Maxwell TEz Double-Slit — Explanation (Reader Enhanced)</title>
+<link rel="icon" href="/favicon.ico"/>
+<link rel="stylesheet" href="../../pagestyles.css"/>
+<link rel="stylesheet" href="../styles.css"/>
+<link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+<script defer src="https://unpkg.com/prismjs/prism.js"></script>
+<script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+</head>
+<body>
+<main class="content">
+<section class="card">
+<h1>CBF • Maxwell Double-Slit (Reader Overview)</h1>
+
+<h2>CBF ↔ Maxwell Mapping</h2>
+<div class="well">
+<strong>Cheat Sheet</strong>
+<ul>
+<li><code>T</code> (translation) = Poynting flux <code>Π = E×H</code> → arrays <code>Pix,Piy</code></li>
+<li><code>M</code> (maintenance) = energy density <code>u = ½(εE² + μH²)</code> → array <code>uArr</code></li>
+<li><code>M</code> drain = <code>σE²</code> (absorber)</li>
+<li>Ledger commits = stochastic hits ∝ chosen weight (default <code>|Π⋅n|</code>)</li>
+</ul>
+</div>
+
+<h2>60‑Second Tour</h2>
+<ul class="checklist">
+<li>Left of slits: plane source + reflection → standing pattern (budget parked in M).</li>
+<li>At slits: edges diversify directions, enabling phase match downstream.</li>
+<li>Right of slits: interference fans; commits cluster where phases align (bright yellow rows).</li>
+<li>Brightness = visual gain only.</li>
+<li>Switch commit weight: <code>Π⋅n</code>≈screen flux, <code>|Π|</code>≈total flow, <code>u</code>≈stored energy.</li>
+</ul>
+
+<h2>What Changed vs Plain Maxwell</h2>
+<pre><code class="language-js">
+// + CBF additions (after Yee update each tick)
+const uArr = new Float32Array(Nx*Ny);   // M
+const Pix  = new Float32Array(Nx*Ny);   // T_x
+const Piy  = new Float32Array(Nx*Ny);   // T_y
+
+function budgetTick(){
+  for(let i=0;i<Nx*Ny;i++){
+    // M: stored energy
+    uArr[i] = 0.5*(eps[i]*Ez[i]*Ez[i] + Hx[i]*Hx[i] + Hy[i]*Hy[i]);
+    // T: translation flow (Π)
+    Pix[i]  = -Ez[i]*Hy[i];
+    Piy[i]  =  Ez[i]*Hx[i];
+    // optional: M drain felt via σE² in the residual
+  }
+}
+
+// + Ledger sampling on right screen
+function detectorCommit(){
+  // pick cell with prob ∝ weight (default |Π·n|)
+}
+</code></pre>
+
+<div class="callout info">
+<div class="callout-title">Why left side looks busy</div>
+<p>The region before the slits is a driven cavity, a reflection zone where incoming T converts to stored M and back, creating vertical standing fringes. It’s normal and can be muted with the anti‑reflection strip.</p>
+</div>
+
+<div class="callout info">
+<div class="callout-title">Recommended Quick Settings</div>
+<p>Frequency 30–50, Loss σ≈0.8, Commit prob≈0.5, Weight=|Π⋅n|, Brightness 1.5–3.0, Slits=On.</p>
+</div>
+
+</section>
+</main>
+</body>
+</html>

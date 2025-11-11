@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CBF • Double-Slit (Healing Hemispheres) — Explanation</title>
+  <link rel="icon" href="/favicon.ico"/>
+  <link rel="stylesheet" href="../../pagestyles.css"/>
+  <link rel="stylesheet" href="../styles.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#cbf">CBF Relation</a>
+      <a class="chip" href="#results">Expected Results</a>
+      <a class="chip" href="#settings">Settings</a>
+      <a class="chip" href="#code">Key Code</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Double-slit healing hemispheres demo" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Double-Slit: Healing Hemispheres → Detector Distance Test</h1>
+            <p>
+              Two healed hemispherical emitters at the slits radiate forward. We compute detector intensity at distance <em>L</em>
+              by coherent summation and automatically compare measured peak rows to analytic maxima. Controls scan geometry and wave
+              parameters so you can verify that detected fringes move exactly as CBF predicts from phase alignment at the screen.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="/demos.html">Back to Demos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CBF RELATION (high level) -->
+      <section id="cbf" class="card">
+        <h2 class="section-title">How this maps to CBF</h2>
+        <p>
+          Slit edges spawn **healing hemispheres**. This demo instantiates two hemispherical emitters at the slits and streams many pulses
+          (photons) forward. As fronts advance, their phase evolves. The detector does not accumulate “overlap energy,” it tests for **phase
+          alignment at the screen**, which stands in for the Event Ledger’s temporal gate. Commit frequency appears as bright rows, while
+          misaligned rows remain dark. The analytic comparison visualizes the Ledger’s additional geometric consistency checks.
+        </p>
+      </section>
+
+      <!-- EXPECTED RESULTS -->
+      <section id="results" class="card">
+        <h2 class="section-title">What to expect on the detector</h2>
+        <p>
+          As the wavefronts reach the detector, the centerline arrives with relatively steady phase, while the off-axis regions experience
+          faster phase rotation due to path-length differences. The screen is not the same color all the way down: near the edges, the phase
+          flips multiple times before the bulk arrives, creating alternating bright and dark bands. Scanning <em>L</em>, <em>d</em>, and <em>λ</em>
+          moves these bands exactly as predicted by <em>m λ = d sinθ</em>.
+        </p>
+        <p>
+          The colored finger-like bands show the running history of where commits were likely to occur, a probability trace of potential events along the screen.
+        </p>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="card">
+        <h2 class="section-title">Settings</h2>
+        <div class="table-wrap">
+          <table class="table settings-table">
+            <thead>
+              <tr>
+                <th>Parameter</th><th>Default</th><th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="key">Detector distance L</td><td>520 px</td><td>Moves screen to test far/near field.</td></tr>
+              <tr><td class="key">Slit separation d</td><td>120 px</td><td>Sets fringe spacing scale, mλ = d sinθ.</td></tr>
+              <tr><td class="key">Wavelength λ</td><td>22 px</td><td>Changes k = 2π/λ, shifting all phases.</td></tr>
+              <tr><td class="key">Detector height H</td><td>560 px</td><td>Canvas height and sample rows.</td></tr>
+              <tr><td class="key">Front spacing (draw)</td><td>28 px</td><td>Visual phase-front density only.</td></tr>
+              <tr><td class="key">Fronts show wavelength</td><td>off</td><td>Use half-λ front spacing when on.</td></tr>
+              <tr><td class="key">Peak threshold</td><td>0.25</td><td>Fixed or adaptive if too few peaks.</td></tr>
+              <tr><td class="key">Max order m to score</td><td>10</td><td>Restricts analytic maxima considered.</td></tr>
+              <tr><td class="key">Pass tolerance (px)</td><td>3 px</td><td>Absolute error pass line.</td></tr>
+              <tr><td class="key">Pass tolerance (fraction)</td><td>0.25</td><td>Local-spacing normalized pass line.</td></tr>
+              <tr><td class="key">Color fringes</td><td>off</td><td>Optional phase-colored propagation field.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-hint">Tip: On mobile, drag the table horizontally to view all columns.</div>
+      </section>
+
+      <!-- CODE -->
+      <section id="code" class="card">
+        <h2 class="section-title">Key Code</h2>
+
+        <!-- 1) Detector profile -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>1) Detector profile from two healed hemispherical emitters</span>
+            <button class="copy-btn" data-copy="#code1" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            This routine builds the screen intensity by summing complex contributions from two **hemispherical** sources located at
+            <code>y = ±d/2</code>, evaluated along the detector at <code>x = L</code>. Each source uses a simple transport factor
+            <code>1/r</code> and phase <code>k r</code>, then we square the magnitude of the phasor sum to get the intensity row.
+          </p>
+          <p>
+            We support optional sub-pixel supersampling when predicted fringe spacing becomes too small for the current detector sampling,
+            to avoid aliasing under extreme geometry. This keeps the peak locations faithful for later matching against the analytic formula.
+          </p>
+          <pre><code id="code1" class="language-js"></code></pre>
+          <script>
+          document.getElementById('code1').textContent = `function detectorProfile(P, supersample){
+  supersample = supersample || 1;
+  const L=P.L, d=P.d, lam=P.lam, H=P.H; const k = 2*Math.PI/lam; const I=new Float32Array(H);
+  const yc = H/2;
+  for(let j=0;j<H;j++){
+    let acc=0;
+    for(let s=0;s<supersample;s++){
+      const y = (j + (s+0.5)/supersample - yc);
+      const r1 = Math.hypot(L, y - d/2);
+      const r2 = Math.hypot(L, y + d/2);
+      const E1c = Math.cos(k*r1)/r1, E1s = Math.sin(k*r1)/r1;
+      const E2c = Math.cos(k*r2)/r2, E2s = Math.sin(k*r2)/r2;
+      const Ec = E1c + E2c, Es = E1s + E2s;
+      acc += (Ec*Ec + Es*Es);
+    }
+    I[j] = acc / supersample;
+  }
+  return I;
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p><strong>Healing hemispheres:</strong> CBF says slit edges seed hemispherical healing. Here, each slit is represented as a hemispherical emitter. We do not run the full healing solver, but the geometry and phase law capture the essential **direction diversification** and **path-length** differences that feed the Ledger.</p>
+            <p><strong>Temporal gate proxy:</strong> The phasor sum at the detector stands in for the Event Ledger’s temporal gate, which accepts commits where phases beat-match. The returned <em>|E|²</em> per row is the commit-frequency statistic, not a pre-screen energy overlap.</p>
+          </div>
+        </div>
+
+        <!-- 2) Analytic maxima & scoring -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>2) Analytic maxima and pass/fail scoring with local spacing</span>
+            <button class="copy-btn" data-copy="#code2" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            We predict maxima rows using the standard double-slit condition <code>m λ = d sinθ</code>, convert angles to row offsets, and keep
+            only orders that appear on the current detector. Measured peaks are found via a robust detector with a fixed threshold or a backup
+            adaptive threshold. We then match analytic rows to measured peaks on the same side of the centerline with a local search window.
+          </p>
+          <p>
+            To report accuracy, we compute mean absolute error in pixels and a **fractional error** normalized by the local fringe spacing
+            around each order, which stabilizes the score across varying geometries. Pass/fail uses the tighter of absolute and fractional tolerances.
+          </p>
+          <pre><code id="code2" class="language-js"></code></pre>
+          <script>
+          document.getElementById('code2').textContent = `function analyticMaxima(P){
+  const L=P.L, d=P.d, lam=P.lam, H=P.H; const yc=H/2; const rows=[]; const margin=2;
+  const mlim = Math.min(P.mmax, Math.floor((d-1e-6)/lam));
+  rows.push({m:0, j:yc});
+  for(let m=1;m<=mlim;m++){
+    const s = m*lam/d; if(Math.abs(s)>=1) break;
+    const theta = Math.asin(s); const y = L*Math.tan(theta);
+    const jUp = yc - y; const jDn = yc + y;
+    if(jUp>=margin && jUp<=H-margin) rows.push({m:-m, j:jUp});
+    if(jDn>=margin && jDn<=H-margin) rows.push({m:+m, j:jDn});
+  }
+  rows.sort(function(a,b){return a.j-b.j;}); return rows;
+}
+
+function findPeaks(I, frac){
+  let max=0; for(let i=0;i<I.length;i++){ if(I[i]>max) max=I[i]; }
+  let th;
+  if(frac==null){
+    const A = Array.from(I).sort(function(a,b){return a-b;});
+    const med = A[Math.floor(A.length/2)]||0;
+    const devs = A.map(function(v){return Math.abs(v-med);}).sort(function(a,b){return a-b;});
+    const mad = devs[Math.floor(devs.length/2)]||0;
+    th = Math.min(max*0.7, Math.max(max*0.1, med + 1.5*mad));
+  }else{
+    th = max*frac;
+  }
+  const peaks=[];
+  for(let i=1;i<I.length-1;i++){
+    if(I[i]>th && I[i]>=I[i-1] && I[i]>=I[i+1]){
+      const a=I[i-1], b=I[i], c=I[i+1];
+      const denom=(a-2*b+c); let off=0; if(Math.abs(denom)>1e-9) off=0.5*(a-c)/denom;
+      peaks.push(i+off);
+    }
+  }
+  return peaks;
+}
+
+function localSpacing(ana, idx){
+  if(ana.length<3) return Infinity;
+  const prev = idx>0 ? ana[idx].j - ana[idx-1].j : ana[idx+1].j - ana[idx].j;
+  const next = idx<ana.length-1 ? ana[idx+1].j - ana[idx].j : prev;
+  return (Math.abs(prev)+Math.abs(next))/2;
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p><strong>Constraint-checked commits:</strong> Matching measured peaks to analytic orders is the visualization of the Ledger’s **spatial gate** meeting the **temporal gate**. If phases do not reconcile to the allowed geometry, no commit is counted there.</p>
+            <p><strong>Local fairness:</strong> Normalizing by **local fringe spacing** mirrors CBF’s idea that acceptance should be judged in the context of nearby viable outcomes, not in absolute pixel units that vary with L, d, and λ.</p>
+          </div>
+        </div>
+
+        <!-- 3) Visualization: phase fronts & color fingers -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>3) Visualization: hemisphere fronts and phase-colored interference field</span>
+            <button class="copy-btn" data-copy="#code3" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            The draw pass renders the slit wall and the two seed points, then either evenly spaced fronts (for clarity) or
+            wavelength-spaced phase fronts. When “Color fringes” is enabled, we compute the local interference field between
+            the wall and detector and color by phase while modulating lightness by instantaneous intensity.
+          </p>
+          <p>
+            Detector output is drawn as horizontal bars proportional to intensity, with **yellow** markers for measured peaks,
+            and **red** ticks for analytic maxima. This side-by-side view makes it obvious when parameters force peaks in or out
+            of frame and helps debug thresholding, sampling, or extreme geometries.
+          </p>
+          <pre><code id="code3" class="language-js"></code></pre>
+          <script>
+          document.getElementById('code3').textContent = `function drawScene(P, I, peaks, ana){
+  const L=P.L, d=P.d, lam=P.lam, H=P.H, frontStep=P.frontStep;
+  const W=cv.width, Hcv=cv.height; S.clearRect(0,0,W,Hcv);
+  const cx=40, cy=Hcv/2;
+  // wall & slits
+  S.fillStyle='#1e2a44'; S.fillRect(cx-4,0,8,Hcv);
+  S.fillStyle='#a7c6ff'; S.fillRect(cx-3, cy-d/2-3, 6,6); S.fillRect(cx-3, cy+d/2-3, 6,6);
+  // detector
+  const detX=cx+L; S.strokeStyle='#2b3a5e'; S.beginPath(); S.moveTo(detX,0); S.lineTo(detX,Hcv); S.stroke();
+
+  // optional phase-colored field
+  if(ui('colorFingers') && ui('colorFingers').checked){
+    var w = Math.max(0, detX - cx - 1);
+    var img = S.createImageData(w, Hcv), data = img.data, k = 2*Math.PI/P.lam, idx=0;
+    for(var y=0; y<Hcv; y++){
+      var yrel = y - cy;
+      for(var x=0; x<w; x++){
+        var dx = x+1;
+        var r1 = Math.hypot(dx, yrel - P.d/2), r2 = Math.hypot(dx, yrel + P.d/2);
+        var c1 = Math.cos(k*r1)/Math.max(1,r1), s1 = Math.sin(k*r1)/Math.max(1,r1);
+        var c2 = Math.cos(k*r2)/Math.max(1,r2), s2 = Math.sin(k*r2)/Math.max(1,r2);
+        var Ec = c1 + c2, Es = s1 + s2, Ipx = Ec*Ec + Es*Es;
+        var phi = k*(r2 - r1); var hue = (phi/(2*Math.PI)) % 1; if(hue < 0) hue += 1;
+        var amp = Math.min(1, Ipx*0.9);
+        var rgb = hslToRgb(hue, 0.85, 0.10 + 0.45*amp);
+        data[idx++] = rgb[0]; data[idx++] = rgb[1]; data[idx++] = rgb[2]; data[idx++] = 255;
+      }
+    }
+    S.putImageData(img, cx+1, 0);
+  }
+
+  // hemisphere phase fronts
+  var showPhase = ui('phaseFronts') && ui('phaseFronts').checked;
+  S.lineWidth = 1;
+  if(showPhase){
+    const step = Math.max(4, lam/2);
+    const maxR = Math.hypot(L,H);
+    for(let R=step; R<maxR; R+=step){
+      const a = 0.15 + 0.35*Math.cos((2*Math.PI/lam)*R);
+      S.strokeStyle = 'rgba(106,209,255,'+a.toFixed(3)+')';
+      S.beginPath(); S.arc(cx, cy-d/2, R, -Math.PI/2, Math.PI/2);
+      S.moveTo(cx+R, cy+d/2); S.arc(cx, cy+d/2, R, -Math.PI/2, Math.PI/2);
+      S.stroke();
+    }
+  } else {
+    S.strokeStyle='#6ad1ff22';
+    for(let R=frontStep; R<Math.hypot(L,H); R+=frontStep){
+      S.beginPath(); S.arc(cx, cy-d/2, R, -Math.PI/2, Math.PI/2);
+      S.moveTo(cx+R, cy+d/2); S.arc(cx, cy+d/2, R, -Math.PI/2, Math.PI/2);
+      S.stroke();
+    }
+  }
+
+  // detector bars & markers
+  const Imax = Math.max.apply(null, I);
+  for(let j=0;j<Hcv;j++){ const v=I[j]/Imax; S.fillStyle='rgba(106,209,255,'+(0.10+0.90*v)+')'; S.fillRect(detX+1, j, Math.max(1, Math.floor(v*180)), 1); }
+  S.fillStyle='#ffe066'; for(let pi=0; pi<peaks.length; pi++){ const p=peaks[pi]; S.fillRect(detX+1+180, p-2, 6, 4); }
+  S.fillStyle='#ff7b72'; for(let ai=0; ai<ana.length; ai++){ const a=ana[ai]; S.fillRect(detX-4, a.j-2, 8, 4); }
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p><strong>Phase as visible ledger input:</strong> Phase-fronts and the colored field make the incoming information to the Ledger explicit, so you can see why the screen accepts more commits at certain rows.</p>
+            <p><strong>Outcome vs. mechanism:</strong> You never “see waves” in CBF, you see accepted commits. The detector bars and peak markers are the outcomes; the colored field is there so we can understand why those outcomes appear.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.hidden = false; d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.classList.remove('open'); d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

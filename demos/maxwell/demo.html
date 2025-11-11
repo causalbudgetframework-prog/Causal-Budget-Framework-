@@ -1,0 +1,433 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>CBF+FDTD — TEz Yee, Budget Ledger & NodeGraph Commits</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+html,body{margin:0;background:#0b1020;color:#dbe8ff;font:14px system-ui}
+#ui{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px;background:#0f1724;border-bottom:1px solid #253046}
+button,select,input{background:#12203a;color:#dbe8ff;border:1px solid #253046;border-radius:6px;padding:6px}
+label{display:flex;gap:6px;align-items:center}
+canvas{display:block;margin:0 auto;background:#000711;image-rendering:pixelated}
+.kpi{padding:2px 8px;border-radius:999px;background:#13223b}
+.small{color:#9fb2d9;font-size:12px}
+.badge{padding:2px 8px;border-radius:999px;background:#10304a;border:1px solid #2b7a9b;color:#c8f4ff}
+</style>
+</head>
+<body>
+<div id="ui">
+  <button id="run">Start</button>
+  <button id="step">Step</button>
+  <button id="reset">Reset</button>
+
+  <label>Demo:
+    <select id="demo">
+      <option value="slits" selected>Two slits (CBF)</option>
+      <option value="plane">Plane wave</option>
+    </select>
+  </label>
+
+  <label>Freq (λ≈Nx/f):
+    <input id="freq" type="range" min="10" max="80" step="1" value="30"/>
+  </label>
+
+  <label>Loss σ (M drain):
+    <input id="absorb" type="range" min="0" max="1" step="0.02" value="0.80"/>
+  </label>
+
+  <label>Commit prob:
+    <input id="cprob" type="range" min="0" max="1" step="0.02" value="0.50"/>
+  </label>
+
+  <label>Commit weight:
+    <select id="weight">
+      <option value="Pn" selected>Normal flux |Π·n|</option>
+      <option value="u">Energy density u</option>
+      <option value="P">Flux |Π|</option>
+      <option value="Ez2">Field |Ez|²</option>
+    </select>
+  </label>
+
+  <label>Brightness:
+    <input id="bright" type="range" min="0.1" max="5" step="0.1" value="1.5"/>
+  </label>
+
+  <label><input id="showNg" type="checkbox" checked/> Show commits</label>
+
+  <span class="kpi">Tick: <b id="tick">0</b></span>
+  <span class="kpi">NG: <b id="ng">0</b></span>
+  <span class="kpi">BudgetRes: <b id="res">0.000</b></span>
+  <span class="kpi">divB RMS: <b id="divb">—</b></span>
+  <span class="badge">CBF mode: T = Π, M = u, commits ∝ weight</span>
+</div>
+
+<canvas id="cv"></canvas>
+
+<script>
+/* ================= Grid & Fields ================= */
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const Nx = 240, Ny = 140;                  // cells
+const scale = 4;                            // pixels per cell (bigger = clearer slits)
+cv.width = Nx*scale; cv.height = Ny*scale;
+
+// TEz fields
+const Ez = new Float32Array(Nx*Ny);
+const Hx = new Float32Array(Nx*Ny);
+const Hy = new Float32Array(Nx*Ny);
+
+// Material / loss
+const eps = new Float32Array(Nx*Ny).fill(1.0);  // relative permittivity
+const sig = new Float32Array(Nx*Ny).fill(0.0);  // conductivity (absorber & hazard)
+const Ca  = new Float32Array(Nx*Ny);
+const Cb  = new Float32Array(Nx*Ny);
+
+// PEC mask (barriers/slits)
+const metal = new Uint8Array(Nx*Ny);
+
+// Budget & Poynting (CBF ledger)
+const uArr = new Float32Array(Nx*Ny);
+const Pix  = new Float32Array(Nx*Ny);
+const Piy  = new Float32Array(Nx*Ny);
+let budgetResidual = 0, divBRMS = NaN;
+
+// NodeGraph (commits on detector)
+const nodeGraph = []; // {i,t,parent}
+const recentDraw = []; // ring buffer of recent commit indices for overlay
+
+// UI refs
+const runBtn  = document.getElementById('run');
+const stepBtn = document.getElementById('step');
+const resetBtn= document.getElementById('reset');
+const demoSel = document.getElementById('demo');
+const freqEl  = document.getElementById('freq');
+const absorbEl= document.getElementById('absorb');
+const cprobEl = document.getElementById('cprob');
+const showNgEl= document.getElementById('showNg');
+const weightEl= document.getElementById('weight');
+const tickEl  = document.getElementById('tick');
+const ngEl    = document.getElementById('ng');
+const resEl   = document.getElementById('res');
+const divbEl  = document.getElementById('divb');
+const brightEl = document.getElementById('bright');
+
+const idx = (x,y)=> y*Nx + x;
+
+/* ================= Discretization ================= */
+const S = 0.7/Math.SQRT2; // Courant (2D) — safe
+const dt = S;             // with dx=dy=c=1 units
+const c2 = 1.0;
+
+/* ================= Helpers ================= */
+function clearFields(){
+  Ez.fill(0); Hx.fill(0); Hy.fill(0);
+  uArr.fill(0); Pix.fill(0); Piy.fill(0);
+}
+function buildAbsorber(strength){
+  sig.fill(0);
+  const pad = Math.floor(Math.min(Nx,Ny)*0.10);
+  const maxSig = 3.0*strength;
+  for(let y=0;y<Ny;y++){
+    for(let x=0;x<Nx;x++){
+      const bL = pad - Math.min(x, y, Nx-1-x, Ny-1-y);
+      const s = bL>0 ? maxSig*(bL/pad)**2 : 0;
+      sig[idx(x,y)] = s;
+    }
+  }
+}
+function updateCoeffs(){
+  for(let i=0;i<Nx*Ny;i++){
+    const s = sig[i], e = eps[i];
+    const a = (1 - s*dt/(2*e)) / (1 + s*dt/(2*e));
+    const b = (dt/e) / (1 + s*dt/(2*e));
+    Ca[i]=a; Cb[i]=b;
+  }
+}
+let barrierXs = [];
+function buildSlits(on){
+  metal.fill(0); // clear
+  barrierXs.length = 0;
+  if(!on) return;
+  // brighter, thicker barrier for visibility
+  const x0 = Math.floor(Nx*0.35);
+  const wallW = 3; // thicker cyan wall
+  for(let y=0;y<Ny;y++){
+    for(let w=0; w<wallW; w++){
+      const X = x0+w;
+      if(X>=0&&X<Nx){ metal[idx(X,y)]=1; }
+    }
+  }
+  barrierXs.push(x0, x0+wallW-1);
+
+  // two clearer slits: widen slightly
+  const cy = Ny>>1, slitW=3, gap=12;
+  for(let dy=-slitW;dy<=slitW;dy++){
+    for(let w=0; w<wallW; w++){
+      metal[idx(x0+w,   cy-gap+dy)]=0;
+      metal[idx(x0+w,   cy+gap+dy)]=0;
+    }
+  }
+}
+function softSource(t){
+  // left-line source
+  const f = Number(freqEl.value);       // cycles per Nx
+  const phase = 2*Math.PI*(t/f);
+  const y0 = (Ny*0.5)|0, w = (Ny*0.4)|0, x = (Nx*0.1)|0;
+  const amp = 0.5;
+  for(let y=Math.max(0,y0-w); y<=Math.min(Ny-1,y0+w); y++){
+    Ez[idx(x,y)] += Math.sin(phase)*amp; // superposition happens here (+=)
+  }
+}
+
+/* ================= Yee Update ================= */
+function updateH(){
+  for(let y=0;y<Ny-1;y++){
+    for(let x=0;x<Nx;x++){
+      const i=idx(x,y);
+      Hx[i] -= dt * (Ez[i+Nx] - Ez[i]); // dEz/dy
+    }
+  }
+  for(let y=0;y<Ny;y++){
+    for(let x=0;x<Nx-1;x++){
+      const i=idx(x,y);
+      Hy[i] += dt * (Ez[i+1] - Ez[i]);  // dEz/dx
+    }
+  }
+}
+function updateE(){
+  for(let y=1;y<Ny;y++){
+    for(let x=1;x<Nx;x++){
+      const i=idx(x,y);
+      const curl = (Hy[i]-Hy[i-1]) - (Hx[i]-Hx[i-Nx]);
+      Ez[i] = Ca[i]*Ez[i] + Cb[i]*c2*curl;
+    }
+  }
+  // enforce PEC (metal)
+  for(let y=0;y<Ny;y++) for(let x=0;x<Nx;x++)
+    if(metal[idx(x,y)]) Ez[idx(x,y)] = 0;
+}
+
+/* ================= Conservation (CBF Budget) ================= */
+/* Poynting: Π = (Sx,Sy) = (-Ez*Hy, Ez*Hx) in normalized μ=ε=1 units.
+   Energy density: u = 1/2 (ε Ez^2 + Hx^2 + Hy^2)  */
+function budgetTick(){
+  let res=0, cnt=0, divBsum=0;
+
+  // compute Π and u, then centered ∇·Π and divB
+  for(let y=0;y<Ny;y++){
+    for(let x=0;x<Nx;x++){
+      const i=idx(x,y);
+
+      // energy density (stored / M)
+      const uNew = 0.5*(eps[i]*Ez[i]*Ez[i] + Hx[i]*Hx[i] + Hy[i]*Hy[i]);
+
+      // Poynting (translation flux / T)
+      const Sx = -Ez[i]*Hy[i], Sy = Ez[i]*Hx[i];
+      Pix[i]=Sx; Piy[i]=Sy;
+
+      // centered differences where possible, one-sided at edges
+      const dPx = (x>0 && x<Nx-1) ? 0.5*(Pix[i+1]-Pix[i-1])
+                 : (x>0 ? Pix[i]-Pix[i-1] : Pix[i]);
+      const dPy = (y>0 && y<Ny-1) ? 0.5*(Piy[i+Nx]-Piy[i-Nx])
+                 : (y>0 ? Piy[i]-Piy[i-Nx] : Piy[i]);
+
+      // Joule loss term (absorber): σ E^2  (TEz → Ez is the electric)
+      const loss = sig[i] * Ez[i]*Ez[i];
+
+      // local balance: (u^{n+1}-u^n)/dt + ∇·Π + σE^2 = 0
+      const bal  = (uNew - uArr[i]) / dt + (dPx + dPy) + loss;
+      res += Math.abs(bal); cnt++;
+
+      // divB (≈ ∇·H in TEz sense): small is good
+      const dHx = (x<Nx-1 ? Hx[i+1]-Hx[i] : 0);
+      const dHy = (y<Ny-1 ? Hy[i+Nx]-Hy[i] : 0);
+      const divB = dHx + dHy;
+      divBsum += divB*divB;
+
+      uArr[i]=uNew;
+    }
+  }
+
+  budgetResidual = res/(cnt||1);
+  divBRMS = Math.sqrt(divBsum/(Nx*Ny));
+}
+
+/* ================= NodeGraph Commit (Detector) ================= */
+function detectorCommit(t){
+  const commitProb = Number(cprobEl.value);
+  if(Math.random() > commitProb) return; // throttle commits
+
+  // Detector: rightmost 10 columns, normal n = +x
+  const x0 = Nx-10;
+  let total=0;
+
+  // choose weighting
+  const mode = weightEl.value;
+  for(let y=0;y<Ny;y++) for(let x=x0;x<Nx;x++){
+    const i=idx(x,y);
+    if(mode === 'u'){
+      total += uArr[i];
+    } else if(mode === 'P'){
+      total += Math.hypot(Pix[i], Piy[i]);              // |Π|
+    } else if(mode === 'Pn'){
+      total += Math.abs(Pix[i]);                         // |Π·n|, n = (1,0)
+    } else { // 'Ez2'
+      total += Ez[i]*Ez[i];
+    }
+  }
+  if(total<=1e-12) return;
+
+  // pick a cell ∝ chosen weight
+  let r = Math.random()*total, sel=-1, sx=0, sy=0;
+  outer: for(let y=0;y<Ny;y++){
+    for(let x=x0;x<Nx;x++){
+      const i=idx(x,y);
+      const w = (mode==='u')   ? uArr[i]
+              : (mode==='P')   ? Math.hypot(Pix[i],Piy[i])
+              : (mode==='Pn')  ? Math.abs(Pix[i])
+                                : (Ez[i]*Ez[i]);
+      r -= w;
+      if(r<=0){ sel=i; sx=x; sy=y; break outer; }
+    }
+  }
+  if(sel<0) return;
+
+  // backtrack a "parent" roughly against Π (upstream)
+  let parent=-1, best=1e9;
+  const px = Pix[sel], py = Piy[sel];
+  const m = Math.hypot(px,py);
+  const N8=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
+  if(m>1e-8){
+    for(const [dx,dy] of N8){
+      const nx=sx+dx, ny=sy+dy;
+      if(nx<0||ny<0||nx>=Nx||ny>=Ny) continue;
+      const dot = (dx*px + dy*py)/m; // smaller → more opposite Π
+      if(dot<best){ best=dot; parent=idx(nx,ny); }
+    }
+  }
+  nodeGraph.push({i:sel, t, parent});
+
+  if(showNgEl.checked){
+    recentDraw.push(sel);
+    if(recentDraw.length>500) recentDraw.shift();
+  }
+}
+
+/* ================= Render ================= */
+function draw(){
+  const img = ctx.createImageData(Nx,Ny);
+  const d = img.data;
+
+  // auto-scale Ez
+  let vmax=1e-6; for(let i=0;i<Nx*Ny;i++){ const v=Math.abs(Ez[i]); if(v>vmax) vmax=v; }
+  const s = (Number(brightEl.value) || 1) / (vmax || 1);
+
+  for(let i=0;i<Nx*Ny;i++){
+    const v = Ez[i]*s;
+    const k = i<<2;
+    d[k]   = v>0 ? Math.min(255, 255*v) : 0;       // R
+    d[k+1] = 16;                                   // G floor
+    d[k+2] = v<0 ? Math.min(255, 255*(-v)) : 0;    // B
+    d[k+3] = 255;
+
+    if(metal[i]){ 
+      // bright cyan wall with slight white core for visibility
+      d[k]   = 180; d[k+1] = 255; d[k+2] = 255;
+      // boost alpha not available per-cell, but we can fake contrast by raising green/blue
+    }
+  }
+
+  // blit scaled
+  const off = document.createElement('canvas');
+  off.width=Nx; off.height=Ny;
+  off.getContext('2d').putImageData(img,0,0);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(off,0,0,cv.width,cv.height);
+
+  // extra overlay: draw barrier guide lines to make slits pop
+  if(barrierXs.length){
+    ctx.save();
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = "#66ffff";
+    for(const bx of barrierXs){
+      // draw 2px guide stripe spanning height
+      ctx.fillRect(bx*scale-1, 0, 2, cv.height);
+    }
+    ctx.restore();
+  }
+
+  // overlay commits
+  if(showNgEl.checked && recentDraw.length){
+    ctx.save();
+    for(const i of recentDraw){
+      const x = (i % Nx), y = (i / Nx)|0;
+      ctx.fillStyle = "#ffee00";
+      ctx.fillRect(x*scale, y*scale, Math.max(1,scale-1), Math.max(1,scale-1));
+    }
+    ctx.restore();
+  }
+
+  // KPIs
+  resEl.textContent  = budgetResidual.toFixed(3);
+  ngEl.textContent   = String(nodeGraph.length);
+  divbEl.textContent = isFinite(divBRMS) ? divBRMS.toExponential(2) : '—';
+}
+
+/* ================= Scene Setup ================= */
+let anim=false, t=0;
+function initScene(){
+  clearFields();
+  recentDraw.length=0;
+  buildAbsorber(Number(absorbEl.value));
+  eps.fill(1.0);
+  // force slits ON by default at boot
+  const useSlits = (demoSel.value === 'slits');
+  buildSlits(useSlits);
+  updateCoeffs();
+
+  // initialize uArr for budget baseline
+  for(let y=0;y<Ny;y++) for(let x=0;x<Nx;x++){
+    const i=idx(x,y);
+    uArr[i] = 0.5*(eps[i]*Ez[i]*Ez[i] + Hx[i]*Hx[i] + Hy[i]*Hy[i]);
+  }
+
+  t=0;
+  tickEl.textContent = "0";
+  draw();
+}
+
+/* ================= Main Loop ================= */
+function stepOnce(){
+  updateH();
+  updateE();
+  softSource(t);
+  budgetTick();
+  detectorCommit(t);
+  t++;
+  tickEl.textContent = String(t);
+}
+function loop(){
+  if(!anim) return;
+  stepOnce(); stepOnce();      // 2 substeps per frame → smoother
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* ================= Wire UI ================= */
+resetBtn.onclick = initScene;
+runBtn.onclick = ()=>{ anim=!anim; runBtn.textContent=anim?'Pause':'Start'; if(anim) loop(); };
+stepBtn.onclick = ()=>{ if(!anim){ stepOnce(); draw(); } };
+demoSel.onchange = initScene;
+absorbEl.oninput = ()=>{ buildAbsorber(Number(absorbEl.value)); updateCoeffs(); };
+freqEl.oninput = ()=>{};
+cprobEl.oninput = ()=>{};
+weightEl.onchange = ()=>{};
+showNgEl.onchange = draw;
+
+/* ================= Boot ================= */
+// Ensure slits are selected at boot
+demoSel.value = 'slits';
+initScene();
+</script>
+</body>
+</html>

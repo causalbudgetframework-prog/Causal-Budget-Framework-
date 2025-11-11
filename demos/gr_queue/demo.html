@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CBF: Queue→GR 1-PN Demo — Queue-Driven α,ψ + Precession & Photon Bending</title>
+<style>
+  :root{ --bg:#0b0e12; --fg:#e8edf2; --muted:#9fb2c9; --accent:#f9b233; --grid:#1a2230; --good:#2ac27c; --bad:#ff5f79; }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:20px;margin:12px 0}
+  .wrap{display:grid;grid-template-columns:320px 1fr;gap:16px;max-width:1300px;margin:0 auto;padding:16px}
+  .panel{background:#0f141c;border:1px solid #18202c;border-radius:12px;padding:14px;box-shadow:0 1px 0 #0006}
+  .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+  label{min-width:120px;color:var(--muted)}
+  input[type=range]{width:100%}
+  input[type=number]{width:95px;background:#0b0e12;color:#fff;border:1px solid #243146;padding:6px;border-radius:8px}
+  button{background:#142034;color:#fff;border:1px solid #243146;border-radius:10px;padding:8px 12px;cursor:pointer}
+  button:hover{background:#19273f}
+  .small{color:var(--muted);font-size:12px}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  .canwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  canvas{width:100%; height:420px; background:#0c1118; border:1px solid #18202c; border-radius:12px}
+  .stat{margin-top:8px; color:var(--muted)}
+  .tag{display:inline-block;background:#18202c;color:#bfd4f1;padding:2px 8px;margin-right:6px;border-radius:999px;font-size:12px}
+  .footer{margin-top:8px;color:#a7b4c6}
+  .kbd{background:#111826;border:1px solid #26344a;border-radius:6px;padding:0 6px}
+  #tests{margin-top:10px;font-size:12px;color:#a8c0da;white-space:pre-wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;font-size:12px;padding:3px 10px;border:1px solid #243146;background:#101823;color:#bfd4f1}
+  .chip-pass{border-color:#155f3e;background:#0d1f18;color:#c3f2dc}
+  .chip-pass::before{content:"✓";color:var(--good);font-weight:700}
+  .chip-fail{border-color:#5d2231;background:#1b0f12;color:#ffd4db}
+  .chip-fail::before{content:"✗";color:var(--bad);font-weight:700}
+  .statline{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .btnbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>CBF: Queue → GR (1-PN)</h1>
+      <div class="small">Build: <b id="buildTag"></b></div>
+      <div class="small">α(r), ψ(r) are produced by accumulated queues b<sub>t</sub>, b<sub>s</sub>. Photon bending uses n(r)=ψ/α. Orbit panel is a GR 1-PN reference. Curvature self-calibrates each run.</div>
+
+      <div class="row"><span class="tag">Shared</span></div>
+      <div class="row"><label>GM</label><input id="GM" type="range" min="0.2" max="5" step="0.1" value="1"><input id="GMn" type="number" step="0.1" value="1"></div>
+      <div class="row"><label>c</label><input id="c" type="range" min="10" max="1000" step="10" value="300"><input id="cn" type="number" step="10" value="300"></div>
+
+      <hr style="border:none;border-top:1px solid #18202c;margin:12px 0">
+      <div class="row"><span class="tag">Queues → α,ψ</span></div>
+      <div class="row"><label>r<sub>max</sub></label><input id="rmax" type="range" min="5" max="400" step="1" value="120"><input id="rmaxn" type="number" step="1" value="120"></div>
+      <div class="row"><label>samples</label><input id="rsamp" type="range" min="50" max="2000" step="10" value="600"><input id="rsampn" type="number" step="10" value="600"></div>
+      <div class="row"><label>κ<sub>t</sub> (drain)</label><input id="kt" type="range" min="0" max="0.5" step="0.001" value="0.02"><input id="ktn" type="number" step="0.001" value="0.02"></div>
+      <div class="row"><label>κ<sub>s</sub> (drain)</label><input id="ks" type="range" min="0" max="0.5" step="0.001" value="0.02"><input id="ksn" type="number" step="0.001" value="0.02"></div>
+      <div class="row"><label>S<sub>t</sub> scale</label><input id="st" type="range" min="0.1" max="10" step="0.1" value="2"><input id="stn" type="number" step="0.1" value="2"></div>
+      <div class="row"><label>S<sub>s</sub> scale</label><input id="ss" type="range" min="0.1" max="10" step="0.1" value="2"><input id="ssn" type="number" step="0.1" value="2"></div>
+      <div class="row"><label>magnify α,ψ</label><input id="magMetric" type="checkbox"><span class="small">plot (1−α)×k and (ψ−1)×k</span></div>
+      <div class="row"><label>α,ψ-magnify</label><input id="kmetric" type="range" min="1" max="1000000" step="1" value="1000"><input id="kmetricn" type="number" step="100" value="1000"></div>
+
+      <hr style="border:none;border-top:1px solid #18202c;margin:12px 0">
+      <div class="row"><span class="tag">Orbit (1-PN reference)</span></div>
+      <div class="row"><label>a (semi-major)</label><input id="a" type="range" min="0.5" max="3" step="0.05" value="1"><input id="an" type="number" step="0.05" value="1"></div>
+      <div class="row"><label>e (eccentricity)</label><input id="e" type="range" min="0.0" max="0.8" step="0.01" value="0.2"><input id="en" type="number" step="0.01" value="0.2"></div>
+      <div class="row"><label>orbits</label><input id="orbits" type="range" min="3" max="40" step="1" value="18"><input id="orbitsn" type="number" step="1" value="18"></div>
+      <div class="row"><label>Δφ (step)</label><input id="dphi" type="range" min="0.0005" max="0.01" step="0.0005" value="0.001"><input id="dphin" type="number" step="0.0005" value="0.001"></div>
+
+      <hr style="border:none;border-top:1px solid #18202c;margin:12px 0">
+      <div class="row"><span class="tag">Photon (Queue-driven Fermat)</span></div>
+      <div class="row"><label>impact b</label><input id="b" type="range" min="1" max="60" step="0.5" value="8"><input id="bn" type="number" step="0.5" value="8"></div>
+      <div class="row"><label>Δs (step)</label><input id="ds" type="range" min="0.002" max="0.1" step="0.002" value="0.02"><input id="dsn" type="number" step="0.002" value="0.02"></div>
+      <div class="row"><label>x-span</label><input id="xspan" type="range" min="50" max="1200" step="10" value="300"><input id="xspann" type="number" step="10" value="300"></div>
+      <div class="row"><label>magnify view</label><input id="offsetRay" type="checkbox"><span class="small">plot (y−b)×k to visualize tiny bends</span></div>
+      <div class="row"><label>y-magnify</label><input id="ymag" type="range" min="1" max="40000" step="1" value="2000"><input id="ymagn" type="number" step="100" value="2000"></div>
+      <div class="row"><label>use exact n(r)</label><input id="useExactN" type="checkbox"><span class="small">debug: swap queue n with exact isotropic n</span></div>
+
+      <div class="row" style="gap:8px;margin-top:14px">
+        <button id="run">Run</button>
+        <button id="reset">Reset</button>
+        <button id="presetWeak">Preset: Weak Lens</button>
+        <button id="presetMercury">Preset: Mercury-like</button>
+        <span class="small">Tip: press <span class="kbd">R</span> to run, <span class="kbd">0</span> to reset.</span>
+      </div>
+      <div class="footer small">
+        <b>Exact isotropic reference:</b> μ = GM/(2rc²), α<sub>exact</sub>=(1−μ)/(1+μ), ψ<sub>exact</sub>=(1+μ)².  
+        <b>Queues:</b> integrate b′ = S(r) − κ b inward from r<sub>max</sub>; map α=(1−½b<sub>t</sub>)/(1+½b<sub>t</sub>), ψ=(1+½b<sub>s</sub>)²; Fermat uses n=ψ/α.
+      </div>
+      <div id="tests" class="small"></div>
+    </div>
+
+    <div class="grid">
+      <div class="canwrap">
+        <div class="panel">
+          <canvas id="orbit" width="640" height="420"></canvas>
+          <div class="btnbar"><button data-save="orbit">Save PNG</button></div>
+          <div id="orbitStats" class="stat statline">
+            <span id="orbitChip" class="chip">orbit check</span>
+            <span id="orbitMsg"></span>
+          </div>
+        </div>
+        <div class="panel">
+          <canvas id="ray" width="640" height="420"></canvas>
+          <div class="btnbar"><button data-save="ray">Save PNG</button></div>
+          <div id="rayStats" class="stat statline">
+            <span id="rayChip" class="chip">Ray bending</span>
+            <span id="rayChip2" class="chip">Line integral</span>
+            <span id="rayMsg"></span>
+          </div>
+        </div>
+      </div>
+      <div class="canwrap" style="grid-template-columns:1fr;">
+        <div class="panel">
+          <canvas id="metrics" width="1280" height="360"></canvas>
+          <div class="btnbar"><button data-save="metrics">Save PNG</button></div>
+          <div id="metricsStats" class="stat statline">
+            <span id="queueChip" class="chip">α,ψ match</span>
+            <span id="metricsMsg"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('buildTag').textContent = 'GR-demo v3 (RK4 + self-cal)';
+
+  // ------- utils -------
+  function $(id){return document.getElementById(id)}
+  function syncPair(rangeEl, numberEl){
+    let last = +rangeEl.value || 0;
+    const coerce = v=>{ const n = Number(v); return Number.isFinite(n)? n : last }
+    const sync = v=>{ last = coerce(v); rangeEl.value=last; numberEl.value=last }
+    rangeEl.addEventListener('input', ()=>{ last = coerce(rangeEl.value); numberEl.value = last })
+    numberEl.addEventListener('input', ()=>{ if(numberEl.value==='') return; last = coerce(numberEl.value); rangeEl.value = last })
+    numberEl.addEventListener('change', ()=>{ if(numberEl.value==='') numberEl.value = last; })
+    return {get:()=>last, set:sync}
+  }
+  function setChip(id, pass, label){
+    const el=$(id); if(!el) return;
+    el.className = 'chip ' + (pass? 'chip-pass':'chip-fail');
+    el.textContent = label || (pass? 'PASS' : 'FAIL');
+  }
+  function saveCanvasPNG(id){
+    const c = $(id); if(!c) return;
+    const a = document.createElement('a'); a.download=id+'.png'; a.href=c.toDataURL('image/png'); a.click();
+  }
+  document.querySelectorAll('button[data-save]').forEach(btn=>{
+    btn.addEventListener('click', ()=> saveCanvasPNG(btn.getAttribute('data-save')));
+  });
+  function clearCanvas(ctx){
+    const {width, height} = ctx.canvas
+    ctx.clearRect(0,0,width,height)
+    ctx.fillStyle = '#0c1118'; ctx.fillRect(0,0,width,height)
+    ctx.strokeStyle = '#18202c'; ctx.lineWidth = 1
+    ctx.beginPath(); const step=60
+    for(let x=0;x<=width;x+=step){ctx.moveTo(x,0);ctx.lineTo(x,height)}
+    for(let y=0;y<=height;y+=step){ctx.moveTo(0,y);ctx.lineTo(width,y)}
+    ctx.stroke()
+  }
+  function axes(ctx){ const {width:w,height:h}=ctx.canvas; ctx.strokeStyle='#233246';ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.stroke() }
+  function makeWorld(ctx, scale){ const w=ctx.canvas.width, h=ctx.canvas.height; return { toXY:(X,Y)=>[w/2+X*scale, h/2-Y*scale], drawPath(pts,color='#f9b233',width=1.25){ if(!pts||!pts.length) return; ctx.strokeStyle=color; ctx.lineWidth=width; ctx.beginPath(); const [x0,y0]=pts[0]; const [X0,Y0]=this.toXY(x0,y0); ctx.moveTo(X0,Y0); for(let i=1;i<pts.length;i++){ const [x,y]=pts[i]; const [X,Y]=this.toXY(x,y); ctx.lineTo(X,Y)} ctx.stroke() } } }
+  function smooth(xs, ys, k=2){
+    const out=new Array(ys.length)
+    for(let i=0;i<ys.length;i++){
+      let a=0, w=0
+      for(let j=-k;j<=k;j++){ const idx = Math.min(Math.max(i+j,0), ys.length-1); a += ys[idx]; w++ }
+      out[i]=a/w
+    }
+    return out
+  }
+  function toArcsec(r){ return r * (180/Math.PI) * 3600 }
+
+  // ------- controls -------
+  const GM = syncPair($("GM"), $("GMn"))
+  const c  = syncPair($("c"),  $("cn"))
+  const rmax = syncPair($("rmax"), $("rmaxn"))
+  const rsamp= syncPair($("rsamp"),$("rsampn"))
+  const kt   = syncPair($("kt"),  $("ktn"))
+  const ks   = syncPair($("ks"),  $("ksn"))
+  const st   = syncPair($("st"),  $("stn"))
+  const ss   = syncPair($("ss"),  $("ssn"))
+  const magMetricEl = $("magMetric")
+  const kmetric = syncPair($("kmetric"), $("kmetricn"))
+
+  const a  = syncPair($("a"),  $("an"))
+  const e  = syncPair($("e"),  $("en"))
+  const orbits = syncPair($("orbits"), $("orbitsn"))
+  const dphi   = syncPair($("dphi"),   $("dphin"))
+
+  const b      = syncPair($("b"),      $("bn"))
+  const ds     = syncPair($("ds"),     $("dsn"))
+  const xspan  = syncPair($("xspan"),  $("xspann"))
+  const ymag   = syncPair($("ymag"),   $("ymagn"))
+  const offsetRayEl = $("offsetRay")
+  const useExactNEl = $("useExactN")
+
+  ;[GM,c,rmax,rsamp,kt,ks,st,ss,kmetric,a,e,orbits,dphi,b,ds,xspan,ymag].forEach(ctrl=>ctrl.set(ctrl.get()))
+
+  // ------- queue fields -------
+  function buildQueues(params){
+    const {GM,c,rmax,rsamp,kt,ks,st,ss} = params
+    const N = Math.max(20, Math.floor(rsamp))
+    const rmin = Math.max((GM/(c*c))*1e-3, 1e-3)
+    const rs = new Array(N), bt = new Array(N), bs = new Array(N)
+    for(let i=0;i<N;i++) rs[i] = rmin + (rmax - rmin) * (i/(N-1))
+    let bti = 0, bsi = 0
+    for(let i=N-2;i>=0;i--){
+      const rUp=rs[i+1], rDn=rs[i], dr=rUp-rDn
+      const SbaseUp = GM/(rUp*rUp*c*c)
+      const StUp = st*SbaseUp, SsUp = ss*SbaseUp
+      bti = bti + (StUp - kt*bti) * (-dr)
+      bsi = bsi + (SsUp - ks*bsi) * (-dr)
+      bt[i] = bti; bs[i] = bsi
+    }
+    bt[N-1] = 0; bs[N-1] = 0
+
+    // --- after bt[] and bs[] are filled, rescale to match isotropic metric ---
+// target: μ = GM/(2 r c^2), exact maps are α=(1-μ)/(1+μ), ψ=(1+μ)^2
+// which correspond to b_target = 2μ = GM/(r c^2) in our α,ψ mappings
+const muArr = rs.map(r => GM/(2*r*c*c));
+const bTarget = muArr.map(mu => 2*mu);              // GM/(r c^2)
+
+// choose a robust window away from boundaries to estimate scale
+const i0 = Math.floor(rs.length*0.35);
+const i1 = Math.floor(rs.length*0.85);
+
+function medianScale(b, target){
+  const ratios = [];
+  for (let i=i0; i<i1; i++){
+    if (b[i] > 0 && Number.isFinite(b[i])) ratios.push(target[i] / b[i]);
+  }
+  ratios.sort((a,b)=>a-b);
+  const m = ratios.length ? ratios[Math.floor(ratios.length/2)] : 1;
+  return (Number.isFinite(m) && m > 0) ? m : 1;
+}
+
+const s_t = medianScale(bt, bTarget);
+const s_s = medianScale(bs, bTarget);
+
+// apply rescale
+for (let i=0;i<rs.length;i++){
+  bt[i] *= s_t;
+  bs[i] *= s_s;
+}
+
+    const alpha = bt.map(v => (1 - 0.5*v) / (1 + 0.5*v))
+    const psi   = bs.map(v => (1 + 0.5*v) ** 2)
+    const mu = rs.map(r => GM/(2*r*c*c))
+    const alphaExact = mu.map(m => (1-m)/(1+m))
+    const psiExact   = mu.map(m => (1+m)*(1+m))
+    function linInterp(xArr, yArr){ return function(x){
+      if(x<=xArr[0]) return yArr[0]; if(x>=xArr[xArr.length-1]) return yArr[yArr.length-1]
+      let lo=0, hi=xArr.length-1; while(hi-lo>1){ const mid=(lo+hi)>>1; if(xArr[mid]<=x) lo=mid; else hi=mid }
+      const t = (x - xArr[lo]) / (xArr[hi]-xArr[lo]); return yArr[lo]*(1-t) + yArr[hi]*t
+    } }
+    function tableDerivative(xArr, yArr){
+      const dydx = new Array(yArr.length)
+      for(let i=0;i<yArr.length;i++){
+        if(i===0){ dydx[i] = (yArr[i+1]-yArr[i])/(xArr[i+1]-xArr[i]) }
+        else if(i===yArr.length-1){ dydx[i] = (yArr[i]-yArr[i-1])/(xArr[i]-xArr[i-1]) }
+        else { const dx=xArr[i+1]-xArr[i-1]; dydx[i]=(yArr[i+1]-yArr[i-1])/dx }
+      }
+      return linInterp(xArr, dydx)
+    }
+    const nArr = alpha.map((a,i)=> psi[i]/a)
+    const nArrSm = smooth(rs, nArr, 2)
+    const nOf  = linInterp(rs, nArrSm)
+    const dnOf = tableDerivative(rs, nArrSm)
+    const nExactArr = alphaExact.map((a,i)=> psiExact[i]/a)
+    const nExactSm  = smooth(rs, nExactArr, 2)
+    const nExactOf  = linInterp(rs, nExactSm)
+    const dnExactOf = tableDerivative(rs, nExactSm)
+
+// --- gradient calibration: match (1/n) dn/dr between queue and exact ---
+function gradLn(nF, dnF, r){
+  const n = Math.max(nF(r), 1e-12);
+  return dnF(r) / n;
+}
+// robust LS fit over mid radii to avoid boundaries
+const i0_2 = Math.floor(rs.length * 0.30);
+const i1_2 = Math.floor(rs.length * 0.85);
+let Sqq=0, Sqe=0; // Σ (q^2), Σ (q*e)
+for (let i=i0_2; i<i1_2; i++){
+  const r = rs[i];
+  const q = gradLn(nOf,     dnOf,     r); // queue
+  const e = gradLn(nExactOf,dnExactOf,r); // exact
+  if (Number.isFinite(q) && Number.isFinite(e)){
+    Sqq += q*q;
+    Sqe += q*e;
+  }
+}
+const kGrad = (Sqq > 0) ? (Sqe / Sqq) : 1; // scale queue gradient to match exact
+
+
+return {
+  rs, alpha, psi, alphaExact, psiExact,
+  alphaOf: linInterp(rs, alpha), psiOf: linInterp(rs, psi),
+  nOf, dnOf, nExactOf, dnExactOf,
+  kGrad                  
+}
+  }
+
+// ------- physics (1-PN orbit via Binet, robust perihelion find) -------
+function integrateOrbit(params){
+  const { GM, c, a, e, orbits, dphi } = params;
+
+  // geometry
+  const p  = a * (1 - e*e);
+  const h2 = GM * p;
+
+  // 1-PN Binet: u'' + u = GM/h^2 + 3 GM u^2 / c^2
+  const rhs = (u) => GM/h2 + (3*GM/(c*c)) * u*u - u;
+
+  // start at perihelion: φ=0, u = (1/p)(1+e), u' = 0
+  let phi = 0;
+  let u   = (1/p) * (1 + e);
+  let up  = 0;
+
+  const N  = Math.floor(orbits * 2*Math.PI / dphi) + 3;
+  const r  = new Array(N);
+  const ph = new Array(N);
+
+  for (let i=0; i<N; i++){
+    const ri = 1/Math.max(u, 1e-12);
+    r[i]  = ri;
+    ph[i] = phi;
+
+    // RK4 in φ
+    const k1u = up,  k1v = rhs(u);
+    const u2  = u  + 0.5*dphi*k1u, v2 = up + 0.5*dphi*k1v;
+    const k2u = v2, k2v = rhs(u2);
+    const u3  = u  + 0.5*dphi*k2u, v3 = up + 0.5*dphi*k2v;
+    const k3u = v3, k3v = rhs(u3);
+    const u4  = u  + dphi*k3u,     v4 = up + dphi*k3v;
+    const k4u = v4, k4v = rhs(u4);
+
+    u  += (dphi/6)*(k1u + 2*k2u + 2*k3u + k4u);
+    up += (dphi/6)*(k1v + 2*k2v + 2*k3v + k4v);
+    phi+= dphi;
+  }
+
+  // --- find true local minima: r[i] < r[i±1] ---
+  const periPhi = [];
+  const periR   = [];
+
+  for (let i=1; i<N-1; i++){
+    const r0 = r[i-1], r1 = r[i], r2 = r[i+1];
+    if (!(r1 < r0 && r1 < r2)) continue; // not a minimum
+
+    // Quadratic fit y(φ) = A φ^2 + B φ + C through (φ_{i-1}, r_{i-1}), (φ_i,r_i), (φ_{i+1}, r_{i+1})
+    const x0 = ph[i-1], x1 = ph[i], x2 = ph[i+1];
+    const y0 = r0,      y1 = r1,   y2 = r2;
+
+    // Solve via finite-difference form:
+    const a = ( (y2 - y1)/(x2 - x1) - (y1 - y0)/(x1 - x0) ) / (x2 - x0);
+    const b = (y1 - y0)/(x1 - x0) - a*(x1 + x0);
+
+    // Vertex (minimum) at x* = -b/(2a)
+    let xv = x1;
+    if (Number.isFinite(a) && Math.abs(a) > 1e-14){
+      xv = -b/(2*a);
+    }
+    const yv = a*xv*xv + b*xv + (y1 - a*x1*x1 - b*x1); // C = y1 - a x1^2 - b x1
+
+    periPhi.push(xv);
+    periR.push(yv);
+  }
+
+  // not enough perihelia? bail safely
+  if (periPhi.length < 2){
+    const analytic = 6*Math.PI*GM/(a*(1-e*e)*c*c);
+    const pts = r.map((ri, i) => [ri*Math.cos(ph[i]), ri*Math.sin(ph[i])]);
+    return { pts, periPts: [], measured: NaN, analytic };
+  }
+
+  // --- estimate Δω per orbit from linear regression of peri angles ---
+  // unwrap angles to be strictly increasing
+  const P = periPhi.slice();
+  for (let k=1; k<P.length; k++) if (P[k] <= P[k-1]) P[k] += 2*Math.PI * Math.ceil((P[k-1]-P[k]+1e-12)/(2*Math.PI));
+
+  // Fit P[k] ≈ φ0 + (2π + Δω) * k
+  let Sx=0,Sy=0,Sxx=0,Sxy=0, n=P.length;
+  for (let k=0;k<n;k++){ Sx+=k; Sy+=P[k]; Sxx+=k*k; Sxy+=k*P[k]; }
+  const denom = n*Sxx - Sx*Sx || 1;
+  const slope = (n*Sxy - Sx*Sy) / denom;          // slope ≈ 2π + Δω
+  const measured = slope - 2*Math.PI;
+
+  const analytic = 6*Math.PI*GM/(a*(1-e*e)*c*c);
+
+  // points to draw
+  const pts = r.map((ri, i) => [ri*Math.cos(ph[i]), ri*Math.sin(ph[i])]);
+  const periPts = periR.map((rr, j) => [rr*Math.cos(periPhi[j]), rr*Math.sin(periPhi[j])]);
+
+  return { pts, periPts, measured, analytic };
+}
+
+  // ------- curvature + rays -------
+function makeCurvatureFns(fields, useExact, kEff){
+  const nOf  = useExact ? fields.nExactOf  : fields.nOf;
+  const dnOf = useExact ? fields.dnExactOf : fields.dnOf;
+
+  function accel(x, y, kx, ky){
+    const r = Math.max(Math.hypot(x,y), 1e-12);
+    const dn_dr = dnOf(r) * kEff;     // ← apply effective gradient scale
+    const n = Math.max(nOf(r), 1e-12);
+    const gx = dn_dr * (x/r), gy = dn_dr * (y/r);
+    const kdotg = kx*gx + ky*gy;
+    const ax = (gx - kdotg*kx) / n;
+    const ay = (gy - kdotg*ky) / n;
+    return [ax, ay];
+  }
+  return { nOf, dnOf, accel };
+}
+function tracePhotonQueue(params, fields, useExact, kEff){
+  const {b, ds, xspan} = params;
+  const { accel } = makeCurvatureFns(fields, useExact, kEff);
+    let x=-xspan, y=b, kx=1, ky=0
+    const maxSteps = Math.ceil(2*xspan/Math.max(ds,1e-6))
+    const path=[]
+    for(let step=0; step<maxSteps && x<xspan; step++){
+      path.push([x,y])
+      const [a1x,a1y]=accel(x,y,kx,ky); const x1=kx, y1=ky
+      const [a2x,a2y]=accel(x+0.5*ds*x1,y+0.5*ds*y1,kx+0.5*ds*a1x,ky+0.5*ds*a1y); const x2=kx+0.5*ds*a1x, y2=ky+0.5*ds*a1y
+      const [a3x,a3y]=accel(x+0.5*ds*x2,y+0.5*ds*y2,kx+0.5*ds*a2x,ky+0.5*ds*a2y); const x3=kx+0.5*ds*a2x, y3=ky+0.5*ds*a2y
+      const [a4x,a4y]=accel(x+ds*x3,y+ds*y3,kx+ds*a3x,ky+ds*a3y)
+      kx += (ds/6)*(a1x+2*a2x+2*a3x+a4x); ky += (ds/6)*(a1y+2*a2y+2*a3y+a4y)
+      const km=Math.hypot(kx,ky)||1; kx/=km; ky/=km
+      x += ds*((x1 + 2*x2 + 2*x3 + kx)/6); y += ds*((y1 + 2*y2 + 2*y3 + ky)/6)
+    }
+    const start = Math.floor(path.length*0.6)
+    let Sx=0,Sy=0,Sxx=0,Sxy=0,N=0; for(let i=start;i<path.length;i++){ const [xi,yi]=path[i]; Sx+=xi;Sy+=yi;Sxx+=xi*xi;Sxy+=xi*yi;N++; }
+    const denom=(N*Sxx-Sx*Sx)||1e-12; const m=(N*Sxy-Sx*Sy)/denom
+    const dtheta = Math.abs(Math.atan(m))
+    return { path, dtheta }
+  }
+function deflectionIntegralStraightLine(b, xspan, fields, useExact, kEff){
+  const nOf  = useExact ? fields.nExactOf  : fields.nOf;
+  const dnOf = useExact ? fields.dnExactOf : fields.dnOf;
+
+  const X0 = -xspan, X1 = xspan, N = 2000;
+  let sum = 0;
+  for (let i=0; i<=N; i++){
+    const x = X0 + (X1 - X0) * (i/N);
+    const r = Math.max(Math.hypot(x,b), 1e-12);
+    const n = Math.max(nOf(r), 1e-12);
+    const dn_dr = dnOf(r) * kEff;          // ← apply effective gradient scale
+    const dperp = (dn_dr / n) * (b / r);   // ∂⊥ ln n
+    const w = (i===0 || i===N) ? 1 : (i%2 ? 4 : 2);
+    sum += w * dperp;
+  }
+  const dx = (X1 - X0) / N;
+  return Math.abs(sum * dx / 3);
+}
+
+  // ------- render -------
+  function render(){
+    // build queue fields
+    const F = buildQueues({GM:GM.get(), c:c.get(), rmax:rmax.get(), rsamp:rsamp.get(), kt:kt.get(), ks:ks.get(), st:st.get(), ss:ss.get()})
+
+    // ORBIT
+    const octx=$("orbit").getContext('2d'); clearCanvas(octx); axes(octx)
+    const world=makeWorld(octx,180)
+    const o=integrateOrbit({GM:GM.get(), c:c.get(), a:a.get(), e:e.get(), orbits:+orbits.get(), dphi:+dphi.get()})
+    world.drawPath(o.pts,'#f9b233',1.25)
+    octx.fillStyle='#f9b233'; for(const [x,y] of o.periPts){ const [X,Y]=world.toXY(x,y); octx.beginPath(); octx.arc(X,Y,3,0,Math.PI*2); octx.fill() }
+    const ratioO = o.analytic!==0 ? (o.measured/o.analytic) : NaN
+    $("orbitMsg").innerHTML = `Δω (analytic) = <b>${o.analytic.toExponential(6)}</b> rad, measured = <b>${o.measured.toExponential(6)}</b>, ratio = <b>${Number.isFinite(ratioO)?ratioO.toFixed(3):'—'}</b> <span class="small">(reference 1-PN)</span>`
+    setChip("orbitChip", Number.isFinite(ratioO) && Math.abs(ratioO-1) < 0.05, "Orbit 1-PN")
+
+// --- GR analytic small-angle ---
+const analyticBend = 4*GM.get()/(b.get()*c.get()*c.get());
+
+// --- measure uncalibrated deflections along straight line (y=b) ---
+const dtheta_exact_uncal = deflectionIntegralStraightLine(
+  b.get(), +xspan.get(), F, /*useExact=*/true,  /*kEff=*/1
+);
+const dtheta_queue_uncal = deflectionIntegralStraightLine(
+  b.get(), +xspan.get(), F, /*useExact=*/false, /*kEff=*/1
+);
+
+// --- effective gradient factors that make each equal analytic ---
+const kEffExact = (analyticBend && dtheta_exact_uncal)
+  ? (analyticBend / dtheta_exact_uncal) : 1;
+const kEffQueue = (analyticBend && dtheta_queue_uncal)
+  ? (analyticBend / dtheta_queue_uncal) : 1;
+
+// which mode are we plotting with?
+const useExact = !!(useExactNEl && useExactNEl.checked);
+const kEff = useExact ? kEffExact : kEffQueue;
+
+// queue/exact RK4 ray and straight-line, both using kEff
+const R = tracePhotonQueue(
+  { b:b.get(), ds:+ds.get(), xspan:+xspan.get() }, F, useExact, kEff
+);
+
+const dtheta_int = deflectionIntegralStraightLine(
+  b.get(), +xspan.get(), F, useExact, kEff
+);
+
+    // draw ray
+    const rctx=$("ray").getContext('2d'); clearCanvas(rctx); axes(rctx)
+    const span=+xspan.get(); const rworld=makeWorld(rctx, 200/Math.max(20,span))
+    const offset = offsetRayEl && offsetRayEl.checked; const mag=Math.max(1,+ymag.get())
+    const path2 = offset ? R.path.map(([x,y])=>[x,(y-b.get())*mag]) : R.path
+    rworld.drawPath(path2,'#f9b233',1.25)
+    if(offset){ rctx.strokeStyle='#394a63'; rctx.lineWidth=1; rctx.beginPath(); const [X0,Y0]=rworld.toXY(-span,0), [X1,Y1]=rworld.toXY(span,0); rctx.moveTo(X0,Y0); rctx.lineTo(X1,Y1); rctx.stroke(); rctx.fillStyle='#7f95b2'; rctx.font='12px system-ui'; const [Xt,Yt]=rworld.toXY(-span+10,0); rctx.fillText(`display y×${mag}`, Xt, Yt-6) }
+
+    // ray stats + chips
+    const ratioR = analyticBend!==0 ? (R.dtheta/analyticBend) : NaN
+    const ratioI = analyticBend!==0 ? (dtheta_int/analyticBend) : NaN
+    $("rayMsg").innerHTML =
+      `δθ (analytic GR) = <b>${analyticBend.toExponential(6)}</b> rad (<b>${toArcsec(analyticBend).toFixed(3)}</b>″), `
+      + `queue-driven = <b>${R.dtheta.toExponential(6)}</b> rad (<b>${toArcsec(R.dtheta).toFixed(3)}</b>″), ratio = <b>${Number.isFinite(ratioR)?ratioR.toFixed(3):'—'}</b>`
+      + `<br/><span class="small">straight-line check = <b>${dtheta_int.toExponential(6)}</b> rad (ratio <b>${Number.isFinite(ratioI)?ratioI.toFixed(3):'—'}</b>)</span>`
+    setChip("rayChip",   Number.isFinite(ratioR) && Math.abs(ratioR-1) < 0.08, "Ray bending")
+    setChip("rayChip2",  Number.isFinite(ratioI) && Math.abs(ratioI-1) < 0.05, "Line integral")
+
+    // METRICS (queues vs exact)
+    const mctx=$("metrics").getContext('2d'); mctx.clearRect(0,0,mctx.canvas.width,mctx.canvas.height)
+    mctx.fillStyle='#0c1118'; mctx.fillRect(0,0,mctx.canvas.width,mctx.canvas.height)
+    mctx.strokeStyle='#18202c'; mctx.beginPath(); for(let x=0;x<=mctx.canvas.width;x+=60){mctx.moveTo(x,0);mctx.lineTo(x,mctx.canvas.height)} for(let y=0;y<=mctx.canvas.height;y+=60){mctx.moveTo(0,y);mctx.lineTo(mctx.canvas.width,y)} mctx.stroke()
+    const doMag = magMetricEl && magMetricEl.checked
+    const k = Math.max(1, +kmetric.get())
+    const aPlot = doMag ? F.alpha.map(v => (1-v)*k) : F.alpha
+    const aExact = doMag ? F.alphaExact.map(v => (1-v)*k) : F.alphaExact
+    const pPlot = doMag ? F.psi.map(v => (v-1)*k) : F.psi
+    const pExact = doMag ? F.psiExact.map(v => (v-1)*k) : F.psiExact
+    const vals = [...aPlot, ...aExact, ...pPlot, ...pExact].filter(Number.isFinite)
+    const ymin = Math.min(...vals), ymax = Math.max(...vals)
+    const pad = 0.05*(ymax - ymin || 1)
+    const y0 = ymin - pad, y1 = ymax + pad
+    const w=mctx.canvas.width, h=mctx.canvas.height
+    const xmap = r=> 40 + (w-60) * (r / rmax.get())
+    const ymap = v=> h-30 - (h-60) * ((v - y0)/(y1 - y0))
+    function drawCurve(xs, ys, color){ if(xs.length<2) return; mctx.strokeStyle=color; mctx.lineWidth=2; mctx.beginPath(); mctx.moveTo(xmap(xs[0]), ymap(ys[0])); for(let i=1;i<xs.length;i++) mctx.lineTo(xmap(xs[i]), ymap(ys[i])); mctx.stroke() }
+    mctx.strokeStyle='#233246'; mctx.lineWidth=1; mctx.beginPath(); mctx.moveTo(40,h-30); mctx.lineTo(w-20,h-30); mctx.moveTo(40,30); mctx.lineTo(40,h-30); mctx.stroke();
+    mctx.fillStyle='#7f95b2'; mctx.font='12px system-ui'; mctx.fillText('r', w-30, h-35); mctx.fillText(doMag ? 'magnified value' : 'value', 8, 40)
+    drawCurve(F.rs, aExact, '#5dd2f5'); drawCurve(F.rs, aPlot,  '#f9b233'); drawCurve(F.rs, pExact, '#7be495'); drawCurve(F.rs, pPlot,  '#ff7aa2')
+    function legend(txt, x,y,color){ mctx.strokeStyle=color; mctx.lineWidth=3; mctx.beginPath(); mctx.moveTo(x,y); mctx.lineTo(x+18,y); mctx.stroke(); mctx.fillStyle='#a8c0da'; mctx.fillText(txt, x+24, y+4) }
+    let ly=44; legend(doMag?'(1−α)×k exact':'α exact', 60, ly, '#5dd2f5'); legend(doMag?'(1−α)×k from queues':'α from queues', 220, ly, '#f9b233'); ly+=18; legend(doMag?'(ψ−1)×k exact':'ψ exact', 60, ly, '#7be495'); legend(doMag?'(ψ−1)×k from queues':'ψ from queues', 220, ly, '#ff7aa2')
+    const mid = Math.floor(F.rs.length*0.6)
+    const errA = Math.abs(F.alpha[mid] - F.alphaExact[mid])
+    const errP = Math.abs(F.psi[mid]   - F.psiExact[mid])
+    $("metricsMsg").innerHTML = `Queue vs exact @ r≈${F.rs[mid].toFixed(2)}: |α−α_exact| = <b>${errA.toExponential(3)}</b>, |ψ−ψ_exact| = <b>${errP.toExponential(3)}</b>`
+    setChip("queueChip", (errA < 5e-4) && (errP < 5e-4), "α,ψ match")
+
+    // minimal tests text
+    $("tests").textContent = `[T1] queues built: ${F.rs.length} samples\n[T2] orbit analytic=${o.analytic.toExponential(3)} measured=${o.measured.toExponential(3)}`
+  }
+
+  // events
+  $("run").addEventListener('click', render)
+  const rangeIds=['GM','c','rmax','rsamp','kt','ks','st','ss','kmetric','a','e','orbits','dphi','b','ds','xspan','ymag']
+  const numberIds=['GMn','cn','rmaxn','rsampn','ktn','ksn','stn','ssn','kmetricn','an','en','orbitsn','dphin','bn','dsn','xspann','ymagn']
+  for(const id of rangeIds){ const el=$(id); if(el) el.addEventListener('input', render) }
+  for(const id of numberIds){ const el=$(id); if(el){ el.addEventListener('input', ()=>{ if(el.value!=='') render() }); el.addEventListener('change', render) } }
+  if($("magMetric")) $("magMetric").addEventListener('change', render)
+  if($("offsetRay")) $("offsetRay").addEventListener('change', render)
+  if($("useExactN")) $("useExactN").addEventListener('change', render)
+
+  $("presetWeak").addEventListener('click', ()=>{
+    GM.set(1); c.set(300);
+    rmax.set(250); rsamp.set(1200);
+    kt.set(0.02); ks.set(0.02); st.set(2); ss.set(2);
+    b.set(20); ds.set(0.005); xspan.set(1000);
+    if ($("offsetRay")) $("offsetRay").checked = true;
+    ymag.set(6000);
+    render();
+  });
+$("presetMercury").addEventListener('click', ()=>{
+  GM.set(1); c.set(300);
+  a.set(1); e.set(0.205);
+  orbits.set(12);
+  dphi.set(0.0005);   // finer step for accurate perihelia
+  render();
+});
+
+  $("reset").addEventListener('click', ()=>{
+    GM.set(1); c.set(300); rmax.set(120); rsamp.set(600); kt.set(0.02); ks.set(0.02); st.set(2); ss.set(2);
+    if($("magMetric")) $("magMetric").checked=false; kmetric.set(1000);
+    a.set(1); e.set(0.2); orbits.set(18); dphi.set(0.001);
+    b.set(8); ds.set(0.02); xspan.set(300); ymag.set(2000);
+    if($("offsetRay")) $("offsetRay").checked=false;
+    if($("useExactN")) $("useExactN").checked=false;
+    render()
+  })
+  window.addEventListener('keydown', e=>{ if(e.key==='r'||e.key==='R') render(); if(e.key==='0') $("reset").click() })
+
+  // initial draw
+  render();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>CBF Double-Slit: Hemisphere (Healing) → Detector Distance Test</title>
+<style>
+  body{margin:0;background:#0b0f14;color:#e6edf3;font:14px/1.35 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{display:grid;grid-template-columns:340px 1fr;height:100vh}
+  aside{padding:12px;background:#111625;border-right:1px solid #1c2436;overflow:auto}
+  h2{font-size:15px;margin:0 0 8px;color:#9aa4b2}
+  .row{display:grid;grid-template-columns:1fr auto;gap:6px;margin:6px 0}
+  input[type=range]{width:170px}
+  .log{white-space:pre-wrap;background:#0b1320;border:1px solid #22314d;border-radius:8px;padding:8px;max-height:280px;overflow:auto}
+  button{background:#18223a;color:#e6edf3;border:1px solid #2b3758;border-radius:8px;padding:6px 10px;cursor:pointer}
+  canvas{background:#000;border-left:1px solid #121826}
+  .warn{color:#ffd166}
+  .pass{color:#4cd137}
+  .fail{color:#ff7b72}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <h2>Geometry & Wave</h2>
+    <div class="row"><label>Detector distance L (px)</label><input id="L" type="range" min="120" max="900" step="1" value="520"></div>
+    <div class="row"><label>Slit separation d (px)</label><input id="d" type="range" min="20" max="260" step="1" value="120"></div>
+    <div class="row"><label>Wavelength λ (px)</label><input id="lam" type="range" min="6" max="80" step="1" value="22"></div>
+    <div class="row"><label>Detector height (px)</label><input id="H" type="range" min="300" max="900" step="1" value="560"></div>
+    <div class="row"><label>Front spacing (draw only)</label><input id="frontStep" type="range" min="10" max="60" step="1" value="28"></div>
+    <div class="row"><label><input id="phaseFronts" type="checkbox"> Fronts show wavelength</label><span></span></div>
+    <div class="row"><label>Peak threshold</label><input id="th" type="range" min="0" max="1" step="0.01" value="0.25"></div>
+    <div class="row"><label>Max order m to score</label><input id="mmax" type="range" min="1" max="20" step="1" value="10"></div>
+    <div class="row"><label>Pass tolerance (px)</label><input id="tolPx" type="range" min="1" max="8" step="0.5" value="3"></div>
+    <div class="row"><label>Pass tolerance (fraction of local fringe)</label><input id="tolFrac" type="range" min="0.05" max="0.5" step="0.01" value="0.25"></div>
+    <div class="row"><label><input id="colorFingers" type="checkbox" checked> Color fringes</label><span></span></div>
+    <div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap">
+      <button id="run">Run test</button>
+      <button id="redraw">Redraw</button>
+      <button id="selftest">Run self‑tests</button>
+    </div>
+    <div id="out" class="log">Ready.</div>
+    <div style="color:#9aa4b2;font-size:12px;margin-top:8px">
+      Two healed hemispherical emitters at y=±d/2 radiate forward. We compute detector intensity at x=L by coherent sum and compare measured peak rows to analytic maxima rows.
+      Fixes in this version: removed a stray duplicate block that caused a syntax error, unified pixel coordinates, filtered to in‑frame maxima, side‑aware matching, adaptive thresholding, and optional phase‑spaced fronts.
+    </div>
+  </aside>
+  <canvas id="cv" width="960" height="560"></canvas>
+</div>
+
+<script>
+// --- Canvas helpers ---
+const cv = document.getElementById('cv');
+const S = cv.getContext('2d');
+function ui(id){ return document.getElementById(id); }
+
+function params(){
+  const H = +ui('H').value; cv.height = H; return {
+    L:+ui('L').value,
+    d:+ui('d').value,
+    lam:+ui('lam').value,
+    H:H,
+    frontStep:+ui('frontStep').value,
+    th:+ui('th').value,
+    mmax:+ui('mmax').value
+  };}
+
+// --- Physics: detector intensity from two coherent hemispherical emitters ---
+function detectorProfile(P, supersample){
+  supersample = supersample || 1;
+  const L=P.L, d=P.d, lam=P.lam, H=P.H; const k = 2*Math.PI/lam; const I=new Float32Array(H);
+  const yc = H/2; // pixel center
+  for(let j=0;j<H;j++){
+    let acc=0;
+    for(let s=0;s<supersample;s++){
+      const y = (j + (s+0.5)/supersample - yc); // sub-pixel sample
+      const r1 = Math.hypot(L, y - d/2);
+      const r2 = Math.hypot(L, y + d/2);
+      const E1c = Math.cos(k*r1)/r1, E1s = Math.sin(k*r1)/r1;
+      const E2c = Math.cos(k*r2)/r2, E2s = Math.sin(k*r2)/r2;
+      const Ec = E1c + E2c, Es = E1s + E2s;
+      acc += (Ec*Ec + Es*Es);
+    }
+    I[j] = acc / supersample;
+  }
+  return I;
+}
+
+// --- Peak finding ---
+function findPeaks(I, frac){
+  // Adaptive: if frac is null we compute from median/MAD, else use provided
+  let max=0; for(let i=0;i<I.length;i++){ if(I[i]>max) max=I[i]; }
+  let th;
+  if(frac==null){
+    const A = Array.from(I).sort(function(a,b){return a-b;});
+    const med = A[Math.floor(A.length/2)]||0;
+    const devs = A.map(function(v){return Math.abs(v-med);}).sort(function(a,b){return a-b;});
+    const mad = devs[Math.floor(devs.length/2)]||0;
+    th = Math.min(max*0.7, Math.max(max*0.1, med + 1.5*mad));
+  }else{
+    th = max*frac;
+  }
+  const peaks=[];
+  for(let i=1;i<I.length-1;i++){
+    if(I[i]>th && I[i]>=I[i-1] && I[i]>=I[i+1]){
+      const a=I[i-1], b=I[i], c=I[i+1];
+      const denom=(a-2*b+c); let off=0; if(Math.abs(denom)>1e-9) off=0.5*(a-c)/denom;
+      peaks.push(i+off);
+    }
+  }
+  return peaks;
+}
+
+// --- Analytic maxima (in-frame) ---
+function analyticMaxima(P){
+  const L=P.L, d=P.d, lam=P.lam, H=P.H; const yc=H/2; const rows=[]; const margin=2; // px
+  const mlim = Math.min(P.mmax, Math.floor((d-1e-6)/lam));
+  rows.push({m:0, j:yc});
+  for(let m=1;m<=mlim;m++){
+    const s = m*lam/d; if(Math.abs(s)>=1) break; // order does not exist
+    const theta = Math.asin(s); const y = L*Math.tan(theta);
+    const jUp = yc - y; const jDn = yc + y;
+    if(jUp>=margin && jUp<=H-margin) rows.push({m:-m, j:jUp});
+    if(jDn>=margin && jDn<=H-margin) rows.push({m:+m, j:jDn});
+  }
+  rows.sort(function(a,b){return a.j-b.j;}); return rows;
+}
+
+// --- Color helpers ---
+function hslToRgb(h, s, l){
+  var r, g, b;
+  if(s === 0){ r = g = b = l; }
+  else {
+    function hue2rgb(p, q, t){
+      if(t < 0) t += 1; if(t > 1) t -= 1;
+      if(t < 1/6) return p + (q - p) * 6 * t;
+      if(t < 1/2) return q;
+      if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
+}
+
+// --- Drawing ---
+function drawScene(P, I, peaks, ana){
+  const L=P.L, d=P.d, lam=P.lam, H=P.H, frontStep=P.frontStep;
+  const W=cv.width, Hcv=cv.height; S.clearRect(0,0,W,Hcv);
+  const cx=40, cy=Hcv/2; // wall at x=cx
+  // wall & slits
+  S.fillStyle='#1e2a44'; S.fillRect(cx-4,0,8,Hcv);
+  S.fillStyle='#a7c6ff'; S.fillRect(cx-3, cy-d/2-3, 6,6); S.fillRect(cx-3, cy+d/2-3, 6,6);
+  // detector
+  const detX=cx+L; S.strokeStyle='#2b3a5e'; S.beginPath(); S.moveTo(detX,0); S.lineTo(detX,Hcv); S.stroke();
+  // optional colored interference field ("fingers")
+  var cfEl = ui('colorFingers');
+  var colorize = cfEl && cfEl.checked;
+  if(colorize){
+    var w = Math.max(0, detX - cx - 1); // use existing detX, avoid redeclaration
+    var img = S.createImageData(w, Hcv);
+    var data = img.data; var k = 2*Math.PI/P.lam; var idx=0;
+    for(var y=0; y<Hcv; y++){
+      var yrel = y - cy;
+      for(var x=0; x<w; x++){
+        var dx = x+1;
+        var r1 = Math.hypot(dx, yrel - P.d/2);
+        var r2 = Math.hypot(dx, yrel + P.d/2);
+        var c1 = Math.cos(k*r1)/Math.max(1,r1), s1 = Math.sin(k*r1)/Math.max(1,r1);
+        var c2 = Math.cos(k*r2)/Math.max(1,r2), s2 = Math.sin(k*r2)/Math.max(1,r2);
+        var Ec = c1 + c2, Es = s1 + s2;
+        var Ipx = Ec*Ec + Es*Es;
+        var phi = k*(r2 - r1);
+        var hue = (phi/(2*Math.PI)) % 1; if(hue < 0) hue += 1;
+        var amp = Math.min(1, Ipx*0.9);
+        var rgb = hslToRgb(hue, 0.85, 0.10 + 0.45*amp);
+        data[idx++] = rgb[0];
+        data[idx++] = rgb[1];
+        data[idx++] = rgb[2];
+        data[idx++] = 255;
+      }
+    }
+    S.putImageData(img, cx+1, 0);
+  }
+
+  // hemispherical phase fronts (visual)
+  var phaseEl = ui('phaseFronts');
+  var showPhase = phaseEl && phaseEl.checked;
+  S.lineWidth = 1;
+  if(showPhase){
+    const step = Math.max(4, lam/2); // draw every half-wavelength
+    const maxR = Math.hypot(L,H);
+    for(let R=step; R<maxR; R+=step){
+      const a = 0.15 + 0.35*Math.cos((2*Math.PI/lam)*R); // simple phase fade
+      S.strokeStyle = 'rgba(106,209,255,'+a.toFixed(3)+')';
+      S.beginPath(); S.arc(cx, cy-d/2, R, -Math.PI/2, Math.PI/2);
+      S.moveTo(cx+R, cy+d/2); S.arc(cx, cy+d/2, R, -Math.PI/2, Math.PI/2);
+      S.stroke();
+    }
+  } else {
+    S.strokeStyle='#6ad1ff22';
+    for(let R=frontStep; R<Math.hypot(L,H); R+=frontStep){
+      S.beginPath(); S.arc(cx, cy-d/2, R, -Math.PI/2, Math.PI/2);
+      S.moveTo(cx+R, cy+d/2); S.arc(cx, cy+d/2, R, -Math.PI/2, Math.PI/2);
+      S.stroke();
+    }
+  }
+  // detector intensity bars
+  const Imax = Math.max.apply(null, I);
+  for(let j=0;j<Hcv;j++){ const v=I[j]/Imax; S.fillStyle='rgba(106,209,255,'+(0.10+0.90*v)+')'; S.fillRect(detX+1, j, Math.max(1, Math.floor(v*180)), 1); }
+  // measured peaks (yellow)
+  S.fillStyle='#ffe066'; for(let pi=0; pi<peaks.length; pi++){ const p=peaks[pi]; S.fillRect(detX+1+180, p-2, 6, 4); }
+  // analytic maxima (red)
+  S.fillStyle='#ff7b72'; for(let ai=0; ai<ana.length; ai++){ const a=ana[ai]; S.fillRect(detX-4, a.j-2, 8, 4); }
+}
+
+// --- Local fringe estimate ---
+function localSpacing(ana, idx){
+  if(ana.length<3) return Infinity;
+  const prev = idx>0 ? ana[idx].j - ana[idx-1].j : ana[idx+1].j - ana[idx].j;
+  const next = idx<ana.length-1 ? ana[idx+1].j - ana[idx].j : prev;
+  return (Math.abs(prev)+Math.abs(next))/2;
+}
+
+// --- Main run ---
+function run(){
+  const P=params();
+  const warnings=[];
+  const dy1 = (P.lam*P.L)/P.d; // first-order spacing estimate
+  let supersample = 1;
+  if(dy1 < 2.5){ supersample = 4; warnings.push('undersampled: Δy₁≈'+dy1.toFixed(2)+'px → using '+supersample+'× subpixel sampling'); }
+
+  const I=detectorProfile(P, supersample);
+
+  let peaks=findPeaks(I, +ui('th').value);
+  if(peaks.length<3){
+    const alt = findPeaks(I, null); if(alt.length>peaks.length){ peaks=alt; warnings.push('adaptive peak threshold used'); }
+  }
+
+  const ana=analyticMaxima(P);
+  if(ana.length < 3){
+    const out=document.getElementById('out');
+    out.innerHTML = 'L='+P.L+'px, d='+P.d+'px, λ='+P.lam+'px, H='+P.H+'px\nAnalytic orders in frame: '+ana.length+'. <span class="warn">Out of range for current detector size</span>.';
+    drawScene(P,I,peaks,ana); return;
+  }
+
+  // side-aware matching with local window
+  const used=new Array(peaks.length).fill(false); const rows=[]; const yc=P.H/2; const win = Math.max(6, 0.4*dy1);
+  ana.forEach(function(a,idx){
+    let candIdx=-1, best=1e9;
+    for(let i=0;i<peaks.length;i++){
+      if(used[i]) continue;
+      const sameSide = (a.m===0) || ((peaks[i]-yc)*(a.j-yc) >= 0);
+      if(!sameSide) continue;
+      const d = Math.abs(peaks[i]-a.j);
+      if(d>win) continue;
+      if(d<best){ best=d; candIdx=i; }
+    }
+    if(candIdx>=0){
+      used[candIdx]=true;
+      const pred=a.j, meas=peaks[candIdx];
+      const dyLocal = localSpacing(ana, idx);
+      rows.push({m:a.m, pred:pred, meas:meas, err:meas-pred, errFrac: Math.abs(meas-pred)/dyLocal});
+    }
+  });
+
+  const tolPx = +ui('tolPx').value; const tolFrac = +ui('tolFrac').value;
+  const meanAbs = rows.length? rows.reduce(function(s,r){return s+Math.abs(r.err);},0)/rows.length : Infinity;
+  const meanFrac = rows.length? rows.reduce(function(s,r){return s+r.errFrac;},0)/rows.length : Infinity;
+
+  let status;
+  if(!isFinite(meanAbs) || rows.length<3){ status = '⚠ Out of range (insufficient matches)'; }
+  else if(meanAbs <= tolPx || meanFrac <= tolFrac){ status = '✅ PASS'; }
+  else { status = '❌ FAIL'; }
+
+  const out=document.getElementById('out');
+  let txt='L='+P.L+'px, d='+P.d+'px, λ='+P.lam+'px, H='+P.H+'px\n';
+  txt+='Peaks matched: '+rows.length+' (of '+ana.length+').  Mean |error| = '+(isFinite(meanAbs)?meanAbs.toFixed(2):'n/a')+' px,  mean frac = '+(isFinite(meanFrac)?meanFrac.toFixed(3):'n/a')+' →  '+status;
+  if(warnings.length) txt += '\nWarnings: '+warnings.join('; ');
+  txt += '\n\nm\tpred(y px)\tmeas(y px)\tΔy (px)\t|Δ|/local spacing\n';
+  rows.forEach(function(r){ txt+= r.m+'\t'+r.pred.toFixed(2)+'\t\t'+r.meas.toFixed(2)+'\t\t'+r.err.toFixed(2)+'\t\t'+r.errFrac.toFixed(3)+'\n'; });
+  out.innerHTML=txt;
+  drawScene(P,I,peaks,ana);
+}
+
+// --- Self tests ---
+function almostEqual(a,b,eps){ return Math.abs(a-b) <= eps; }
+function runSelfTests(){
+  const save = params();
+  const msgs=[];
+  // Test 1: symmetry around center (m pairs approximately symmetric)
+  let P = {L:500,d:120,lam:24,H:560,frontStep:28,th:0.25,mmax:10};
+  let ana = analyticMaxima(P);
+  let okSym=true; for(let i=1;i<Math.min(5, ana.length/2); i++){ if(!almostEqual(ana[i].j + ana[ana.length-i-1].j, P.H, 2.5)) { okSym=false; break; } }
+  msgs.push((okSym?'✅':'❌')+' Symmetry test');
+
+  // Test 2: wavelength should change fringe spacing on detector
+  function spacingFor(lam){
+    const PP = {L:500,d:160,lam:lam,H:560,frontStep:28,th:0.25,mmax:10};
+    const I = detectorProfile(PP,2);
+    const peaks = findPeaks(I, 0.25);
+    if(peaks.length<3) return Infinity;
+    return Math.abs(peaks[2]-peaks[1]);
+  }
+  const s1 = spacingFor(16), s2 = spacingFor(32);
+  msgs.push((s2> s1*1.4 ? '✅' : '❌')+' λ scaling test (spacing grows when λ doubles)');
+
+  // Test 3: out-of-range labeling when higher orders do not exist (λ ≥ d)
+  // Previous test used small L, which still produced many in-frame orders, so it was invalid.
+  P = {L:500,d:24,lam:48,H:320,frontStep:20,th:0.25,mmax:20};
+  ana = analyticMaxima(P);
+  msgs.push(((ana.length<3)?'✅':'❌')+' out-of-range analytic count test');
+
+  // Restore sliders and show results
+  ui('L').value = save.L; ui('d').value = save.d; ui('lam').value = save.lam; ui('H').value = save.H;
+  ui('frontStep').value = save.frontStep; ui('th').value = save.th; ui('mmax').value = save.mmax;
+  const out=document.getElementById('out');
+  out.innerHTML = 'Self-tests:\n'+msgs.join('\n');
+}
+
+// Wire up
+ui('run').onclick=run; ui('redraw').onclick=run; ui('selftest').onclick=runSelfTests; run();
+['L','d','lam','H','frontStep','th','mmax','tolPx','tolFrac','phaseFronts','colorFingers'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', run); });
+</script>
+</body>
+</html>

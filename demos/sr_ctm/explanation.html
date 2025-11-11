@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Demo: C = T + M (Explanation)</title>
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Site CSS (adjust paths if needed) -->
+  <link rel="stylesheet" href="../../pagestyles.css" />
+  <link rel="stylesheet" href="../styles.css" />
+
+  <!-- Prism (optional, for small illustrative snippets) -->
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="../../contact-popup.js"></script>
+
+  <!-- MathJax for LaTeX math -->
+  <script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(','\\)']],
+      displayMath: [['\\[','\\]']],
+      processEscapes: true
+    },
+    options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+  };
+  </script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    /* make equations readable on dark */
+    mjx-container { color: var(--text-0, #eaf2ff); }
+  </style>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#budget">C = T + M</a>
+      <a class="chip" href="#modes">Modes: CBF vs SR</a>
+      <a class="chip" href="#lookfor">What to Look For</a>
+      <a class="chip" href="#controls">Controls</a>
+      <a class="chip" href="#faq">FAQ</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Directional vs symmetric timing demo" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>C = T + M: Directional vs Symmetric Timing</h1>
+            <p>
+              This demo visualizes the CBF budget law \( C = T + M \) in action. Each particle carries an internal
+              oscillator and a motion budget. You can switch between two clock rules:
+              <strong>CBF (directional)</strong>, which tilts the tick rate with the observer’s motion,
+              and <strong>SR (symmetric)</strong>, which uses the Lorentz factor from the SR relative speed.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="../../demos.html">Back to Demos</a>
+            </div>
+            <p class="muted" style="margin-top:8px">
+              Note: this demo focuses on local pacing only. To see how frames actually <em>align</em> their ticks across space,
+              try the companion <a href="../sr_beatmatching/explanation.html">Beat-Matching Demo</a>,
+              which visualizes phase alignments and measured vs. predicted beat periods.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- BUDGET -->
+      <section id="budget" class="card">
+        <h2 class="section-title">The Budget Law \(C = T + M\)</h2>
+        <p>
+          In CBF, every entity splits a per-tick budget: \(T\) for translation (motion, propagation) and \(M\) for maintenance
+          (internal ticking, constraints). The effective oscillator frequency an observer sees is proportional to the available
+          maintenance share. When motion demands more \(T\), less \(M\) is available, so the observed clock slows.
+        </p>
+        <p class="well">
+          <strong>Key idea:</strong> timing effects are budget effects. Change the move/maintain split and you change the clock.
+        </p>
+      </section>
+
+      <!-- MODES -->
+      <section id="modes" class="card">
+        <h2 class="section-title">Two Timing Rules in This Demo</h2>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Mode</th><th>Rule</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key">SR (symmetric)</td>
+                <td>\( \displaystyle \frac{d\tau}{dt}=\sqrt{1-w^2}, \quad w=\frac{v_p - v_\text{obs}}{1 - v_p v_\text{obs}} \)</td>
+                <td>Classic time dilation from special relativity based only on relative speed \(w\). Direction does not matter.</td>
+              </tr>
+              <tr>
+                <td class="key">CBF (directional)</td>
+                <td>\( \displaystyle \frac{d\tau}{dt}= \max\!\big(0.01,\; 1 + v_\text{obs} - v_p\big) \)</td>
+                <td>Directional pacing: moving with the observer increases the tick rate, against decreases it. Encodes C = T + M as a simple tilt.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">The demo lets you toggle between these rules and watch how perceived clock rates change.</p>
+      </section>
+
+        <!-- WHAT TO LOOK FOR -->
+        <section id="lookfor" class="card">
+        <h2 class="section-title">What to Look For</h2>
+        <ul>
+            <li><strong>Pulse aging:</strong>
+            Each particle has its own internal pulse or tick counter.
+            When the observer’s frame speed increases, the clocks in the lower-speed frames
+            appear to <em>age faster</em>—their pulses accumulate more quickly.
+            This visualizes how different frames advance through their budgets at different rates,
+            providing an intuitive resolution of the <em>twin paradox</em> within CBF.</li>
+
+            <li><strong>Directional vs. symmetric timing:</strong>
+            In <strong>CBF mode</strong>, the observer’s motion changes the budget split
+            \( C = T + M \).
+            More translation effort (<em>T</em>) leaves less maintenance time (<em>M</em>),
+            stretching the local tick period.
+            In <strong>SR mode</strong>, the pacing depends only on the Lorentz factor
+            \( \sqrt{1 - w^2} \), making both directions equivalent.</li>
+
+            <li><strong>Observer comparison:</strong>
+            Switching between CBF and SR shows that the asymmetric aging comes directly
+            from the directional budget rule, not from relative speed alone.</li>
+
+            <li><strong>Want to see synchronization?</strong>
+            This demo focuses on local pacing only.
+            To see how frames actually <em>align</em> their ticks across space,
+            try the companion <a href="../sr_beatmatching/explanation.html">Beat-Matching Demo</a>,
+            which visualizes phase alignments and measured vs. predicted beat periods.</li>
+        </ul>
+        </section>
+
+      <!-- CONTROLS -->
+      <section id="controls" class="card">
+        <h2 class="section-title">Controls</h2>
+        <div class="table-wrap">
+          <table class="table settings-table">
+            <thead><tr><th>Control</th><th>Default</th><th>Effect</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key">Clock rule</td><td>CBF (directional)</td><td>Switch between CBF and SR timing.</td>
+              </tr>
+              <tr>
+                <td class="key">Observer speed \(v_\text{obs}\)</td><td>0.30&nbsp;c</td><td>Tilts rates in CBF mode, changes \(w\) in SR mode.</td>
+              </tr>
+              <tr>
+                <td class="key">Particle speed (new)</td><td>0.60&nbsp;c</td><td>Sets \(v_p\) for newly added particles.</td>
+              </tr>
+              <tr>
+                <td class="key">Rest frequency \(f_0\) (new)</td><td>2.0&nbsp;Hz</td><td>Base oscillator, scaled by the timing rule.</td>
+              </tr>
+              <tr>
+                <td class="key">Scene speed</td><td>—</td><td>(If present) visual only, makes motion more noticeable.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-hint">Tip: click the canvas to spawn a particle at the cursor with current “new particle” settings.</p>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="card">
+        <h2 class="section-title">FAQ</h2>
+        <details>
+          <summary class="summary"><h3>Is this showing “time symmetry”?</h3></summary>
+          <div class="content">
+            <p>No. This particular demo intentionally contrasts a <em>directional</em> pacing rule (CBF) with a <em>symmetric</em> one (SR). It is about how the budget split changes the observed clock rate, not about reciprocity proofs.</p>
+          </div>
+        </details>
+        <details>
+          <summary class="summary"><h3>Where does the Lorentz factor appear?</h3></summary>
+          <div class="content">
+            <p>In SR mode through \( \gamma(w)=1/\sqrt{1-w^2} \). The demo reports \(w\) and uses \( \sqrt{1-w^2} \) for the rate \(d\tau/dt\).</p>
+          </div>
+        </details>
+        <details>
+          <summary class="summary"><h3>How does this tie back to C = T + M?</h3></summary>
+          <div class="content">
+            <p>CBF says motion and internal ticking draw from the same budget. When relative conditions demand more translation \(T\), internal maintenance \(M\) is reduced, so the observed clock slows. The directional rule is a minimal way to make that split visible.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">C = T + M timing demo</span>
+    </div>
+  </footer>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer'); if (!d) return;
+      d.hidden = false; d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer'); if (!d) return;
+      d.classList.remove('open'); d.hidden = true;
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

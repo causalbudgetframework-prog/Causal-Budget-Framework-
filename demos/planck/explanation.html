@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CBF • Planck Spectrum (Queue Model) — Explanation</title>
+  <link rel="icon" href="/favicon.ico"/>
+  <!-- Shared site styles (same stack as your example page) -->
+  <link rel="stylesheet" href="../../pagestyles.css"/>
+  <link rel="stylesheet" href="../styles.css"/>
+
+  <!-- Prism (theme + JS) -->
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#cbf">CBF Relation</a>
+      <a class="chip" href="#results">Expected Results</a>
+      <a class="chip" href="#settings">Settings</a>
+      <a class="chip" href="#code">Key Code</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Planck spectrum queue demo" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Planck Spectrum from Queue Buffering</h1>
+            <p>
+              This <em>toy</em> demo models many atoms as energy queues fed by input power and drained by maintenance.
+              When a queue overflows a threshold, it emits photons with <em>E = h f</em>. We histogram the emitted photon energies
+              and overlay a fitted Planck curve built from the emergent mean photon energy. The right panel shows per-atom queues, including
+              the overflow line.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="/demos.html">Back to Demos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CBF RELATION -->
+      <section id="cbf" class="card">
+        <h2 class="section-title">How this maps to CBF</h2>
+        <p>
+          Each atom runs the per-tick budget <strong>C = T + M</strong>. Here, <strong>M</strong> is the maintenance drain (local keep-alive),
+          and what remains of <strong>T</strong> feeds the atom’s queue (<code>E</code>). When <code>E</code> exceeds the overflow threshold,
+          the system proposes emissions that pull quanta of size <code>E<sub>γ</sub> = h f</code> out of the queue.
+        </p>
+        <p>
+          The emission attempt uses a Bose–Einstein acceptance factor (a proxy for <em>temporal gate</em> statistics), so higher frequencies are
+          rarer at a given temperature. This is the queue-buffering analogue of blackbody radiation: many queues, fed and drained, occasionally
+          synchronize and commit quanta. The Planck overlay is fit from the <em>emergent</em> average photon energy, not hard-coded from a temperature dial.
+        </p>
+        <div class="callout info">
+          <div class="callout-title">CBF Notes</div>
+          <ul>
+            <li><strong>C = T + M:</strong> maintenance drain lowers the available translation budget feeding queues.</li>
+            <li><strong>Queue buffering:</strong> emissions occur only when the queue has surplus above threshold, creating bursty commits.</li>
+            <li><strong>Beat-matching intuition:</strong> the BE acceptance plays the role of “how often phases line up” for a given frequency band.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- EXPECTED RESULTS -->
+      <section id="results" class="card">
+        <h2 class="section-title">What to expect</h2>
+        <ul>
+          <li>As you raise input power <code>R</code> or lower maintenance <code>M</code>, the mean queue fill rises, the fitted temperature increases, and the spectrum shifts to higher energies.</li>
+          <li>Higher overflow threshold <code>E<sub>th</sub></code> suppresses low-energy dribble, producing more separated bursts and a slightly harder spectrum.</li>
+          <li>With <em>Microbursts</em> on, emissions cluster, which shows up as transient narrow bumps that wash out statistically over time.</li>
+          <li>The yellow Planck overlay tracks the histogram when enough samples accumulate; the fitted <code>T</code> derives from mean <code>E<sub>γ</sub></code> via <code>Ē ≈ 2.70 kT</code>.</li>
+        </ul>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="card">
+        <h2 class="section-title">Settings</h2>
+        <div class="table-wrap">
+          <table class="table settings-table">
+            <thead>
+              <tr><th>Control</th><th>Default</th><th>Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="key">Atoms (N)</td><td>100</td><td>Number of queues (independent emitters).</td></tr>
+              <tr><td class="key">Input power R</td><td>3.0</td><td>Average energy in per dt, raises queue fill.</td></tr>
+              <tr><td class="key">Maintenance M</td><td>2.0</td><td>Per-tick drain, the <strong>M</strong> in C=T+M.</td></tr>
+              <tr><td class="key">Overflow threshold E<sub>th</sub></td><td>2.0</td><td>Minimum surplus required to emit photons.</td></tr>
+              <tr><td class="key">dt</td><td>0.05</td><td>Tick size; affects stability and burst cadence.</td></tr>
+              <tr><td class="key">Steps/frame</td><td>400</td><td>Simulation work per animation frame.</td></tr>
+              <tr><td class="key">Emax scale (×kT)</td><td>8</td><td>Histogram x-range = <code>EMAX_KT · kT</code>.</td></tr>
+              <tr><td class="key">Microbursts</td><td>off</td><td>Allows tighter multi-photon emission clusters.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-hint">Tip: On mobile, drag the table horizontally to view all columns.</div>
+      </section>
+
+      <!-- CODE -->
+      <section id="code" class="card">
+        <h2 class="section-title">Key Code</h2>
+
+        <!-- 1) C=T+M queue update & overflow emission -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>1) Per-tick budget (C=T+M), queue update, and overflow → photon commits</span>
+            <button class="copy-btn" data-copy="#code1" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            Each atom is a queue with energy <code>E</code>. We add input <code>R</code>, subtract maintenance <code>M</code> (the <strong>M</strong> in <strong>C=T+M</strong>), then, if
+            <code>E</code> is above <code>E<sub>th</sub></code>, we attempt emissions that remove quanta <code>E<sub>γ</sub>=h f</code> while keeping <code>E ≥ E<sub>th</sub></code>.
+          </p>
+          <pre><code id="code1" class="language-js"></code></pre>
+          <script>
+            document.getElementById('code1').textContent =
+`function stepOnce(){
+  // Effective temperature from mean fill (toy proxy, not hard-coded):
+  const meanE = atoms.reduce((s,a)=>s+a.E,0)/Math.max(1,atoms.length);
+  const T_eff = Math.max(1e-6, 0.5*meanE);
+
+  for (let i=0; i<atoms.length; i++) {
+    const a = atoms[i];
+
+    // stochastic input around R (Translation share feeding the queue)
+    let noise = (Math.random()+Math.random()+Math.random()+Math.random()+Math.random()+Math.random()) - 3;
+    const Rin_i = Math.max(0, Rin + 0.5*noise);
+
+    // --- C = T + M per tick ---
+    // queue update: E += (T_in - M) * dt, with hard floor at 0
+    a.E += (Rin_i - a.M) * dt;
+    if (a.E < 0) a.E = 0;
+
+    // Overflow → propose photon commits (queue buffering)
+    let emits = 0;
+    const cap = microbursts ? 20 : 6;
+    while (a.E > Eth * 1.001 && emits < cap) {
+      let f = samplePlanckishFrequency(T_eff);     // BE-weighted attempt
+      if (microbursts && Math.random() < 0.15) {
+        const sigma = 0.03 * f;                    // clustered bursts
+        f = Math.max(1e-6, f + sigma*(Math.random()*2-1));
+      }
+      const Eg = h * f;                             // E = h f
+
+      if (a.E - Eg >= Eth) {                        // keep E >= Eth
+        a.E -= Eg;
+        photons.push(Eg + 1e-6*Math.random());      // jitter avoids bin lock
+        emits++;
+      } else {
+        break;                                      // not enough headroom
+      }
+    }
+  }
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p><strong>Budget law:</strong> <code>a.E += (R - M)·dt</code> is the direct implementation of <strong>C=T+M</strong>: maintenance lowers what can accumulate in the queue.</p>
+            <p><strong>Queue buffering:</strong> commits only happen when surplus exists above <code>E<sub>th</sub></code>, producing realistic burstiness.</p>
+          </div>
+        </div>
+
+        <!-- 2) BE-weighted frequency sampler (temporal-gate proxy) -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>2) Frequency selection with BE acceptance (temporal-gate/beat-matching proxy)</span>
+            <button class="copy-btn" data-copy="#code2" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            We draw trial frequencies with a simple <code>f³</code> envelope and accept them with the Bose–Einstein factor
+            <code>1/(e^{hf/kT}-1)</code>. This stands in for the Event Ledger’s temporal statistics: high-<code>f</code> commits are rarer at a fixed <code>T</code>.
+          </p>
+          <pre><code id="code2" class="language-js"></code></pre>
+          <script>
+            document.getElementById('code2').textContent =
+`function samplePlanckishFrequency(T){
+  const fmax = Math.max(1e-3, 10*T + 1e-3);
+  let attempts = 0;
+  const Tsafe = Math.max(T, 1e-6);
+  while (attempts < 2000) {
+    attempts++;
+    const u  = Math.random();
+    const f  = fmax * Math.pow(u, 1/4);               // ~ f^3 proposal
+    const BE = 1 / (Math.exp((h*f)/(k*Tsafe)) - 1 + 1e-9);
+    if (Math.random() < BE) return f;                  // accept
+  }
+  // anti-collapse fallback: small random band, never a constant
+  return (fmax*0.1)*Math.sqrt(Math.random()) + 1e-6*Math.random();
+}`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p><strong>Beat-matching intuition:</strong> acceptance is higher where the system more often finds temporal alignment for that band, which mirrors why low-frequency modes are more populated at a given <code>T</code>.</p>
+          </div>
+        </div>
+
+        <!-- 3) Histogram + Planck overlay from emergent mean Eγ -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>3) Histogram and Planck overlay from emergent ⟨E<sub>γ</sub>⟩</span>
+            <button class="copy-btn" data-copy="#code3" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            We estimate <code>T</code> from the recent mean photon energy using <code>Ē ≈ 2.70 kT</code>, then draw the
+            Planck curve on top of the histogram using the same x-range logic as the bars. No temperature knob is read here,
+            it is inferred from emission statistics.
+          </p>
+          <pre><code id="code3" class="language-js"></code></pre>
+          <script>
+            document.getElementById('code3').textContent =
+`// Recent photons → T_fit → Planck overlay
+const recent = photons.slice(-50000);
+const meanEg = recent.reduce((s,x)=>s+x,0) / Math.max(1,recent.length);
+const Tfit   = Math.max(1e-6, meanEg / 2.70);
+const maxE   = Math.max(1e-6, EMAX_KT * k * Tfit);
+
+// For each pixel x: E → I(E,Tfit) = E^3 / (exp(E/kT)-1)
+hctx.beginPath();
+for (let px=0; px<W-40; px++) {
+  const E = (px/(W-40)) * maxE;
+  const I = (E*E*E) / (Math.exp(E/(k*Tfit)) - 1 + 1e-9);
+  const y = scaleY(I, H-30, 40, counts); // normalized to histogram scale
+  const x = 40 + px;
+  if (px===0) hctx.moveTo(x,y); else hctx.lineTo(x,y);
+}
+hctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent2');
+hctx.lineWidth = 2;
+hctx.stroke();`;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p><strong>Emergent temperature:</strong> thermal statistics arise from many buffered queues committing quanta. The fitted temperature is a <em>summary</em> of those commits, not an input.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.hidden = false; d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.classList.remove('open'); d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

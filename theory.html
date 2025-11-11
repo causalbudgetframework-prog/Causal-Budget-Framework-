@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CBF • Causal Budget Framework</title>
+<meta name="description" content="CBF: a computable physics blueprint with C = T + M, a global Event Ledger, and panelized explanations with demos." />
+<link rel="icon" href="/favicon.ico" />
+<script src="./contact-popup.js"></script>
+
+<style>
+/* =========================
+   THEME TOKENS
+   ========================= */
+:root{
+  /* Core palette (matches home) */
+  --bg-0:#0b0f14; --bg-1:#0f141b; --bg-2:#121923;
+  --panel:#151e29; --panel-2:#1a2532;
+  --text-0:#eaf2ff; --text-1:#c7d2e5; --muted:#93a4bf;
+  --brand:#4dd0e1; --brand-2:#22c55e; --link:#79c0ff; --link-visited:#a78bfa;
+
+  /* Contrast helpers */
+  --panel-elev:#101720;            /* slightly darker for wells */
+  --panel-outline:rgba(125, 168, 196, .34);
+  --panel-outline-strong:rgba(125, 168, 196, .5);
+
+  /* Chips */
+  --chip-bg: linear-gradient(180deg, rgba(26,41,56,.92), rgba(19,30,45,.92));
+  --chip-border: rgba(121,192,255,.45);
+  --chip-hover-bg: linear-gradient(180deg, rgba(26,41,56,1), rgba(24,38,56,1));
+  --chip-hover-border: rgba(121,192,255,.75);
+
+  /* Radii */
+  --r-xl:22px; --r-lg:18px; --r-md:12px; --r-sm:8px;
+  /* Shadows */
+  --sh-lg:0 18px 50px rgba(0,0,0,.45);
+  --sh-md:0 10px 28px rgba(0,0,0,.35);
+  --sh-sm:0 6px 18px rgba(0,0,0,.28);
+  /* Layout */
+  --container:1180px; --g:20px;
+  --s1:8px; --s2:12px; --s3:18px; --s4:24px; --s5:32px; --s6:44px; --s7:60px;
+}
+
+/* Focus styles */
+:focus-visible{ outline:2px solid color-mix(in oklab, var(--brand) 70%, white 20%); outline-offset:3px; border-radius:8px; }
+
+/* =========================
+   BASE
+   ========================= */
+html, body{ min-height:100%; }
+html{
+  background: linear-gradient(180deg,#0b0f14 0%,#0c1219 30%,#0c141c 60%,#0d1720 100%) fixed;
+  background-color:var(--bg-0);
+}
+body{
+  margin:0; color:var(--text-0);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height:1.6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  background:
+    radial-gradient(1200px 1200px at 10% -10%, rgba(21,32,48,.8) 0%, rgba(21,32,48,0) 55%),
+    radial-gradient(1000px 900px at 110% 20%, rgba(14,23,36,.7) 0%, rgba(14,23,36,0) 60%);
+  background-repeat:no-repeat; background-attachment:fixed; position:relative;
+}
+body::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 2px, rgba(255,255,255,0) 2px 8px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.01) 0 1px, rgba(255,255,255,0) 1px 6px);
+  opacity:.35;
+}
+
+/* Skip link for a11y */
+.skip-link{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus{ position:fixed; left:16px; top:12px; width:auto; height:auto; padding:8px 12px; background:#0b2530; color:#eaffff; border-radius:8px; z-index:99; }
+
+a{ color:var(--link); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+img{ max-width:100%; height:auto; display:block; }
+.container{ width:100%; max-width:var(--container); margin:0 auto; padding:0 var(--g); position:relative; z-index:1; }
+
+/* =========================
+   HEADER / NAV
+   ========================= */
+.site-header{ position:sticky; top:0; z-index:40; backdrop-filter:blur(8px);
+  background: color-mix(in oklab, var(--bg-2) 80%, transparent);
+  border-bottom:1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+}
+.nav{ display:flex; align-items:center; justify-content:space-between; gap:var(--s3); min-height:64px; }
+.brand{ display:flex; align-items:center; gap:var(--s2); font-weight:700; letter-spacing:.2px; }
+.brand-dot{ width:10px; height:10px; border-radius:999px; background:var(--brand); box-shadow:0 0 18px var(--brand); }
+.brand-title{ color:var(--text-0); font-size:1.06rem; }
+.nav-links{ display:flex; align-items:center; gap:var(--s3); }
+.nav-links a{ color:var(--text-1); padding:10px 10px; border-radius:var(--r-sm); }
+.nav-links a:hover{ background: color-mix(in oklab, var(--panel) 65%, transparent); text-decoration:none; }
+.nav-cta{ padding:8px 14px; border-radius:var(--r-md); background:linear-gradient(180deg, var(--brand), #1294a1); color:#001318; font-weight:700; box-shadow:var(--sh-sm); }
+.burger{ display:none; padding:10px; border-radius:var(--r-md); border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); background: color-mix(in oklab, var(--panel) 60%, transparent); }
+.burger svg{ display:block; }
+
+@media (max-width:880px){
+  .nav-links{ display:none; }
+  .burger{ display:inline-flex; }
+  .drawer{ position:fixed; inset:0 0 0 40%; transform:translateX(100%); background:var(--bg-1); transition:transform .2s ease; box-shadow:-20px 0 40px rgba(0,0,0,.35); }
+  .drawer.open{ transform:translateX(0); }
+  .drawer .panel{ padding:var(--s4); border-radius:0; }
+  .drawer a{ display:block; padding:12px 10px; color:var(--text-1); border-radius:var(--r-md); }
+  .drawer a:hover{ background: color-mix(in oklab, var(--panel) 65%, transparent); }
+}
+
+/* =========================
+   COMPONENTS
+   ========================= */
+.panel{ background: linear-gradient(180deg,
+    color-mix(in oklab, var(--panel) 92%, transparent),
+    color-mix(in oklab, var(--panel-2) 92%, transparent));
+  border:1px solid var(--panel-outline); border-radius:var(--r-lg); box-shadow:var(--sh-md); overflow:hidden; padding:var(--s5);
+}
+
+/* Big Picture-style outer panel */
+.panel-bp{ background: linear-gradient(180deg,
+    color-mix(in oklab, var(--panel) 92%, transparent),
+    color-mix(in oklab, var(--panel-2) 92%, transparent));
+  border:1px solid var(--panel-outline); border-radius:20px; box-shadow:var(--sh-md); overflow:hidden; padding:18px; margin-bottom:var(--s5);
+}
+.bp-title{ margin:0 0 6px; font-size:clamp(1.2rem, 1rem + 1vw, 1.45rem); }
+.bp-sub{ color:var(--text-1); margin:0 0 16px; font-size:.98rem; }
+
+/* Inset "well" with stronger contrast */
+.well{ background:linear-gradient(180deg, color-mix(in oklab, var(--panel-elev) 86%, var(--panel-2) 14%), color-mix(in oklab, var(--panel-2) 90%, var(--bg-2) 10%));
+  border:1px solid var(--panel-outline-strong); border-radius:18px; padding:18px 20px; box-shadow:0 2px 6px rgba(0,0,0,.4), inset 0 0 12px rgba(77,208,225,.05);
+}
+
+.bp-list{ margin:16px 0 0 0; padding-left:22px; }
+.bp-list li{ margin:10px 0; }
+
+/* Media variant (text + right media) */
+.panel-bp.media{ display:grid; grid-template-columns:1.25fr 1fr; gap:18px; align-items:start; }
+.bp-media{ border-left:1px solid var(--panel-outline); padding-left:18px; display:grid; align-content:start; gap:12px; background: radial-gradient(420px 200px at 40% 10%, rgba(77,208,225,.10), transparent 60%); }
+.bp-media img{ max-width:460px; width:100%; border-radius:12px; filter: drop-shadow(0 8px 22px rgba(0,0,0,.45)); }
+.bp-actions{ display:flex; flex-wrap:wrap; gap:10px; }
+
+@media (max-width:980px){
+  .panel-bp.media{ grid-template-columns:1fr; }
+  .bp-media{ border-left:none; border-top:1px solid var(--panel-outline); padding:14px 0 0; }
+}
+
+/* Buttons */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border-radius:var(--r-md); font-weight:700; border:1px solid transparent; }
+.btn.primary{ background:linear-gradient(180deg, var(--brand), #1196a5); color:#001318; box-shadow:var(--sh-sm); }
+.btn.secondary{ background: color-mix(in oklab, var(--panel) 60%, transparent); color:var(--text-1); border-color: var(--panel-outline); }
+.btn.ghost{ background: transparent; color: var(--text-1); border:1px solid var(--panel-outline); }
+
+/* Sections + spacing */
+.section{ padding:var(--s6) 0; }
+.stack>*+*{ margin-top:var(--s5); }
+
+/* HERO */
+.hero{ padding:var(--s5) 0 var(--s4); }
+.hero .panel{ display:block !important; padding:40px 32px; }
+.hero .lede{ color:var(--text-1); max-width:none !important; }
+.kicker{ color:var(--brand); text-transform:uppercase; letter-spacing:.08em; font-size:.8rem; font-weight:700; }
+
+/* FOOTER */
+footer{ border-top:1px solid var(--panel-outline); margin-top:var(--s6); }
+.foot{ display:flex; gap:var(--s3); align-items:center; justify-content:space-between; min-height:72px; color:var(--muted); }
+
+/* Primary CTA pulse */
+.btn.primary.pulse{ position:relative; overflow:hidden; z-index:1; box-shadow:0 0 15px rgba(77,208,225,.4), 0 0 35px rgba(77,208,225,.2); animation:pulseGlow 3s ease-in-out infinite; }
+.btn.primary.pulse::before{ content:""; position:absolute; inset:-2px; background: radial-gradient(circle at 50% 50%, rgba(77,208,225,.8), transparent 70%); opacity:0; transition: opacity .4s ease, transform 1.8s linear; transform: scale(.9); z-index:-1; }
+.btn.primary.pulse:hover::before{ opacity:.9; transform: scale(1.2); }
+@keyframes pulseGlow{ 0%,100%{ box-shadow:0 0 15px rgba(77,208,225,.4), 0 0 35px rgba(77,208,225,.2);} 50%{ box-shadow:0 0 25px rgba(77,208,225,.7), 0 0 45px rgba(77,208,225,.4);} }
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+
+/* === Chips / Tags === */
+.chip-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.chip{ display:inline-flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:600; color:var(--text-0);
+  background:var(--chip-bg); border:1px solid var(--chip-border); border-radius:999px; padding:6px 12px; box-shadow:0 2px 6px rgba(0,0,0,.35); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.chip:hover{ background:var(--chip-hover-bg); border-color:var(--chip-hover-border); transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.38); }
+.chip.muted{ color:var(--muted); border-color: color-mix(in oklab, var(--panel) 60%, var(--muted) 20%); background: color-mix(in oklab, var(--panel) 90%, transparent); }
+
+/* ===== Sub-panels inside a panel-bp ===== */
+.slices{ display:grid; gap:16px; }
+.subpanel{ background: linear-gradient(180deg, color-mix(in oklab, var(--panel) 88%, transparent), color-mix(in oklab, var(--panel-2) 90%, transparent)); border:1px solid var(--panel-outline); border-radius:16px; padding:16px 18px; box-shadow:var(--sh-sm); }
+.subpanel.grid{ display:grid; grid-template-columns:1.25fr 1fr; gap:16px; align-items:start; }
+.subpanel .media{ border-left:1px solid var(--panel-outline); padding-left:16px; display:grid; align-content:start; gap:12px; background: radial-gradient(380px 180px at 40% 10%, rgba(77,208,225,.08), transparent 65%); }
+.subpanel .media img{ width:100%; max-width:440px; border-radius:12px; filter: drop-shadow(0 8px 22px rgba(0,0,0,.45)); }
+.subpanel.flip .media{ order:-1; border-left:none; border-right:1px solid var(--panel-outline); padding-left:0; padding-right:16px; }
+@media (max-width:980px){ .subpanel.grid{ grid-template-columns:1fr; } .subpanel .media{ border:none; padding:0; background:none; } }
+
+/* Small text helper */
+small.muted{ color:var(--muted); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="/"><span class="brand-dot" aria-hidden="true"></span><span class="brand-title">Causal Budget Framework</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#" data-contact-popup>Contact</a>
+      <a href="/conclusions.html">Conclusions</a>
+      <a href="/referencetable.html">Reference Table</a>
+      <a href="/devblog.html">Dev Blog</a>
+      <a href="/stresstests.html">Stress Tests</a>
+      <a href="/predictions.html">Predictions</a>
+      <a href="/ai-assisted-math.html">Appendix</a>
+      <a class="nav-cta" href="/demos.html">Demos</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <aside class="drawer" id="drawer" hidden aria-hidden="true">
+    <div class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+        <div class="brand"><span class="brand-dot"></span><span class="brand-title">CBF Menu</span></div>
+        <button class="burger" id="closeDrawer" aria-label="Close menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <nav aria-label="Mobile">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/conclusions.html">Conclusions</a>
+        <a href="/referencetable.html">Reference Table</a>
+        <a href="/devblog.html">Dev Blog</a>
+        <a href="/stresstests.html">Stress Tests</a>
+        <a href="/predictions.html">Predictions</a>
+        <a href="/ai-assisted-math.html">Appendix</a>
+        <a href="/demos.html">Demos</a>
+      </nav>
+    </div>
+  </aside>
+</header>
+
+<main id="main">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="panel">
+        <div class="kicker">Computational Ontophysics</div>
+        <h1 style="margin:8px 0 12px; font-size:clamp(1.6rem,1.2rem + 2vw,2.4rem); line-height:1.2;">
+          Causal Budget Framework
+          <span style="display:block; font-weight:400; color:var(--text-1); font-size:.92em;">One budget, one ledger, all of physics.</span>
+        </h1>
+        <p class="lede">
+          CBF simulates reality as computational using a cellular‑automata interpretation. Each system spends a shared budget between Translation (<strong>T</strong>) and Maintenance (<strong>M</strong>), forming the rule <strong>C = T + M</strong>. A global Event Ledger selects which proposed interactions become reality and re‑synchronizes frames. Space and time are the visible trail of those confirmed events.
+        </p>
+        <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap;">
+          <a class="btn primary pulse" href="/devblog.html">Read the Dev Blogs</a>
+          <a class="btn secondary" href="#nutshell-end">Theory in a Nutshell</a>
+          <a class="btn ghost" href="/demos.html">See Demos</a>
+        </div>
+        <div class="chip-row" aria-hidden="true" style="margin-top:10px;">
+          <span class="chip">QM</span><span class="chip">SR</span><span class="chip">GR</span>
+          <span class="chip">EM</span><span class="chip">Cosmology</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THEORY IN A NUTSHELL -->
+  <section class="section" id="nutshell">
+    <div class="container stack">
+
+      <!-- Huygens' Principle Cellular Automata -->
+      <div class="panel-bp" id="panel-wavecells">
+        <h2 class="bp-title">Huygens' Principle Cellular Automata</h2>
+        <p class="bp-sub">Simple per‑step rules that spawn complex wave behavior, written as a cellular‑automata loop.</p>
+        <div class="slices">
+          <div class="subpanel">
+            <p style="margin-top:0;"><strong>Cellular Automata (CA)</strong> is a computer method that uses simple rules to update a grid. Each pixel waits until the next turn to move by one unit or to process an internal state. <strong>Huygens' Principle</strong> says every point on a wavefront can act like a source of a new wave.</p>
+            <p><strong>CBF mirrors this behavior.</strong> In CBF, particles are vector‑based cellular‑automata wavefronts made from individual wave cells. Each wave cell follows simple rules that produce diffraction, interference, and clean commit selection at detectors.</p>
+          </div>
+
+          <div class="panel-bp">
+            <h2 class="bp-title">Core CBF CA Wave Cell Rule (C = T + M)</h2>
+            <p class="bp-sub">Each wave cell divides its per‑tick budget between translation and maintenance.</p>
+            <div class="well">
+              <ul style="margin:0; padding-left:22px;">
+                <li><strong>Translation budget T:</strong> portion used to move the wave cell along its vector.</li>
+                <li><strong>Maintenance budget M:</strong> portion used to keep the wave cell coherent and alive.</li>
+                <li><strong>Budget cap C:</strong> total per‑tick limit, enforced as <strong>C = T + M</strong>.</li>
+                <li><strong>Photons:</strong> M = 0, all budget goes to T, pure translation.</li>
+                <li><strong>T vector:</strong> direction and phase component representing momentum.</li>
+                <li><strong>Phase and spin placement:</strong> phase oscillates in motion with T, spin and other bound ticks live in time with M.</li>
+              </ul>
+            </div>
+            <p style="margin-top:14px;">In CBF this separation is deliberate, moving oscillation is handled by the translation share, while bound‑state upkeep, including spin and internal ticks, is handled by the maintenance share. This keeps photons as pure movers and gives matter a baseline maintenance cost.</p>
+          </div>
+
+          <div class="subpanel grid flip">
+            <aside class="media">
+              <img src="./assets/diffraction.png" alt="Wavefront CA" />
+              <div class="bp-actions"><a class="btn primary" href="./demos/vca_animation/explanation.html">View CA Demo</a></div>
+            </aside>
+            <div>
+              <h3 style="margin:0 0 8px; font-size:1.05rem;">Huygens' style CA spawning rules</h3>
+              <ol style="margin:0; padding-left:22px;">
+                <li><strong>Replace absorbed neighbors:</strong> spawn new wave cells where adjacent cells were absorbed.</li>
+                <li><strong>Edge diffraction:</strong> set the new cell vector at 90 degrees toward the side with missing neighbors.</li>
+                <li><strong>Coverage upkeep:</strong> when neighbors drift too far apart, spawn child cells to maintain coverage.</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="subpanel grid">
+            <div>
+              <h3 style="margin:0 0 8px; font-size:1.05rem;">Double‑Slit Wavefront</h3>
+              <ul class="bp-list" style="margin-top:10px;">
+                <li>
+                  <strong>Particle as finite wavefront:</strong>
+                  A particle is a finite wavefront of wave cells, often a hollow shell large enough to span the slit region.
+                  The slits carve and redirect parts of the same parent wavefront.
+                  Outside of atoms, wavefronts such as electrons expand naturally until their internal tension reaches equilibrium,
+                  forming roughly spherical shells of probability.
+                  This self-stabilizing shape minimizes boundary stress between neighboring wave cells.
+                  Only when the field is broken—by confinement, measurement, or diffraction—does the shell distort or split into new fronts.
+                </li>
+                <li>
+                  <strong>Photons and electrons follow the same mechanism:</strong>
+                  quantized wavefronts of wave cells. Photons use M = 0 (all translation), matter has a baseline M.
+                </li>
+                <li>
+                  <strong>Wave cells encountering absorbers:</strong>
+                  create <em>event proposals</em> rather than instant collapses; the final commit happens later when the Ledger’s gates align.
+                </li>
+                <li>
+                  <strong>Collapse timing:</strong>
+                  delayed until the Event Ledger’s spatial, directional, temporal, and informational gates are satisfied.
+                </li>
+              </ul>
+            </div>
+            <aside class="media">
+              <img src="./assets/timing.png" alt="One parent wavefront spans the two slits, diffracts, and forms a phase‑added fringe map at the screen" />
+              <div class="bp-actions">
+                <a class="btn primary" href="./demos/doubleslit_timing/explanation.html">Run Double‑Slit Demo</a>
+              </div>
+            </aside>
+          </div>
+
+          <!-- Interference Panels -->
+          <div class="slices">
+            <div class="subpanel grid">
+              <div>
+                <h3 style="margin:0 0 8px; font-size:1.05rem;">Single‑Slit: Interference as Breaking and Healing</h3>
+                <div class="well" style="margin-bottom:12px;">
+                  <p style="margin:0;">In CBF, interference does not require two independent waves. A single wavefront passing through one slit fragments into separate wave‑cell streams that arrive at slightly different times. When these fragments grow and reconnect at the detector, their phases add or cancel, producing the familiar fringe rhythm.</p>
+                </div>
+                <ul class="bp-list" style="margin-top:10px;">
+                  <li><strong>Single‑slit interference:</strong> internal timing differences of one wavefront.</li>
+                  <li>Atoms can receive multiple arrivals with evolving phase, revealing the fringe map over time.</li>
+                </ul>
+                <!-- <div class="bp-actions" style="margin-top:12px;">
+                  <a class="btn primary" href="/demos.html#single-slit">Run Single‑Slit Demo</a>
+                  <a class="btn secondary" href="/predictions.html#interference">Read Notes</a>
+                </div> -->
+              </div>
+              <aside class="media">
+                <img src="./assets/single-slit.png" alt="Single‑slit: wavefront breaks at the aperture and heals, producing fringes at the screen" />
+                <div class="bp-actions">
+                  <a class="btn primary" href="./demos/singleslit/explanation.html">Run Single‑Slit Demo</a>
+                </div>
+              </aside>
+            </div>
+
+            <div class="subpanel grid flip">
+              <aside class="media">
+                <img src="./assets/double-slit.png" alt="Double‑slit: two diffracted fronts from the same parent wave overlap and form phase‑added fringes" />
+                <div class="bp-actions">
+                  <a class="btn primary" href="./demos/doubleslit/demo.html">Run Double‑Slit Demo</a>
+                  <!-- <a class="btn secondary" href="/predictions.html#interference">Read Notes</a> -->
+                </div>
+              </aside>
+              <div>
+                <h3 style="margin:0 0 8px; font-size:1.05rem;">Double-Slit: Phase Addition Explains Fringes</h3>
+
+                <div class="well" style="margin-bottom:12px;">
+                  <p style="margin:0;">
+                    One parent wavefront spans both slits, then splits into two fronts that take slightly different routes to each point on the screen.
+                    Different route length means different travel time, so the arriving wave cells are at different phases when they wash over each other.
+                    At the detector, proposals add by their local phase, and commit odds follow the squared magnitude of the complex sum:
+                    <span class="equation">|Σ e<sup>iθᵢ</sup>|²</span>. Aligned phases boost commit probability, opposite phases cancel.
+                  </p>
+                </div>
+
+                <ul class="bp-list" style="margin-top:10px;">
+                  <li><strong>Same source, two routes:</strong> both fronts come from the same initial wave, they just travel different distances.</li>
+                  <li><strong>Travel time sets phase:</strong> a small time offset Δt creates a phase offset Δθ, which controls local addition or cancellation.</li>
+                  <li><strong>Fringe rhythm:</strong> positions where Δθ is near 2πn are bright, near (2n+1)π are dark.</li>
+                  <li><strong>Ledger timing:</strong> commits are chosen after phases are compared at arrival, not while the waves are in flight.</li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- =========================
+          C = T + M as Pythagoras
+          ========================= -->
+      <div class="panel-bp" id="panel-pythagoras">
+        <h2 class="bp-title">Turning C = T + M into a Triangle</h2>
+        <p class="bp-sub">A geometric view that connects the CBF budget law to relativity and energy–momentum structure.</p>
+
+        <div class="well">
+          <p style="margin:0;">
+            In CBF, the per-tick budget <strong>C = T + M</strong> can also be expressed as a right-triangle identity:
+            <strong>T² + M² = 1</strong>. This form reveals a deep link between computational pacing and the geometry of spacetime.
+            Translation and Maintenance behave like perpendicular components of one conserved effort vector.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li><strong>Lorentz Factor:</strong> When an object moves faster, its translation share T grows while M shrinks.
+            Using <code>T = v/c</code> and <code>M = √(1 − v²/c²)</code> reproduces the Lorentz factor
+            <span class="equation">γ = 1 / √(1 − v²/c²)</span>, showing time dilation as reduced maintenance share.</li>
+
+          <li><strong>Energy–Momentum Triangle:</strong> Multiply by constants <code>c</code> and <code>m</code> and the same shape yields
+            <span class="equation">E² = (pc)² + (m c²)²</span>. Energy corresponds to total budget, momentum to translation, and rest mass to maintenance.</li>
+
+          <li><strong>Minkowski Geometry:</strong> Expressing spacetime intervals as
+            <span class="equation">c² dτ² = c² dt² − dx²</span>
+            follows the same structure, with time-like steps corresponding to M and space-like steps to T.</li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          This triangle view shows that relativity emerges naturally when the universe’s compute budget is split between
+          motion and upkeep. The same CBF loop that moves wave cells also defines the invariant geometry that physics observes.
+        </p>
+      </div>
+
+      <!-- =========================
+          Maxwell and Spin Dynamics
+          ========================= -->
+      <div class="panel-bp" id="panel-maxwell-spin">
+        <h2 class="bp-title">Maxwell and Spin from the Same Budget</h2>
+        <p class="bp-sub">
+          The same budget law that governs motion also sets the rhythm of oscillation.
+          Field waves, spin states, and charge polarity emerge from how Translation and Maintenance exchange energy each tick.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            Maxwell’s equations describe continuous field oscillations, but in CBF they arise from discrete T↔M exchanges.
+            Every step that trades translation for maintenance reverses direction in the complementary channel,
+            creating a natural two-phase oscillation that behaves like an electromagnetic wave.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li>
+            <strong>Electromagnetic fields:</strong>
+            The electric and magnetic components correspond to alternating T and M phases.
+            When a wave cell uses more T, it advances the field; when it uses more M, it stores field energy.
+            The alternation reproduces Maxwell’s curl coupling without external equations.
+          </li>
+
+          <li>
+            <strong>Spin as phase geometry:</strong>
+            Spin is the internal clocking pattern of T↔M exchange.
+            A spin-½ particle completes its full orientation only after two complete T–M cycles,
+            which is why a 360° rotation flips its sign and 720° restores it.
+          </li>
+
+          <li>
+            <strong>Photon polarization:</strong>
+            For M = 0, the T channel alone carries the oscillation.
+            Polarization then becomes a geometric pattern of how T’s direction vector rotates during propagation.
+          </li>
+
+          <li>
+            <strong>Charged matter:</strong>
+            Adding a small persistent M offset biases the exchange, producing a standing imbalance that acts as electric charge.
+            The field responds to restore balance, creating the familiar Coulomb interaction.
+          </li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          In this view, Maxwell’s continuous waves, quantum spin, and charge all trace back to the same discrete rule:
+          each cell must share its compute budget between moving and maintaining itself.
+          The alternation of those two actions is what nature interprets as oscillation.
+        </p>
+
+        <center><img src="./assets/maxwell.png" alt="Maxwell: electromagnetic wave oscillation pattern" width="500px" /></center>
+        <div class="bp-actions" style="margin-top:14px;">
+          <a class="btn primary" href="./demos/maxwell/explanation.html">Open Maxwell Demo</a>
+          <!-- <a class="btn secondary" href="/predictions.html#spin">Read Spin Notes</a> -->
+        </div>
+      </div>
+
+      <!-- =========================
+          Matter vs Photons
+          ========================= -->
+      <div class="panel-bp" id="panel-matter-vs-photons">
+        <h2 class="bp-title">Matter vs Photons</h2>
+        <p class="bp-sub">
+          Interactions only occur when at least one participant carries Maintenance share (M).
+          Photons are pure Translation (T) and therefore do not interact with each other directly.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            In CBF, every event requires at least one side to possess an <strong>M</strong> component—
+            the capacity to pause, evaluate, and commit.
+            Photons have <strong>M = 0</strong>, meaning they spend their entire budget on translation.
+            They can transmit influence but cannot host an event themselves.
+            Matter, on the other hand, always retains a nonzero <strong>M</strong>, providing the internal time needed for collapse processing.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li>
+            <strong>Photon–photon non-interaction:</strong>
+            Since both are pure T, there is no shared maintenance channel to synchronize or exchange state.
+            Their paths may cross, but no commit can form without M.
+          </li>
+
+          <li>
+            <strong>Photon–matter interaction:</strong>
+            Matter contributes the necessary M, allowing the Ledger to evaluate the event and perform a collapse.
+            This is why light can be absorbed, emitted, or scattered by atoms but not by other light.
+          </li>
+
+          <li>
+            <strong>Rest mass as baseline M:</strong>
+            Each particle species has a built-in resting maintenance share that defines its stability and half-life.
+            Heavier particles simply allocate more of their per-tick budget to M, leaving less for motion.
+          </li>
+
+          <li>
+            <strong>Mass as commit capability:</strong>
+            Having M means the system can host collapses.
+            Photons travel as information carriers, but matter provides the memory surface where events become facts.
+          </li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          The distinction between matter and radiation is therefore not a different type of substance
+          but a different budget allocation.
+          Mass measures how much of a system’s compute share is reserved for maintaining its own state
+          and participating in new collapses.
+        </p>
+
+        <!-- <div class="bp-actions" style="margin-top:14px;">
+          <a class="btn primary" href="/predictions.html#photon-matter">See Interaction Predictions</a>
+          <a class="btn secondary" href="/referencetable.html#m">Reference: M Definition</a>
+        </div> -->
+      </div>
+
+      <!-- =========================
+      Role of the Atom
+      ========================= -->
+      <div class="panel-bp" id="panel-role-of-atom">
+        <h2 class="bp-title">Role of the Atom</h2>
+        <p class="bp-sub">
+          Atoms act as finite-state machines that host commits, store energy, and re-emit it as photons.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            In CBF, atoms are compressed particle systems that operate like finite-state machines.
+            They take particle inputs, process them using their internal state, and expel particle outputs.
+            Because atoms carry nonzero <strong>M</strong>, they can host commits and maintain stored energy between events.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li>
+            <strong>T transfer into atoms:</strong>
+            Incoming particle Translation, T, can be deposited into an atom, changing the atom’s T vector.
+            In a lattice, this deposited T can be held as combined M+T vibrations, potential energy that can later be released as kinetic energy.
+          </li>
+
+          <li>
+            <strong>Storage and release:</strong>
+            When stored vibration is released as a photon, the emitted wavelength reflects the emitter’s clocking at emission,
+            set by the atom’s current Maintenance share, M, and local pacing.
+          </li>
+
+          <li>
+            <strong>Redshift in CBF:</strong>
+            Observed frequency records the emitter’s proper time at emission, then may be further shifted by pacing differences along the path.
+            In CBF, this maps to how T and M are transferred between systems since the Big Bang, which is what CBF calls entropy.
+          </li>
+
+          <li>
+            <strong>Why atoms matter for commits:</strong>
+            Atoms provide the M needed to evaluate, synchronize, and finalize events.
+            Photons can carry information between atoms, but atoms supply the maintenance channel where interactions become facts.
+          </li>
+        </ul>
+
+        <!-- <div class="bp-actions" style="margin-top:14px;">
+          <a class="btn secondary" href="/referencetable.html#m">Reference: Maintenance (M)</a>
+          <a class="btn ghost" href="/predictions.html#emission">Predictions: Emission and Redshift</a>
+        </div> -->
+      </div>
+
+
+      <!-- =========================
+          Mass Hierarchy and Binding Energy
+          ========================= -->
+      <div class="panel-bp" id="panel-mass-hierarchy">
+        <h2 class="bp-title">Mass Hierarchy and Binding Energy</h2>
+        <p class="bp-sub">
+          Baseline maintenance share sets species mass. Binding reshapes the budget, changing total rest mass.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            In CBF, rest mass is the built-in <strong>M</strong> share a particle must reserve each tick to maintain its identity.
+            Species differ by baseline M, set at creation by the background configuration that fixes their upkeep cost.
+            Composite systems pool and constrain their members, which changes how much M they need together.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li>
+            <strong>Baseline M per species:</strong>
+            Each particle type has a characteristic maintenance requirement. Higher baseline M means more “upkeep,” which appears as larger rest mass.
+          </li>
+
+          <li>
+            <strong>Composites are not simple sums:</strong>
+            When particles bind, some internal upkeep becomes shared. Constrained motion and phase locking reduce the net M the group needs.
+          </li>
+
+          <li>
+            <strong>Binding energy and mass defect:</strong>
+            The drop in required M is released as radiation or kinetic work. The bound system’s rest mass becomes
+            <span class="equation">m<sub>bound</sub> = m<sub>free,total</sub> − Δm</span>,
+            consistent with <span class="equation">E = Δm\,c²</span>.
+          </li>
+
+          <li>
+            <strong>Hierarchy:</strong>
+            Quarks inside hadrons, nucleons inside nuclei, and electrons in atoms each give up some independent freedom.
+            Less free translation means less separate upkeep. Stronger binding, larger Δm.
+          </li>
+
+          <li>
+            <strong>Stability and budget:</strong>
+            More efficient M sharing improves stability. If constraints are weak, the system must spend extra M to stay bound and can decay.
+          </li>
+
+          <li>
+            <strong>Photons carry off the savings:</strong>
+            When binding tightens, the saved M is exported through the T channel as emitted photons, which take the released energy away.
+          </li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          Mass hierarchy follows from how much maintenance a structure must budget. Binding reorganizes that budget,
+          lowering total M and releasing energy, which matches observed mass defects across scales.
+        </p>
+
+        <!-- <div class="bp-actions" style="margin-top:14px;">
+          <a class="btn primary" href="/predictions.html#binding">See Binding Predictions</a>
+          <a class="btn secondary" href="/referencetable.html#m">Reference: Maintenance (M)</a>
+          <a class="btn ghost" href="/devblog.html#mass">Dev Blog: Mass and Binding</a>
+        </div> -->
+      </div>
+
+      <!-- =========================
+          Arrow of Time
+          ========================= -->
+      <div class="panel-bp" id="panel-arrow-of-time">
+        <h2 class="bp-title">Arrow of Time</h2>
+        <p class="bp-sub">
+          Events are processed in order. CBF is not a block universe.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            In CBF, the universe advances by selecting and committing Events in sequence. There is no pre-written block,
+            and the cellular automata does not warp space. Space and time are flat and linear. What feels like curvature to an observer
+            is a change in local pacing, often called clock speed in CA terms.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li><strong>Clocking:</strong> The substrate may run at a universal clock rate, but each system experiences time through its own Maintenance share M.</li>
+          <li><strong>Aging rule:</strong> Using more Translation than Maintenance means fewer internal ticks, so the system ages slower.</li>
+          <li><strong>Direction, not symmetry:</strong> At this level there are no time symmetries, only a forward arrow set by your current M.</li>
+        </ul>
+      </div>
+
+      <!-- =========================
+          Event • Commit • Collapse • Prune
+          ========================= -->
+      <div class="panel-bp" id="panel-commit">
+        <h2 class="bp-title">Event • Commit • Collapse • Prune</h2>
+        <p class="bp-sub">From many possibilities to one outcome, then cleanup.</p>
+
+        <div class="well">
+          <p style="margin:0;">
+            As wave cells pass through the world, they propose many tiny <strong>Events</strong> wherever interaction could occur.
+            A single particle can seed thousands of these proposals before anything is finalized —
+            CBF refers to this stage as <strong>pollination of atoms</strong>.
+            At some point a <strong>selection step</strong> chooses one outcome, the <strong>Commit</strong>.
+            <strong>Commits</strong> are all that can be processed by observers, not atoms or particles, only their valid interactions.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li>
+            <strong>Commit:</strong> The one proposed Event that wins and becomes reality.
+            Everything else in that set is no longer eligible.
+          </li>
+
+          <li>
+            <strong>Collapse:</strong> After a commit, all invalid proposals are globally erased along with the particle wavefront.
+          </li>
+
+          <li>
+            <strong>Prune:</strong> The invalid or out-of-step proposals that are discarded during cleanup leave subtle routing biases,
+            long-lived <em>scars</em> that steer later waves without adding mass. This behavior aligns with the large-scale dark-matter halos and Bullet Cluster lensing patterns seen in astronomy.
+          </li>
+
+          <li>
+            <strong>Why double-slit observation changes things:</strong>
+            A nearby sensor can force an early commit, thereby collapsing the interference into a fresh particle wavefront.
+          </li>
+
+          <li>
+            <strong>Observer:</strong> Just another particle or atom to compare to.
+          </li>
+
+          <li>
+            <strong>Commits create reality:</strong>
+            Commits are created at a real time and place in the universe, independent of other observers.
+            A Commit defines a successful interaction that can trigger new events, such as releasing photons or bouncing particles.
+            In that sense, commits are the only way an observer can experience the universe.
+            Particles and atoms only indicate where commits are likely, they are not experienced directly.
+          </li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          In short, many possibilities are generated, one is selected, the rest are cleared.
+          The next section explains the decision rules behind that selection step.
+        </p>
+
+        <!-- <aside class="media" style="margin-top:18px;">
+          <img src="/assets/placeholder-double-slit-paths.png"
+              alt="Schematic double-slit: many candidate interaction points along the screen before selection" />
+          <small class="muted">Many candidate Events accumulate. One Commit is chosen, the rest collapse and are pruned.</small>
+        </aside> -->
+      </div>
+
+      <!-- =========================
+          Global Event Ledger
+          ========================= -->
+      <div class="panel-bp" id="panel-ledger">
+        <h2 class="bp-title">Global Event Ledger</h2>
+        <p class="bp-sub">
+          A single decision layer that coordinates proposals and selects one Commit for everyone involved.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            The particle cellular automata and its interactions with other systems are coordinated by a global Event manager
+            called the <strong>Event Ledger</strong>. Local, pairwise rules alone cannot explain gravity at a distance,
+            entanglement, or collapse cleanup. The Ledger ties each candidate interaction to all relevant parties
+            (particles and atoms) and makes one consistent decision.
+          </p>
+        </div>
+
+        <p style="margin-top:12px;">
+          A particle’s wave cells propose many Events. Before one becomes the Commit, proposals pass four gates:
+        </p>
+
+        <div class="subpanel">
+          <ol style="margin:0; padding-left:22px;">
+            <li>
+              <strong>Spatial:</strong> which absorber is eligible at that location. The Ledger filters candidates to the correct place.
+            </li>
+            <li>
+              <strong>Directional:</strong> which momentum direction matches. Signals must arrive with a compatible vector.
+            </li>
+            <li>
+              <strong>Temporal:</strong> when phases align and clocks synchronize. Proposals wait until timing is consistent.
+            </li>
+            <li>
+              <strong>Informational:</strong> what is known or hidden, including delayed choice. Eligibility depends on available information.
+            </li>
+          </ol>
+        </div>
+        
+        <h3 style="margin:16px 0 8px; font-size:1.05rem;">Responsibilities</h3>
+        <ul class="bp-list" style="margin-top:12px;">
+          <li><strong>Collect proposals:</strong> gather all candidate Events from wave-cell “pollination.”</li>
+          <li><strong>Apply eligibility test:</strong> evaluate proposals with the four gates.</li>
+          <li><strong>Frame syncing (temporal gate):</strong> align local clocks and phases so candidates can be compared fairly.</li>
+          <li><strong>Select one Commit:</strong> choose the single winner shared by all involved systems.</li>
+          <li><strong>Frame syncing (post-commit):</strong> re-synchronize participants so timelines line up for the next update cycle.</li>
+          <li><strong>Collapse & prune:</strong> clear losing proposals and reset the spent wavefront.</li>
+          <li><strong>Write routing bias:</strong> record subtle, non-mass scars that can steer later waves (Dark Matter).</li>
+          <li><strong>Maintain global consistency:</strong> ensure the same outcome is seen across observers and frames.</li>
+        </ul>
+
+        <!-- <div class="bp-actions" style="margin-top:14px;">
+          <a class="btn primary" href="/demos.html#ledger">Open Ledger Demo</a>
+          <a class="btn secondary" href="/predictions.html#ledger-gates">Predictions: Four Gates</a>
+        </div> -->
+      </div>
+
+      <!-- =========================
+          Special Relativity and Time Symmetry
+          ========================= -->
+      <div class="panel-bp" id="panel-sr">
+        <h2 class="bp-title">Special Relativity and Time Symmetry</h2>
+        <p class="bp-sub">
+          The temporal gate of the Event Ledger naturally produces relativistic timing and apparent symmetry between observers.
+        </p>
+
+        <div class="well">
+          <p style="margin:0;">
+            In CBF, the temporal gate that synchronizes interactions is the mechanism behind
+            <strong>Special Relativity</strong>. Two systems with different Maintenance shares (<strong>M</strong>)
+            cannot communicate on a one-to-one tick basis. Each must synchronize so that both experience the same interaction
+            in their own local time. This synchronization occurs at the Ledger’s universal clock level but is observed
+            differently in each system’s proper time.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li>
+            <strong>Temporal gate and relativity:</strong>
+            Synchronizing commits across systems with different M values means that faster-moving frames
+            must delay their interactions until both sides can align. The result is apparent time dilation,
+            a direct outcome of the Ledger’s scheduling process.
+          </li>
+
+          <li>
+            <strong>Collapse buffering:</strong>
+            Because each interaction waits for this synchronization, collapses are delayed.
+            This buffering gives rise to relativistic pacing—events appear stretched in time
+            for fast or low-M systems.
+          </li>
+
+          <li>
+            <strong>Local vs global clocks:</strong>
+            The universe processes commits in a single sequence, but each observer’s M defines
+            how many of those global ticks they can process per their own second.
+          </li>
+        </ul>
+
+        <h3 style="margin:16px 0 8px; font-size:1.05rem;">Time Symmetry and Queue Buffering</h3>
+
+        <div class="well">
+          <p style="margin:0;">
+            Observers experience time symmetry not because motion is reversible, but because
+            the waiting time between mismatched frames balances out communication.
+            A system with less M (faster time) must wait for responses from a system with more M (slower time),
+            while the slower frame accumulates pending signals from the faster one.
+            The result is the illusion that both clocks slow equally when viewed from the other’s perspective.
+          </p>
+        </div>
+
+        <ul class="bp-list" style="margin-top:12px;">
+          <li><strong>Queue buffering:</strong> The backlog of pending commits between mismatched frames produces apparent symmetry in time dilation.</li>
+          <li><strong>Mutual waiting:</strong> Each frame’s progress depends on the other returning signals, creating a natural reciprocity.</li>
+          <li><strong>No true reversal:</strong> The symmetry is only visual; the underlying universe still runs forward through sequential commits.</li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          Special relativity in CBF therefore emerges from <em>temporal gate synchronization</em> and
+          <em>queue buffering</em> within the Event Ledger—no continuous spacetime fabric is required.
+        </p>
+
+        <div class="bp-actions" style="margin-top:14px;">
+          <a class="btn primary" href="./demos/sr_ctm/explanation.html">Run Directional Time Demo</a>
+          <a class="btn primary" href="./demos/sr_beatmatching/explanation.html">Run Buffered Symmetry Demo</a>
+          <!-- <a class="btn secondary" href="/devblog.html#sr">Dev Blog: Queue Buffering and Collapse Delay</a> -->
+        </div>
+      </div>
+
+<!-- =========================
+     Queue Buffering and General Relativity
+     ========================= -->
+<div class="panel-bp" id="panel-gr-queue">
+  <h2 class="bp-title">Queue Buffering and General Relativity</h2>
+  <p class="bp-sub">
+    High traffic slows local pacing. The global Ledger matches incoming signals to the queue, which appears as gravity.
+  </p>
+
+  <div class="well">
+    <p style="margin:0;">
+      The same synchronization that produces time symmetry also produces gravity in regions with heavy interaction load.
+      When an area is buffering many interactions, unrelated signals build up in the queue. The global Event Ledger slows
+      all incoming proposals to match the current traffic. Observers experience this as local time running slower.
+      In CBF, <strong>C</strong> in <strong>C = T + M</strong> is a <strong>scalar pacing variable</strong> that
+      depends on local traffic, not a fixed constant. Where traffic is high, <strong>C(x)</strong> is smaller,
+      so fewer translation and maintenance steps fit in the same universal tick.
+    </p>
+  </div>
+
+  <ul class="bp-list" style="margin-top:12px;">
+    <li><strong>Queue depth sets pacing:</strong> More pending proposals in a region mean a smaller effective C there. Local clocks slow.</li>
+    <li><strong>Global fairness:</strong> The Ledger delays distant arrivals so they enter at the slowed pace. Signals respect the queue.</li>
+    <li><strong>Relativistic outcome:</strong> Slower local pacing reproduces gravitational time dilation and path bending.</li>
+  </ul>
+
+  <!-- Subsection: Cellular Automata mechanism -->
+  <!-- <div class="subpanel grid" id="panel-gr-ca"> -->
+    <div>
+      <h3 style="margin:0 0 8px; font-size:1.05rem;">Queue Buffering in Cellular Automata</h3>
+      <p>
+        The Ledger must keep a particle’s wave cells coherent. Near a gravity well, cells closer to the well have a smaller
+        <strong>C</strong> and therefore a smaller <strong>M</strong> than cells farther away. To prevent shear, the system
+        normalizes all wave-cell vectors toward the imbalance. This restores internal agreement and produces a slightly
+        rotated net direction.
+      </p>
+
+      <div class="well" style="margin-bottom:12px;">
+        <ul class="bp-list" style="margin:0;">
+          <li><strong>Step 1:</strong> Queue causes a gradient in <strong>C(x)</strong>. Lower C near the well, higher C away from it.</li>
+          <li><strong>Step 2:</strong> To keep one particle intact, wave-cell vectors are re-aimed toward the lower C side.</li>
+          <li><strong>Step 3:</strong> The lower side now sits deeper in the well, so the imbalance repeats.</li>
+          <li><strong>Result:</strong> Iterated normalization yields continuous acceleration toward the well.</li>
+        </ul>
+      </div>
+
+      <p style="margin-top:8px;">
+        This update rule bends paths without curving the substrate. What looks like spacetime curvature is the visible
+        trail of many synchronized, slowed commits in a gradient of queue depth.
+      </p>
+    </div>
+
+    <!-- <aside class="media">
+      <img src="/assets/placeholder-queue-gr.png"
+           alt="Schematic: wave cells near a well see smaller C and re-vector toward the imbalance, producing acceleration" />
+      <small class="muted">Gradient in C(x) creates vector normalization toward the well, repeated each tick.</small>
+    </aside> -->
+  <!-- </div> -->
+
+  <p style="margin-top:14px;">
+    General relativity in CBF is the large-scale outcome of synchronized pacing and queue management. Gravity is how the Ledger keeps
+    traffic coherent when many proposals compete in one region.
+  </p>
+
+  <!-- =========================
+       Friction and Inertia
+       ========================= -->
+  <div class="subpanel" id="panel-gr-friction">
+    <h3 style="margin:0 0 8px; font-size:1.05rem;">Friction and Inertia as Queue Effects</h3>
+    <ul class="bp-list" style="margin-top:6px;">
+      <li><strong>Inertia:</strong> Changing direction or speed requires re-aiming many wave cells against the current queue pattern.
+        The need to re-establish coherent vectors appears as resistance to change.</li>
+      <li><strong>Friction:</strong> In a lattice with a pacing gradient, collapses are preferentially accepted along slower paths.
+        Repeated small prunes drain translation into local maintenance and heat, which appears as drag.</li>
+    </ul>
+  </div>
+
+  <div class="bp-actions" style="margin-top:14px;">
+    <a class="btn primary" href="./demos/gr_queue/explanation.html">Run Queue Buffering as GR Demo</a>
+    <a class="btn primary" href="./demos/planck/explanation.html">Run Queue Buffering Planck Demo</a>
+    <!-- <a class="btn secondary" href="/devblog.html#gr">Dev Blog: From Queue Depth to Gravity</a> -->
+  </div>
+</div>
+
+<!-- =========================
+     Gravity in an Atom Lattice
+     ========================= -->
+<div class="panel-bp" id="panel-gr-lattice">
+  <h2 class="bp-title">Gravity in an Atom Lattice</h2>
+  <p class="bp-sub">
+    Downward particle flow plus slower clocks at the bottom create stored vibration, potential energy.
+  </p>
+
+  <div class="well">
+    <p style="margin:0;">
+      In a solid lattice, gravity appears as two linked effects. First, particles and wave-cell proposals drift
+      toward the lower pacing region, downwards. Second, atoms deeper in the well process more slowly than atoms
+      above them, so arrivals queue up. The lattice stores incoming Translation, T, as M+T vibration, potential energy,
+      until conditions allow release.
+    </p>
+  </div>
+
+  <!-- <div class="subpanel grid"> -->
+    <div style="padding-top: 1em;">
+      <h3 style="margin:0 0 8px; font-size:1.05rem;">The double effect</h3>
+      <div class="well">
+      <ul class="bp-list" style="margin-top:6px;">
+        <li><strong>Downward flow:</strong> Queue depth increases toward the bottom, so effective <strong>C(x)</strong> is smaller.
+          Wave cells normalize toward the imbalance and drift downward through the lattice.</li>
+        <li><strong>Queue storage:</strong> Bottom atoms have less available pacing per tick, so proposals accumulate.
+          Translation that cannot be processed is held as local vibration, M+T, inside bonds.</li>
+      </ul>
+    </div>
+
+      <h3 style="margin:16px 0 8px; font-size:1.05rem;">Hold, then release</h3>
+      <div class="well">
+      <ul class="bp-list" style="margin-top:6px;">
+        <li><strong>Holding an object:</strong> External supports prevent net translation. Incoming T is redirected
+          into lattice vibration, potential energy. The queue at the bottom grows and the structure warms slightly.</li>
+        <li><strong>Letting go:</strong> When supports are removed, stored T is re-routed into translation.
+          The object accelerates downward as vector normalization repeats at deeper levels.</li>
+        <li><strong>Stepwise fall:</strong> Each tick restores coherence by re-aiming wave cells toward the lower C.
+          Energy appears as a swap between stored vibration and translation during descent.</li>
+      </ul>
+      </div>
+      
+      <h3 style="margin:16px 0 8px; font-size:1.05rem;">Friction and heat</h3>
+      <div class="well">
+      <ul class="bp-list" style="margin-top:6px;">
+        <li><strong>Microscopic prunes:</strong> Small inelastic commits convert some downward T into permanent lattice vibration, heat.</li>
+        <li><strong>Path preference:</strong> Collapses are accepted where pacing allows, which biases motion along slower channels and surfaces.</li>
+      </ul>
+      </div>
+    <!-- </div> -->
+
+    <!-- <aside class="media">
+      <img src="/assets/placeholder-lattice-gravity.png"
+           alt="Schematic lattice: deeper layers with smaller C(x), downward drift arrows, and vibration storage" />
+      <small class="muted">Deeper layers have smaller C, slower M processing, and larger queues. Translation pools as vibration until release.</small>
+    </aside> -->
+  </div>
+
+  <p style="margin-top:14px;">
+    In this view, gravitational potential energy is queued translation stored as lattice vibration.
+    Releasing the object lets the queue drain into motion while the same normalization rule bends the path
+    toward the well at each step.
+  </p>
+
+  <!-- <div class="bp-actions" style="margin-top:14px;">
+    <a class="btn primary" href="/demos.html#lattice-gravity">Run Lattice Gravity Demo</a>
+    <a class="btn secondary" href="/devblog.html#lattice">Dev Blog: Potential as Queued Translation</a>
+  </div> -->
+</div>
+
+<!-- =========================
+     Informational Gate
+     ========================= -->
+<div class="panel-bp" id="panel-informational-gate">
+  <h2 class="bp-title">Informational Gate</h2>
+  <p class="bp-sub">
+    Where knowledge, environment, and timing meet to select globally consistent events.
+  </p>
+
+  <div class="well">
+    <p style="margin:0;">
+      The <strong>Informational Gate</strong> is the part of the Event Ledger that scores candidate events using
+      locally valid physics plus what is known, what is hidden, and when information becomes available.
+      This makes the commit step information-sensitive without violating causality.
+      In simulations, a learnable scoring function reduces trial counts and biases selection toward stable outcomes. If an analogous mechanism exists in nature, it could help explain why we observe a single, coherent history rather than many inconsistent branches.
+    </p>
+  </div>
+
+  <ul class="bp-list" style="margin-top:12px;">
+    <li>
+      <strong>Context matters:</strong>
+      Proposals are weighted by physics, data availability, and information delays
+      (for example, delayed-choice style setups).
+    </li>
+    <li>
+      <strong>Learnable scoring in simulation:</strong>
+      The gate’s scoring can be tuned from past commits to improve stability and consistency.
+      This replaces brute-force sampling with guided selection.
+    </li>
+    <li>
+      <strong>Global consistency:</strong>
+      Commits must fit both local constraints and the Event Ledger’s global history.
+      The goal is a single coherent outcome, not many worlds.
+    </li>
+  </ul>
+
+  <p style="margin-top:14px;">
+    The Informational Gate ties knowledge to dynamics.
+    It keeps commits causal and consistent while allowing practical, data-aware selection in simulations.
+  </p> 
+</div>
+
+<!-- =========================
+     Theory in a Nutshell
+     ========================= -->
+<div class="panel-bp" id="nutshell-end">
+  <h2 class="bp-title">Theory in a Nutshell</h2>
+  <p class="bp-sub">A cellular-automata loop with a per-tick budget <strong>C = T + M</strong> and a global <strong>Event Ledger</strong>.</p>
+
+  <div class="well">
+    <p style="margin:0;">
+      Particles are wavefronts of wave cells. Each cell either moves one unit (T) or services internal state (M).
+      Interactions create event proposals. The Ledger selects one commit, prunes the rest, and advances the world by one tick.
+    </p>
+  </div>
+
+  <ul class="bp-list">
+    <li><strong>Budget law:</strong> C = T + M per tick, per entity.</li>
+    <li><strong>Ledger:</strong> Four gates choose commits, then everyone re-syncs.</li>
+    <li><strong>Relativity from sync:</strong> temporal alignment across frames produces time dilation and symmetry.</li>
+    <li><strong>Gravity as pacing:</strong> queue depth slows local C, bending paths without curving space.</li>
+    <li><strong>Fields:</strong> local guides that shape rates and routes.</li>
+    <li><strong>Photons vs matter:</strong> photons have M = 0, matter has baseline M.</li>
+    <li><strong>Commits create reality:</strong> only committed interactions are experienced by observers.</li>
+  </ul>
+
+  <div class="bp-actions" style="margin-top:14px;">
+    <a class="btn primary" href="/stresstests.html">Explore Stress Tests</a>
+    <a class="btn secondary" href="/predictions.html">Read Predictions</a>
+    <a class="btn ghost" href="/referencetable.html">Open Reference Table</a>
+  </div>
+</div>
+
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container foot">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span>© <span id="year">2025</span> CBF • Jamie Whitten</span>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <a href="#" data-contact-popup>Contact</a>
+      <a href="/devblog.html">Dev Blog</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Mobile drawer
+const burger = document.getElementById('burger');
+const drawer = document.getElementById('drawer');
+const closeDrawer = document.getElementById('closeDrawer');
+function openDrawer(){ drawer.hidden=false; drawer.setAttribute('aria-hidden','false'); requestAnimationFrame(()=>drawer.classList.add('open')); burger?.setAttribute('aria-expanded','true'); }
+function hideDrawer(){ drawer.classList.remove('open'); burger?.setAttribute('aria-expanded','false'); drawer.setAttribute('aria-hidden','true'); setTimeout(()=>drawer.hidden=true,200); }
+burger?.addEventListener('click', openDrawer);
+closeDrawer?.addEventListener('click', hideDrawer);
+drawer?.addEventListener('click', (e)=>{ if(e.target===drawer) hideDrawer(); });
+
+// Year
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

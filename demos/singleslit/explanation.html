@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Demo: Single-Slit (Explanation)</title>
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Site CSS -->
+  <link rel="stylesheet" href="../../pagestyles.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <!-- Prism (optional) -->
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+   <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <nav aria-label="Mobile">
+          <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#cbf">CBF Relation</a>
+      <a class="chip" href="#results">Expected Results</a>      
+      <a class="chip" href="#settings">Settings</a>
+      <a class="chip" href="#code">Key Code</a>
+      <a class="chip" href="#images">Illustrations</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Single-slit demo screenshot" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Single-Slit, CBF Style</h1>
+            <p>
+              One expanding wavefront passes through a finite slit. The slit is modeled by many Huygens sources
+              across its width. On the screen, brightness follows phase addition,
+              <em>intensity(y) ∝ |Σ e<sup>iθᵢ</sup>/rᵢ|²</em>, which produces the single-slit envelope with fringes.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="/demos.html">Back to Demos</a>
+            </div>
+            <p class="muted" style="margin-top:8px">
+              Left pane: expanding phase field and geometry. Right pane: detector strip and intensity plot with peaks and troughs.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CBF RELATION -->
+      <section id="cbf" class="card">
+        <h2 class="section-title">How this maps to CBF</h2>
+        <p>
+          In CBF, wave cells exiting the slit create healing hemispheres. The slit face seeds many local emitters,
+          which diversify directions. The real simulation would let the field heal around edges and geometry.
+          This demo reproduces the effect without the full healing engine. It streams photons, so you see many
+          wavefronts in sequence. As each wavefront moves forward its phase advances, and the screen records a
+          running history color coded by phase. The detector brightness is computed by phase addition across all
+          sources at each screen point, which stands in for the Event Ledger selecting commits where phases align.
+        </p>
+      </section>
+
+      <!-- EXPECTED RESULTS -->
+      <section id="results" class="card">
+        <h2 class="section-title">What to expect on the screen</h2>
+        <p>
+          Watch the wavefront as it hits the detector. The color along the wall is not uniform at the same time.
+          When the center arrives it has one phase color. Toward the top and bottom edges the phase shifts faster,
+          so those edges change color multiple times before the bulk of the wave reaches them. This produces bright
+          and dark bands along the screen. The pattern is interference due to diffraction healing at the slit,
+          summarized by the single-slit envelope with internal fringes.
+        </p>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="card">
+        <h2 class="section-title">Settings</h2>
+        <div class="table-wrap">
+          <table class="table settings-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Default</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="key">Wavelength λ</td>
+                <td>60 px</td>
+                <td>Controls phase speed and fringe scale, k = 2π/λ.</td>
+              </tr>
+              <tr>
+                <td class="key">Slit width a</td>
+                <td>120 px</td>
+                <td>Wider slit narrows the central lobe, classic single-slit envelope.</td>
+              </tr>
+              <tr>
+                <td class="key">Screen distance L</td>
+                <td>360 px</td>
+                <td>Farther screen sharpens spacing and contrast.</td>
+              </tr>
+              <tr>
+                <td class="key">Sources across slit</td>
+                <td>101</td>
+                <td>Huygens points along the slit. Higher values give smoother patterns.</td>
+              </tr>
+              <tr>
+                <td class="key">Animation speed</td>
+                <td>1.20×</td>
+                <td>Visual phase evolution rate, cosmetic only.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-hint">Tip: On mobile, drag the table horizontally to view all columns.</div>
+      </section>
+
+<section id="code" class="card">
+  <h2 class="section-title">Key Code</h2>
+
+  <!-- 1) Detector intensity -->
+  <div class="code-block">
+    <div class="code-title">
+      <span>1) Detector intensity via complex phase addition</span>
+      <button class="copy-btn" data-copy="#code1" aria-label="Copy code">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"></path>
+        </svg>
+        Copy
+      </button>
+    </div>
+
+    <!-- Description -->
+    <p>
+      This function computes the screen brightness by summing phasors from every Huygens source across the slit.
+      It focuses only on what matters for CBF, the phase comparison at the detector, not pre-screen energy mixing.
+      The 1/r factor is a simple transport term that keeps path-length effects visible and lets the UI parameters
+      (λ, a, L, N) map directly to what the Event Ledger would see when deciding which commits to accept.
+    </p>
+    <p>
+      By returning <code>|Σ e^{iθ}/r|²</code> per screen row, the code exposes the statistics of commit frequency,
+      creating bright bands where phase alignment is common and dark bands where alignment is rare. This minimal
+      implementation keeps the mechanism legible, so you can tie envelope changes and fringe spacing back to the
+      underlying geometry and wavelength without extra solver layers.
+    </p>
+
+    <pre><code id="code1" class="language-js"></code></pre>
+    <script>
+    document.getElementById('code1').textContent = `// For each detector y, sum complex contributions from all slit sources
+function computeIntensityStrip({λ, a, L, N, dpr, t}) {
+  const k = 2*Math.PI/λ;
+  const ω = (2*Math.PI/λ) * 120 * dpr;
+  const phaseTime = ω * t;
+  const Ny = Math.floor(480 * dpr); // one sample per pixel row
+  const yMid = Math.floor(Ny/2);
+
+  // source y positions across the slit
+  const src = [];
+  for (let i = 0; i < N; i++) {
+    src.push(yMid - (a/2)*dpr + (i/(N-1))*a*dpr);
+  }
+
+  const intens = new Float32Array(Ny);
+  for (let py = 0; py < Ny; py++) {
+    const y = py + 0.5;
+    let Re = 0, Im = 0;
+    for (let i = 0; i < N; i++) {
+      const r = Math.hypot(L*dpr, y - src[i]);
+      const phi = k*r - phaseTime;
+      const amp = 1 / Math.max(r, 1); // 1/r falloff
+      Re += amp * Math.cos(phi);
+      Im += amp * Math.sin(phi);
+    }
+    intens[py] = Re*Re + Im*Im; // |Σ e^{iθ}/r|^2
+  }
+  return intens;
+}`;
+    </script>
+
+    <!-- CBF Representation -->
+    <div class="callout info">
+      <div class="callout-title">CBF Representation</div>
+      <p><strong>Temporal gate at the detector:</strong> The complex sum and squared magnitude represent the Event Ledger’s phase beat-matching at each screen point and time. No pre-screen “overlap,” only commit eligibility when phases align locally.</p>
+      <p><strong>Commit frequency (Born-like):</strong> <code>|Σ e^{iθ}/r|²</code> is the statistical rate that the Ledger would accept commits there, producing bright and dark bands as observed outcomes.</p>
+    </div>
+  </div>
+
+  <!-- 2) Left pane (expanding phase field & geometry) -->
+  <div class="code-block">
+    <div class="code-title">
+      <span>2) Left pane: expanding phase field and geometry</span>
+      <button class="copy-btn" data-copy="#code2" aria-label="Copy code">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"></path>
+        </svg>
+        Copy
+      </button>
+    </div>
+
+    <!-- Description -->
+    <p>
+      This visualization sets the geometry and phase evolution that the detector logic consumes. It places the slit,
+      distributes Huygens sources along its width, and renders the advancing phase as a hue-coded field. The goal is
+      to make the incoming “information” to the Ledger transparent, so changes to λ, a, or L visibly reshape the
+      phase map and therefore the detector’s commit statistics.
+    </p>
+    <p>
+      In full CBF, slit edges seed healing hemispheres around the aperture. Here we emulate that with many evenly
+      spaced emitters without running the full healing solver. The result preserves the essential direction
+      diversification and path-length differences that drive the detector interference, while keeping the rendering
+      simple enough to track cause and effect by eye.
+    </p>
+
+    <pre><code id="code2" class="language-js"></code></pre>
+    <script>
+    document.getElementById('code2').textContent = `function drawLeftPane(ctx, {λ, a, L, dpr, t}, size) {
+  const w = size.w, h = size.h;
+  const x0 = Math.floor(80 * dpr);
+  const yMid = Math.floor(h/2);
+  const k = 2*Math.PI/λ;
+  const ω = (2*Math.PI/λ) * 120 * dpr;
+  const phaseTime = ω * t;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0a111a';
+  ctx.fillRect(0,0,w,h);
+
+  // slit
+  ctx.save();
+  ctx.strokeStyle = '#2a3a4d';
+  ctx.lineWidth = 2*dpr;
+  ctx.beginPath();
+  ctx.moveTo(x0, yMid - (a/2)*dpr);
+  ctx.lineTo(x0, yMid + (a/2)*dpr);
+  ctx.stroke();
+  ctx.restore();
+
+  // Huygens source ticks
+  const N = 101;
+  for (let i=0;i<N;i++){
+    const ty = yMid - (a/2)*dpr + (i/(N-1))*a*dpr;
+    ctx.fillStyle = '#4dd0e1';
+    ctx.fillRect(x0-2*dpr, ty-1*dpr, 4*dpr, 2*dpr);
+  }
+
+  // phase field visualization
+  const step = 10 * dpr;
+  for (let gy = step/2; gy < h; gy += step){
+    for (let gx = x0 + step/2; gx < w; gx += step){
+      const r = Math.hypot(gx - x0, gy - yMid);
+      const phi = (k*r - phaseTime) % (2*Math.PI);
+      const hue = ((phi/(2*Math.PI) + 1) % 1) * 360;
+      ctx.fillStyle = \`hsl(\${hue} 90% 60% / 0.38)\`;
+      ctx.fillRect(gx - step/2 + 1, gy - step/2 + 1, step - 2, step - 2);
+    }
+  }
+
+  // screen
+  const xScreen = x0 + L*dpr;
+  ctx.save();
+  ctx.strokeStyle = '#7fc7ff';
+  ctx.lineWidth = 2*dpr;
+  ctx.beginPath();
+  ctx.moveTo(xScreen, 10*dpr);
+  ctx.lineTo(xScreen, h - 10*dpr);
+  ctx.stroke();
+  ctx.restore();
+
+  // labels
+  ctx.fillStyle = '#9fb0c9';
+  ctx.font = \`\${12*dpr}px system-ui,Segoe UI,Roboto\`;
+  ctx.fillText('Slit', x0-10*dpr, yMid - (a/2)*dpr - 8*dpr);
+  ctx.fillText('Detector screen', xScreen - 40*dpr, 18*dpr);
+}`;
+    </script>
+
+    <!-- CBF Representation -->
+    <div class="callout info">
+      <div class="callout-title">CBF Representation</div>
+      <p><strong>Healing hemispheres from slit edges:</strong> The evenly spaced Huygens ticks are the stand-in for edge-seeded healing in CBF, producing direction diversification without invoking the full solver.</p>
+      <p><strong>Phase as the moving “history”:</strong> Hue shows instantaneous phase so you can connect what propagates to what the Ledger will later accept at the screen. You do not “see” waves in CBF, you see where commits accumulate.</p>
+    </div>
+  </div>
+</section>
+
+
+      <!-- IMAGES (optional placeholders) -->
+      <section id="images" class="card">
+        <h2 class="section-title">Illustrations</h2>
+        <div class="image-grid">
+          <figure class="img half">
+            <img src="/img/demos/ss-geometry.png" alt="Single-slit geometry" onerror="this.style.display='none'">
+          </figure>
+          <figure class="img half">
+            <img src="/img/demos/ss-fringes.png" alt="Single-slit fringe pattern" onerror="this.style.display='none'">
+          </figure>
+          <figure class="img">
+            <img src="/img/demos/ss-phase.gif" alt="Phase evolution animation" onerror="this.style.display='none'">
+          </figure>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return;
+      d.hidden = false;
+      d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return;
+      d.classList.remove('open');
+      d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

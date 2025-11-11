@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF Redshift Demo (Plain JS)</title>
+  <style>
+    :root { --bg:#0c0f17; --fg:#eaf1ff; --mut:#9bb0c9; --card:#11182a; --border:#1b2a46; --accent:#2dd4bf; --accent2:#60a5fa; }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif}
+    header{padding:16px 20px;border-bottom:1px solid var(--border)}
+    h1{margin:0;font-size:18px}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:16px}
+    .row{display:flex;gap:8px;align-items:center}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .controls label{display:block;margin:8px 0;color:var(--mut)}
+    .controls input[type=range]{width:100%}
+    .btn{background:#173056;border:1px solid #23406f;color:#dbe9ff;border-radius:10px;padding:8px 12px;cursor:pointer}
+    .btn.alt{background:#1f3a6b}
+    .pill{padding:2px 8px;border-radius:999px;background:#0f2246;border:1px solid #244179;color:#b5c9ff;font-size:12px}
+    canvas{background:#0a1122;border:1px solid var(--border);border-radius:10px;width:100%;height:180px;display:block}
+    small, .small{color:var(--mut)}
+    .tabs .btn{opacity:.7}
+    .tabs .btn.active{opacity:1;background:#2563eb}
+    .grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .stat{background:#0b1a32;border:1px solid var(--border);border-radius:10px;padding:10px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CBF Redshift Demo (Photons don’t buffer)</h1>
+    <div class="small">Observed frequency: <span class="mono">f_obs = f_emit × (α_obs / α_emit)</span>. Temperature mapping: <span class="mono">T_now = T_emit / (1+z)</span> with <span class="mono">1+z = α_emit/α_obs</span>.</div>
+  </header>
+
+  <div class="wrap">
+    <div class="row tabs">
+      <button id="tabRed" class="btn active">Redshift</button>
+      <button id="tabInt" class="btn">Interference</button>
+      <span class="pill">Photons: M = 0 (no temporal buffer)</span>
+    </div>
+
+    <section id="redshiftSec" class="grid2">
+      <div class="card controls">
+        <h3 style="margin:0 0 8px 0">Controls</h3>
+        <label>α_emit
+          <input id="alphaEmit" type="range" min="0.1" max="1.5" step="0.001" value="1.0" />
+          <div class="mono small" id="alphaEmitOut">1.000</div>
+        </label>
+        <label>α_obs
+          <input id="alphaObs" type="range" min="0.0005" max="1.5" step="0.0005" value="0.8" />
+          <div class="mono small" id="alphaObsOut">0.800000</div>
+        </label>
+        <label>f_emit (visual Hz)
+          <input id="fEmit" type="range" min="0.5" max="20" step="0.1" value="5" />
+          <div class="mono small" id="fEmitOut">5.0 Hz</div>
+        </label>
+        <label>T_emit (K)
+          <input id="tEmit" type="range" min="1000" max="10000" step="10" value="3000" />
+          <div class="mono small" id="tEmitOut">3000 K</div>
+        </label>
+        <div class="row" style="margin-top:8px">
+          <button id="presetCMB" class="btn">Preset: CMB (1+z≈1100)</button>
+          <button id="resetBtn" class="btn alt">Reset</button>
+          <button id="runBtn" class="btn">Pause</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Derived (instant)</h3>
+        <div class="grid4">
+          <div class="stat"><div class="small">Frequency ratio</div><div class="mono" id="ratioOut">—</div></div>
+          <div class="stat"><div class="small">Redshift z</div><div class="mono" id="zOut">—</div></div>
+          <div class="stat"><div class="small">1 + z</div><div class="mono" id="onePlusZOut">—</div></div>
+          <div class="stat"><div class="small">Temperature mapping</div><div class="mono" id="tNowOut">—</div></div>
+        </div>
+        <p class="small" style="margin-top:8px">Redshift here is purely the α-ratio. Photons remain non‑buffered; the apparent frequency change is read at detection via pacing in M and angle.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Emitted phase train (reference)</h3>
+        <canvas id="emitCanvas" width="560" height="180"></canvas>
+        <div class="small mono" id="emitMeta">—</div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Observed phase train (after α‑history)</h3>
+        <canvas id="obsCanvas" width="560" height="180"></canvas>
+        <div class="small mono" id="obsMeta">—</div>
+      </div>
+    </section>
+
+    <section id="intSec" class="grid2" style="display:none">
+      <div class="card controls">
+        <h3 style="margin:0 0 8px 0">Interference Controls</h3>
+        <label>Amplitude A1
+          <input id="amp1" type="range" min="0" max="2" step="0.01" value="1.0" />
+          <div class="mono small" id="amp1Out">1.00</div>
+        </label>
+        <label>Amplitude A2
+          <input id="amp2" type="range" min="0" max="2" step="0.01" value="1.0" />
+          <div class="mono small" id="amp2Out">1.00</div>
+        </label>
+        <label>Phase offset Δφ (rad)
+          <input id="phase" type="range" min="0" max="6.283185307179586" step="0.001" value="1.57079632679" />
+          <div class="mono small" id="phaseOut">1.571</div>
+        </label>
+        <label>Frequency (Hz, shared)
+          <input id="fEmit2" type="range" min="0.5" max="20" step="0.1" value="5" />
+          <div class="mono small" id="fEmit2Out">5.0 Hz</div>
+        </label>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Derived (instant)</h3>
+        <div class="grid4">
+          <div class="stat"><div class="small">Relative intensity</div><div class="mono" id="IrelOut">—</div></div>
+          <div class="stat"><div class="small">Visibility</div><div class="mono" id="VOut">—</div></div>
+        </div>
+        <p class="small" style="margin-top:8px">Interference lives at the field/reconciliation layer: many non‑buffered photon commits superpose. The photon never stores phase; the field does the bookkeeping.</p>
+      </div>
+
+      <div class="card" style="grid-column:1/-1">
+        <h3 style="margin:0 0 8px 0">Two‑beam interference (ψ₁, ψ₂, ψ₁+ψ₂)</h3>
+        <canvas id="intCanvas" width="1120" height="220"></canvas>
+        <div class="small mono" id="intMeta">—</div>
+      </div>
+    </section>
+
+    <footer class="small">
+      Photons never buffer (M = 0). Redshift and interference arise at boundaries: the Event Ledger compares α at emission vs observation, and the field sums overlapping commits for interference.
+    </footer>
+  </div>
+
+  <script>
+    // --- State ---
+    const state = {
+      alphaEmit: 1.0,
+      alphaObs: 0.8,
+      fEmit: 5,
+      tEmit: 3000,
+      running: true,
+      // interference
+      amp1: 1.0, amp2: 1.0, phase: Math.PI/2, fEmit2: 5,
+    };
+
+    // --- Elements ---
+    const el = (id)=>document.getElementById(id);
+
+    const emitCanvas = el('emitCanvas');
+    const obsCanvas  = el('obsCanvas');
+    const intCanvas  = el('intCanvas');
+
+    const ctxEmit = emitCanvas.getContext('2d');
+    const ctxObs  = obsCanvas.getContext('2d');
+    const ctxInt  = intCanvas.getContext('2d');
+
+    function fmt(n, d=3){ return Number(n).toFixed(d); }
+
+    // --- Derived helpers ---
+    function computeDerived(){
+      const freqRatio = state.alphaObs / state.alphaEmit;
+      const fObs = state.fEmit * freqRatio;
+      const onePlusZ = state.fEmit / (fObs || 1e-9);
+      const z = onePlusZ - 1;
+      const tNow = state.tEmit / (onePlusZ || 1e-9);
+      return { freqRatio, fObs, onePlusZ, z, tNow };
+    }
+
+    function updateDerivedUI(){
+      const d = computeDerived();
+      el('ratioOut').textContent = `f_obs / f_emit = ${fmt(d.freqRatio, 6)}`;
+      el('zOut').textContent = `${fmt(d.z, 3)}`;
+      el('onePlusZOut').textContent = `${fmt(d.onePlusZ, 3)}`;
+      el('tNowOut').textContent = `T_now = ${fmt(d.tNow, 2)} K`;
+      el('emitMeta').textContent = `f_emit = ${fmt(state.fEmit,3)} Hz, α_emit = ${fmt(state.alphaEmit,3)}`;
+      el('obsMeta').textContent  = `f_obs = ${fmt(d.fObs,3)} Hz, α_obs = ${fmt(state.alphaObs,6)}`;
+      el('intMeta').textContent  = `A1=${fmt(state.amp1,2)}, A2=${fmt(state.amp2,2)}, Δφ=${fmt(state.phase,3)} rad`;
+    }
+
+    // --- Draw helpers ---
+    function drawAxis(ctx){
+      ctx.strokeStyle = '#6b7280';
+      ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(0, ctx.canvas.height/2); ctx.lineTo(ctx.canvas.width, ctx.canvas.height/2); ctx.stroke();
+    }
+
+    function drawSine(ctx, f, color){
+      ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+      const timeSpan = 2.5; // seconds across width
+      const now = performance.now()/1000;
+      drawAxis(ctx);
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+      for (let x=0; x<ctx.canvas.width; x++){
+        const t = now - (ctx.canvas.width - x)/ctx.canvas.width * timeSpan;
+        const y = Math.sin(2*Math.PI*f*t);
+        const ypx = (ctx.canvas.height/2) * (1 - y);
+        if (x===0) ctx.moveTo(x, ypx); else ctx.lineTo(x, ypx);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawInterference(){
+      const ctx = ctxInt; const W = ctx.canvas.width; const H = ctx.canvas.height;
+      ctx.clearRect(0,0,W,H); drawAxis(ctx);
+      const colors = ['#10b981', '#60a5fa', '#ef4444'];
+      const f = state.fEmit2; const A1 = state.amp1; const A2 = state.amp2; const dphi = state.phase;
+      const timeSpan = 2.5; const now = performance.now()/1000;
+      function components(t){
+        const y1 = A1*Math.sin(2*Math.PI*f*t);
+        const y2 = A2*Math.sin(2*Math.PI*f*t + dphi);
+        return [y1, y2, y1+y2];
+      }
+      for (let k=0;k<3;k++){
+        ctx.beginPath(); ctx.lineWidth = (k===2?2:1.5); ctx.strokeStyle = colors[k];
+        for (let x=0; x<W; x++){
+          const t = now - (W - x)/W * timeSpan;
+          const y = components(t)[k];
+          const ypx = H/2 - y*(H/3.2);
+          if (x===0) ctx.moveTo(x, ypx); else ctx.lineTo(x, ypx);
+        }
+        ctx.stroke();
+      }
+      // Derived: I_rel and V
+      const Irel = A1*A1 + A2*A2 + 2*A1*A2*Math.cos(dphi);
+      const denom = A1*A1 + A2*A2; const V = denom>0 ? (2*A1*A2)/denom : 0;
+      el('IrelOut').textContent = Irel.toFixed(3);
+      el('VOut').textContent = V.toFixed(3);
+    }
+
+    // --- Animation loop ---
+    let rafId = null; let activeTab = 'redshift';
+    function loop(){
+      if (state.running){
+        const d = computeDerived();
+        if (activeTab==='redshift'){
+          drawSine(ctxEmit, state.fEmit, '#10b981');
+          drawSine(ctxObs,  d.fObs,    '#60a5fa');
+        } else {
+          drawInterference();
+        }
+      }
+      rafId = requestAnimationFrame(loop);
+    }
+
+    // --- UI wiring ---
+    function syncSliders(){
+      el('alphaEmitOut').textContent = fmt(state.alphaEmit,3);
+      el('alphaObsOut').textContent  = Number(state.alphaObs).toFixed(6);
+      el('fEmitOut').textContent     = `${fmt(state.fEmit,1)} Hz`;
+      el('tEmitOut').textContent     = `${fmt(state.tEmit,0)} K`;
+      el('amp1Out').textContent      = fmt(state.amp1,2);
+      el('amp2Out').textContent      = fmt(state.amp2,2);
+      el('phaseOut').textContent     = fmt(state.phase,3);
+      el('fEmit2Out').textContent    = `${fmt(state.fEmit2,1)} Hz`;
+      updateDerivedUI();
+    }
+
+    // sliders
+    el('alphaEmit').addEventListener('input', e=>{ state.alphaEmit = parseFloat(e.target.value); syncSliders(); });
+    el('alphaObs').addEventListener('input',  e=>{ state.alphaObs  = parseFloat(e.target.value); syncSliders(); });
+    el('fEmit').addEventListener('input',     e=>{ state.fEmit     = parseFloat(e.target.value); syncSliders(); });
+    el('tEmit').addEventListener('input',     e=>{ state.tEmit     = parseFloat(e.target.value); syncSliders(); });
+
+    el('amp1').addEventListener('input', e=>{ state.amp1 = parseFloat(e.target.value); syncSliders(); });
+    el('amp2').addEventListener('input', e=>{ state.amp2 = parseFloat(e.target.value); syncSliders(); });
+    el('phase').addEventListener('input', e=>{ state.phase = parseFloat(e.target.value); syncSliders(); });
+    el('fEmit2').addEventListener('input', e=>{ state.fEmit2 = parseFloat(e.target.value); syncSliders(); });
+
+    // buttons
+    el('presetCMB').addEventListener('click', ()=>{
+      state.alphaEmit = 1.0; state.alphaObs = 1.0/1100.0; state.fEmit = 5; state.tEmit = 3000;
+      el('alphaEmit').value = state.alphaEmit; el('alphaObs').value = state.alphaObs; el('fEmit').value = state.fEmit; el('tEmit').value = state.tEmit;
+      syncSliders();
+    });
+    el('resetBtn').addEventListener('click', ()=>{
+      state.alphaEmit = 1.0; state.alphaObs = 0.8; state.fEmit = 5; state.tEmit = 3000;
+      el('alphaEmit').value = state.alphaEmit; el('alphaObs').value = state.alphaObs; el('fEmit').value = state.fEmit; el('tEmit').value = state.tEmit;
+      syncSliders();
+    });
+    el('runBtn').addEventListener('click', (e)=>{
+      state.running = !state.running; e.target.textContent = state.running ? 'Pause' : 'Run';
+    });
+
+    // tabs
+    el('tabRed').addEventListener('click', ()=>{
+      activeTab='redshift'; el('tabRed').classList.add('active'); el('tabInt').classList.remove('active');
+      el('redshiftSec').style.display='grid'; el('intSec').style.display='none';
+    });
+    el('tabInt').addEventListener('click', ()=>{
+      activeTab='interference'; el('tabInt').classList.add('active'); el('tabRed').classList.remove('active');
+      el('redshiftSec').style.display='none'; el('intSec').style.display='grid';
+    });
+
+    // init
+    syncSliders();
+    loop();
+  </script>
+</body>
+</html>

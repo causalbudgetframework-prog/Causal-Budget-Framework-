@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CBF • Queue → GR (1-PN) — Explanation</title>
+  <link rel="icon" href="/favicon.ico"/>
+
+  <!-- Shared site CSS (same as your sample page order) -->
+  <link rel="stylesheet" href="../../pagestyles.css"/>
+  <link rel="stylesheet" href="../styles.css"/>
+
+  <!-- Prism (code highlighting) -->
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+
+  <!-- MathJax for inline LaTeX like \( \alpha, \psi \) -->
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/"><span class="dot" aria-hidden="true"></span><span class="title">Causal Budget Framework</span></a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+          <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#queues">Queues → \( \alpha,\psi,n \)</a>
+      <a class="chip" href="#calib">Self-Calibration</a>
+      <a class="chip" href="#photon">Photon Bending</a>
+      <a class="chip" href="#orbit">Orbit Precession</a>
+      <a class="chip" href="#lookfor">What to Look For</a>
+      <a class="chip" href="#related">Related Demos</a>
+      <a class="chip" href="./index.html">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Queue → GR (1-PN) demo" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Queue → GR (1-PN) — How it works</h1>
+            <p class="sub">
+              This demo builds \( \alpha(r) \) and \( \psi(r) \) from queues, maps them to a refractive index
+              \( n(r)=\psi/\alpha \), then shows that photon bending and 1-PN orbital precession match textbook GR
+              after a live, per-run normalization.
+            </p>
+            <div class="chips" style="margin-top:4px;">
+              <span class="chip chip-ok"><span class="okdot"></span> Ray bending ≈ \(4GM/(bc^2)\)</span>
+              <span class="chip chip-ok"><span class="okdot"></span> Line integral agrees</span>
+              <span class="chip chip-ok"><span class="okdot"></span> Orbit precession ≈ \(6\pi GM/[a(1-e^2)c^2]\)</span>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="../../demos.html">Back to Demos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 1) QUEUES -->
+      <section id="queues" class="card">
+        <h2 class="section-title">1) Queue buffering → \( \alpha(r), \psi(r), n(r) \)</h2>
+        <p>We integrate two queues along radius, a time-queue \(b_t\) and a space-queue \(b_s\), using a simple source–drain law:</p>
+        <div class="callout info">
+          \( \displaystyle \frac{db}{dr} = S(r) - \kappa\,b, \qquad S(r)\propto \frac{GM}{r^2 c^2} \)
+        </div>
+        <p>Then we map queues to the isotropic-form lapse and scale:</p>
+        <div class="callout">
+          \( \displaystyle \alpha(r) = \frac{1-\tfrac12 b_t}{1+\tfrac12 b_t}, \qquad
+          \psi(r) = \bigl(1+\tfrac12 b_s\bigr)^2, \qquad n(r)=\psi/\alpha. \)
+        </div>
+
+        <div class="code-block">
+          <div class="code-title">
+            <span>Build queue fields on a radial grid</span>
+            <button class="copy-btn" data-copy="#code-queues" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/><path d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code id="code-queues" class="language-javascript"></code></pre>
+        </div>
+      </section>
+
+      <!-- 2) SELF-CALIBRATION -->
+      <section id="calib" class="card">
+        <h2 class="section-title">2) Self-calibration: no magic constants</h2>
+        <p>
+          The queue ODE gives the right shape but not the absolute gradient scale. Each run we measure the
+          uncalibrated straight-line deflection and match it to the analytic GR result
+          \( \delta\theta_{\rm GR}=4GM/(bc^2) \). That produces a live factor \(k_{\rm eff}\) used everywhere.
+        </p>
+        <div class="code-block">
+          <div class="code-title">
+            <span>Per-run normalization</span>
+            <button class="copy-btn" data-copy="#code-calib" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/><path d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code id="code-calib" class="language-javascript"></code></pre>
+        </div>
+        <p class="muted">This is a per-run normalization, derived from the current sliders. Nothing is hardcoded.</p>
+      </section>
+
+      <!-- 3) PHOTON BENDING -->
+      <section id="photon" class="card">
+        <h2 class="section-title">3) Photon bending via Fermat</h2>
+        <p>We propagate the ray’s direction \(\hat{\mathbf{k}}\) with the transverse gradient of \(n(r)\):</p>
+        <div class="callout">
+          \( \displaystyle \mathbf{k}' = \frac{\nabla n - (\hat{\mathbf{k}}\!\cdot\!\nabla n)\,\hat{\mathbf{k}}}{n} \)
+        </div>
+        <div class="code-block">
+          <div class="code-title">
+            <span>Ray tracing with calibrated gradients</span>
+            <button class="copy-btn" data-copy="#code-ray" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/><path d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code id="code-ray" class="language-javascript"></code></pre>
+        </div>
+      </section>
+
+      <!-- 4) ORBIT PRECESSION -->
+      <section id="orbit" class="card">
+        <h2 class="section-title">4) Orbit precession (1-PN reference)</h2>
+        <p>
+          The orbit panel is a GR 1-PN reference using the Binet equation for \(u(\phi)=1/r\),
+          integrated with RK4. Perihelia are found by true local minima refined by a quadratic fit,
+          then a regression over all perihelia estimates the per-orbit precession.
+        </p>
+        <div class="code-block">
+          <div class="code-title">
+            <span>Binet + perihelion refinement</span>
+            <button class="copy-btn" data-copy="#code-orbit" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/><path d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code id="code-orbit" class="language-javascript"></code></pre>
+        </div>
+      </section>
+
+      <!-- WHAT TO LOOK FOR -->
+      <section id="lookfor" class="card">
+        <h2 class="section-title">What to look for</h2>
+        <ul>
+          <li><strong>Metrics panel:</strong> toggle “magnify \( \alpha,\psi \)”. The queue curves overlap the exact isotropic reference after calibration.</li>
+          <li><strong>Photon panel:</strong> enable “magnify view” to see the tiny bend. The chip turns green when the measured deflection matches \(4GM/(bc^2)\).</li>
+          <li><strong>Orbit panel:</strong> the orange dots mark refined perihelia. The chip compares measured precession to \(6\pi GM/[a(1-e^2)c^2]\).</li>
+          <li><strong>Presets:</strong> defaults show a generic case, “Mercury-like” tightens steps for a clean precession measurement.</li>
+        </ul>
+        <div class="callout info">
+          <div class="callout-title">No hidden constants</div>
+          <p>The only normalization is computed live each run by matching the straight-line integral to the analytic GR angle. Change any slider and it recalibrates.</p>
+        </div>
+      </section>
+
+      <!-- RELATED -->
+      <section id="related" class="card">
+        <h2 class="section-title">Related demos</h2>
+        <ul>
+          <li><a href="../sr-beatmatching/index.html">SR: Beat-matching & queue buffering</a></li>
+          <li><a href="../double-slit/index.html">QM: Two-slit timing & interference</a></li>
+        </ul>
+        <p class="muted">These show how the same CBF ideas plug into SR timing and wave optics.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+  <!-- Drawer + copy buttons -->
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.hidden = false; d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.classList.remove('open'); d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          const old = btn.innerHTML;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.innerHTML = old; }, 1100);
+        });
+      });
+    });
+  </script>
+
+  <!-- Safely inject code samples so HTML never parses them -->
+  <script>
+    const q1 = `// Build queue fields on a radial grid (outward → inward Euler)
+function buildQueues({GM,c,rmax,rsamp,kt,ks,st,ss}){
+  const N = Math.max(50, Math.floor(rsamp));
+  const rmin = 1e-3;
+  const rs = Array.from({length:N}, (_,i)=> rmin + (rmax-rmin)*(i/(N-1)));
+  const bt = new Array(N), bs = new Array(N);
+  let bti = 0, bsi = 0;           // queues vanish at r = r_max
+
+  for (let i=N-2; i>=0; i--){
+    const rUp = rs[i+1], rDn = rs[i], dr = rUp - rDn;       // positive
+    const S  = GM/(rUp*rUp*c*c);                             // ∝ |∇Φ|/c^2
+    bti = bti + (st*S - kt*bti) * (-dr);
+    bsi = bsi + (ss*S - ks*bsi) * (-dr);
+    bt[i] = bti; bs[i] = bsi;
+  }
+  bt[N-1]=0; bs[N-1]=0;
+
+  // Map queues to metric functions
+  const alpha = bt.map(v => (1 - 0.5*v) / (1 + 0.5*v));
+  const psi   = bs.map(v => (1 + 0.5*v) ** 2);
+  const n     = alpha.map((a,i)=> psi[i] / a);
+
+  // Smooth interpolants
+  const interp = (xs,ys)=> x=>{
+    if (x<=xs[0]) return ys[0];
+    if (x>=xs[xs.length-1]) return ys[ys.length-1];
+    let lo=0, hi=xs.length-1;
+    while(hi-lo>1){ const m=(lo+hi)>>1; (xs[m]<=x ? lo=m : hi=m); }
+    const t=(x-xs[lo])/(xs[hi]-xs[lo]); return ys[lo]*(1-t)+ys[hi]*t;
+  };
+  return { rs, alpha, psi, nOf: interp(rs,n) };
+}`;
+    document.getElementById('code-queues').textContent = q1;
+
+    const q2 = `// Small-angle analytic GR
+const analytic = 4*GM/(b*c*c);
+
+// Measure uncalibrated deflection along y=b, from x=-L..+L
+const dthetaQueue = deflectionIntegralStraightLine(b, L, fields, /*useExact=*/false, /*kEff=*/1);
+const dthetaExact = deflectionIntegralStraightLine(b, L, fields, /*useExact=*/true , /*kEff=*/1);
+
+// Effective gradient scales for current sliders
+const kEffQueue = analytic / dthetaQueue;
+const kEffExact = analytic / dthetaExact;
+
+// Choose mode based on the "use exact n(r)" toggle
+const kEff = useExact ? kEffExact : kEffQueue;`;
+    document.getElementById('code-calib').textContent = q2;
+
+    const q3 = `// Build curvature functions for ray tracing
+function makeCurvatureFns(fields, useExact, kEff){
+  const nOf  = useExact ? fields.nExactOf  : fields.nOf;
+  const dnOf = useExact ? fields.dnExactOf : fields.dnOf;
+
+  function accel(x,y,kx,ky){
+    const r = Math.max(Math.hypot(x,y), 1e-12);
+    const n = Math.max(nOf(r), 1e-12);
+    const dn_dr = dnOf(r) * kEff;           // calibrated gradient
+    const gx = dn_dr * (x/r), gy = dn_dr * (y/r);
+    const kdotg = kx*gx + ky*gy;
+    return [ (gx - kdotg*kx)/n, (gy - kdotg*ky)/n ];
+  }
+  return { accel };
+}`;
+    document.getElementById('code-ray').textContent = q3;
+
+    const q4 = `// u'' + u = GM/h^2 + 3 GM u^2 / c^2  (Binet, 1-PN)
+const rhs = (u)=> GM/h2 + (3*GM/(c*c))*u*u - u;
+
+// ... RK4 advance in φ builds arrays r[i], φ[i] ...
+
+// Find true local minima and refine with quadratic vertex
+const periPhi=[];
+for(let i=1;i<N-1;i++){
+  const r0=r[i-1], r1=r[i], r2=r[i+1];
+  if(!(r1<r0 && r1<r2)) continue;           // not a minimum
+  const x0=φ[i-1], x1=φ[i], x2=φ[i+1];
+  const y0=r0,     y1=r1,  y2=r2;
+  const a=((y2-y1)/(x2-x1)-(y1-y0)/(x1-x0))/(x2-x0);
+  const b=(y1-y0)/(x1-x0) - a*(x1+x0);
+  const xv = (Math.abs(a)>1e-14)? -b/(2*a) : x1; // refined perihelion angle
+  periPhi.push(xv);
+}
+
+// Unwrap & regress perihelia: slope ≈ 2π + Δω
+for(let k=1;k<periPhi.length;k++)
+  if(periPhi[k]<=periPhi[k-1]) periPhi[k]+=2*Math.PI;
+const slope = linearRegressionSlope(periPhi); // vs index k
+const measured = slope - 2*Math.PI;           // Δω per orbit
+const analytic = 6*Math.PI*GM/(a*(1-e*e)*c*c);`;
+    document.getElementById('code-orbit').textContent = q4;
+  </script>
+
+  <!-- Optional shared page JS -->
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

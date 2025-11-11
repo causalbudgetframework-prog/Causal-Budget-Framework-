@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Demo: Beat-Matching (Explanation)</title>
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Site CSS -->
+  <link rel="stylesheet" href="../../pagestyles.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <!-- Prism (optional) -->
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="../../contact-popup.js"></script>
+
+  <!-- MathJax for LaTeX math rendering -->
+  <script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(','\\)']],
+      displayMath: [['\\[','\\]']],
+      processEscapes: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+  </script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>  
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#cbf">CBF Relation</a>
+      <a class="chip" href="#results">Expected Results</a>
+      <a class="chip" href="#settings">Settings</a>
+      <a class="chip" href="#code">Key Code</a>
+      <a class="chip" href="#images">Illustrations</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Beat-matching demo screenshot" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Beat-Matching with the Observer</h1>
+            <p>
+              This demo compares **clock rates** seen by an observer using two rules:
+              <strong>SR (symmetric)</strong>, where the clock rate is \( \mathrm{d}\tau/\mathrm{d}t = \sqrt{1-w^2} \),
+              and <strong>CBF (directional)</strong>, where the rate is \( \mathrm{d}\tau/\mathrm{d}t = \max(0.01,\;1 + v_\text{obs} - v_p) \).
+              Each particle’s oscillation is beat-matched against the observer’s oscillator. A green flash marks each phase
+              alignment event, and cards report the **predicted** beat period \(T_\text{pred}=1/|f_\text{eff}-f_\text{obs}|\)
+              versus the **measured** period from those events.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="/demos.html">Back to Demos</a>
+            </div>
+            <p class="muted" style="margin-top:8px">
+              Top: observer oscillator. Center: moving particles with color intensity indicating clock rate.
+              Right: live cards with \( \gamma(w) \), \( f_\text{eff} \), and beat statistics.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CBF RELATION -->
+      <section id="cbf" class="card">
+        <h2 class="section-title">How this maps to CBF</h2>
+        <p>
+          In CBF, every entity shares a per-tick budget \( C = T + M \). Motion uses <em>T</em>, internal ticking uses <em>M</em>.
+          Relative motion, fields, or pacing shift that split, changing the **effective tick rate** an observer infers.
+          Beat-matching is the Event Ledger’s **temporal gate** in miniature: it detects when two oscillators align well
+          enough to register a commit. The demo visualizes that gate by comparing the observer’s oscillator against each particle’s
+          effective frequency derived from the chosen rule (SR or CBF). Where alignment happens frequently, the measured beat period
+          matches \( 1/|f_\text{eff} - f_\text{obs}| \) and the card shows a high match.
+        </p>
+      </section>
+
+      <!-- EXPECTED RESULTS -->
+      <section id="results" class="card">
+        <h2 class="section-title">What to expect</h2>
+        <ul>
+          <li><strong>SR mode:</strong> The clock rate depends only on the SR relative velocity \( w=(v_p-v_\text{obs})/(1-v_p v_\text{obs}) \).
+              Increase \( |w| \) to slow the particle’s clock and widen \( |f_\text{eff}-f_\text{obs}| \), which shortens \( T_\text{pred} \).</li>
+          <li><strong>CBF mode:</strong> Clock rate tilts directionally with \( 1 + v_\text{obs} - v_p \). Particles moving with the observer tick faster,
+              those moving against tick slower, producing asymmetric beat behavior when you flip directions.</li>
+          <li><strong>Beats are exact:</strong> The detector uses integer-turn phase crossings, so measured periods should closely match
+              \( 1/|Δf| \) even at low frame rates.</li>
+        </ul>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="card">
+        <h2 class="section-title">Settings</h2>
+        <div class="table-wrap">
+          <table class="table settings-table">
+            <thead>
+              <tr>
+                <th>Control</th>
+                <th>Default</th>
+                <th>Effect</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="key">Observer speed \(v_\text{obs}\)</td>
+                <td>0.30&nbsp;c</td>
+                <td>Shifts relative velocity \(w\). In CBF mode, also changes the directional clock factor.</td>
+              </tr>
+              <tr>
+                <td class="key">Observer frequency \(f_\text{obs}\)</td>
+                <td>2.0&nbsp;Hz</td>
+                <td>Sets the observer’s oscillator. Changing this alters \( Δf \) and thus \( T_\text{pred} \).</td>
+              </tr>
+              <tr>
+                <td class="key">Particle speed (new)</td>
+                <td>0.60&nbsp;c</td>
+                <td>Each particle stores its own speed. Affects \(w\) and the particle clock rate.</td>
+              </tr>
+              <tr>
+                <td class="key">Particle rest frequency \(f_0\) (new)</td>
+                <td>2.0&nbsp;Hz</td>
+                <td>Base oscillator for each particle. Effective frequency is \( f_\text{eff}=f_0\cdot\mathrm{rate} \).</td>
+              </tr>
+              <tr>
+                <td class="key">Clock rule</td>
+                <td>CBF (directional)</td>
+                <td>Toggle between SR’s symmetric rate and CBF’s directional rate to compare predictions.</td>
+              </tr>
+              <tr>
+                <td class="key">Scene speed</td>
+                <td>420&nbsp;px/s</td>
+                <td>Visual only, makes motion across the canvas easier to see.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-hint">Tip: you can click on the canvas to spawn a particle at the cursor with current “new particle” settings.</div>
+      </section>
+
+      <!-- KEY CODE -->
+      <section id="code" class="card">
+        <h2 class="section-title">Key Code</h2>
+
+        <!-- A) Effective rates -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>A) Relative velocity and effective clock rates</span>
+            <button class="copy-btn" data-copy="#codeA" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"></path>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            The demo exposes both rules. SR uses Einstein addition for the relative speed \(w\). CBF uses a directional
+            pacing rule relative to the observer. Either way, the particle’s effective frequency is \(f_\text{eff} = f_0 \cdot \mathrm{rate}\).
+          </p>
+          <pre><code id="codeA" class="language-js"></code></pre>
+          <script>
+          document.getElementById('codeA').textContent =
+`function gamma(v){ return 1/Math.sqrt(1 - v*v); }
+function relVel(vp, vo){           // SR relative velocity
+  const w = (vp - vo) / (1 - vp*vo);
+  return Math.max(-0.999, Math.min(0.999, w));
+}
+function rateSR(vp, vo){           // SR symmetric
+  const w = relVel(vp, vo);
+  return Math.sqrt(Math.max(0, 1 - w*w));
+}
+function rateCBF(vp, vo){          // CBF directional
+  return Math.max(0.01, 1 + (vo - vp));
+}
+function effFreq(f0, vp, vo, useSR){
+  return f0 * (useSR ? rateSR(vp, vo) : rateCBF(vp, vo));
+}`;
+          </script>
+        </div>
+
+        <!-- B) Robust beat detector -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>B) Beat detector with integer-turn interpolation</span>
+            <button class="copy-btn" data-copy="#codeB" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"></path>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>
+            To avoid missed beats when the phase jumps over zero between frames, the detector counts integer turns of the
+            **unwrapped** relative phase and linearly interpolates the exact crossing time inside the frame. This makes
+            \(T_\text{meas}\) track \(1/|Δf|\) with high accuracy at any frame rate.
+          </p>
+          <pre><code id="codeB" class="language-js"></code></pre>
+          <script>
+          document.getElementById('codeB').textContent =
+`// Inside Particle.step(dt):
+// evolve unwrapped relative phase
+const dphi = 2*Math.PI * (this.effFreq() - sim.fObs) * dt;
+this.relPrev = this.relPhase;
+this.relPhase += dphi;
+
+// count 2π crossings and interpolate crossing times
+const TWO_PI = Math.PI*2;
+const kNow = Math.floor(this.relPhase / TWO_PI);
+const dk = kNow - this.kPrev;
+
+if (dk !== 0){
+  const omega = 2*Math.PI * (this.effFreq() - sim.fObs); // dφ/dt
+  if (Math.abs(omega) > 1e-9){
+    const stepSign = dk > 0 ? 1 : -1;
+    let k = this.kPrev;
+    for (let n = 0; n !== dk; n += stepSign){
+      const kCross  = k + stepSign;
+      const phiCross= TWO_PI * kCross;
+      const now = sim.t;
+      const tCross = now - (this.relPhase - phiCross) / omega; // linear backtrack
+
+      if (this.lastCrossT != null){
+        const interval = tCross - this.lastCrossT;
+        if (interval > 0){
+          this.beatSamples.push(interval);
+          if (this.beatSamples.length > 8) this.beatSamples.shift();
+        }
+      }
+      this.lastCrossT = tCross;
+      this.flash = 0.25;
+      k = kCross;
+    }
+  }
+  this.kPrev = kNow;
+}`;
+          </script>
+
+          <div class="callout info">
+            <div class="callout-title">Why this matters</div>
+            <p>
+              Integer-turn counting removes sensitivity to frame rate and tolerance bands.
+              It guarantees a single, correctly timed beat per phase cycle even if multiple crossings occur inside one render step.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- IMAGES -->
+      <section id="images" class="card">
+        <h2 class="section-title">Illustrations</h2>
+        <div class="image-grid">
+          <figure class="img half">
+            <img src="/img/demos/beatmatch-cards.png" alt="Beat cards showing T_pred vs T_meas" onerror="this.style.display='none'">
+          </figure>
+          <figure class="img half">
+            <img src="/img/demos/beatmatch-osc.png" alt="Observer oscillator and flashes" onerror="this.style.display='none'">
+          </figure>
+          <figure class="img">
+            <img src="/img/demos/beatmatch-cbf-vs-sr.png" alt="CBF vs SR clock-rate comparison" onerror="this.style.display='none'">
+          </figure>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Beat-matching demo, built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return;
+      d.hidden = false;
+      d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return;
+      d.classList.remove('open');
+      d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBF • Causal Budget Framework</title>
+  <meta name="description" content="Causal Budget Framework, a computational physics blueprint unifying QM, SR, GR, EM and cosmology via a global Event Ledger and C = T + M." />
+  <link rel="icon" href="/favicon.ico" />
+  <script src="./contact-popup.js"></script>
+  <style>
+    :root {
+      /* Palette */
+      --bg-0: #0b0f14;
+      --bg-1: #0f141b;
+      --bg-2: #121923;
+      --panel: #151e29;
+      --panel-2: #1a2532;
+      --text-0: #eaf2ff;
+      --text-1: #c7d2e5;
+      --muted: #93a4bf;
+      --link: #79c0ff;
+      --link-visited: #a78bfa;
+      --brand: #4dd0e1;
+      --accent: #22c55e;
+
+      /* Surfaces */
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --shadow-1: 0 10px 25px rgba(0,0,0,.35);
+      --shadow-2: 0 6px 18px rgba(0,0,0,.3);
+
+      /* Layout */
+      --container: 1180px;
+    }
+
+    /* Base */
+    html, body { min-height: 100%; }
+
+    /* Put the main gradient on <html> so it always fills the full document height */
+    html {
+      background: linear-gradient(180deg, #0b0f14 0%, #0c1219 30%, #0c141c 60%, #0d1720 100%) fixed;
+      /* solid fallback to avoid any white at extreme lengths */
+      background-color: #0b0f14;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text-0);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+
+      /* Light glow accents that sit over the document gradient */
+      background:
+        radial-gradient(1200px 1200px at 10% -10%, rgba(21,32,48,0.8) 0%, rgba(21,32,48,0) 55%),
+        radial-gradient(1000px 900px at 110% 20%, rgba(14,23,36,0.7) 0%, rgba(14,23,36,0) 60%);
+      background-repeat: no-repeat, no-repeat;
+      background-attachment: fixed, fixed; /* keep the glows anchored to the viewport */
+      background-color: transparent; /* html provides the base gradient */
+      position: relative;
+    }
+
+    /* Subtle tileable texture without blend whites */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 2px, rgba(255,255,255,0) 2px 8px),
+        repeating-linear-gradient(-45deg, rgba(255,255,255,.01) 0 1px, rgba(255,255,255,0) 1px 6px);
+      opacity: .35;
+    }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; height: auto; }
+
+    .container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+    /* Header / Nav */
+    .site-header { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px);
+      background: color-mix(in oklab, var(--bg-2) 80%, transparent);
+      border-bottom: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .2px; }
+    .brand .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--brand); box-shadow: 0 0 20px var(--brand); }
+    .brand .title { font-size: 1.05rem; color: var(--text-0); }
+    .nav-links { display: flex; align-items: center; gap: 18px; }
+    .nav-links a { color: var(--text-1); padding: 10px 8px; border-radius: 8px; }
+    .nav-links a:hover { background: color-mix(in oklab, var(--panel) 65%, transparent); text-decoration: none; }
+    .nav-cta { padding: 8px 14px; border-radius: 10px; background: linear-gradient(180deg, var(--brand), #1294a1); color: #001318; font-weight: 700; box-shadow: var(--shadow-2); }
+
+    /* Mobile drawer */
+    .burger { display: none; padding: 10px; border-radius: 10px; border: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); background: color-mix(in oklab, var(--panel) 60%, transparent); }
+    .burger svg { display: block; }
+    @media (max-width: 880px) {
+      .nav-links { display: none; }
+      .burger { display: inline-flex; }
+      .drawer { position: fixed; inset: 0 0 0 40%; background: var(--bg-1); transform: translateX(100%); transition: transform .2s ease; box-shadow: -20px 0 40px rgba(0,0,0,.35); }
+      .drawer.open { transform: translateX(0); }
+      .drawer .panel { padding: 24px; }
+      .drawer a { display: block; padding: 12px 10px; color: var(--text-1); border-radius: 10px; }
+      .drawer a:hover { background: color-mix(in oklab, var(--panel) 65%, transparent); }
+    }
+
+    /* Hero */
+    .hero { padding: 32px 0 24px; }
+    .hero .card { background: linear-gradient(180deg, color-mix(in oklab, var(--panel) 90%, transparent), color-mix(in oklab, var(--panel-2) 90%, transparent)); border: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); overflow: hidden; }
+    .hero-inner { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; padding: 28px; }
+    .kicker { color: var(--brand); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; }
+    h1 { margin: 8px 0 12px; font-size: clamp(1.65rem, 1.1rem + 2.2vw, 2.4rem); line-height: 1.2; }
+    .lede { color: var(--text-1); font-size: 1.05rem; }
+    .hero-actions { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 16px; border-radius: 12px; font-weight: 700; border: 1px solid transparent; }
+    .btn.primary { background: linear-gradient(180deg, var(--brand), #1196a5); color: #001318; box-shadow: var(--shadow-2); }
+    .btn.secondary { border-color: color-mix(in oklab, var(--panel) 70%, transparent); background: color-mix(in oklab, var(--panel) 60%, transparent); color: var(--text-1); }
+    .hero-fig { display: grid; place-items: center; padding: 10px; background: radial-gradient(400px 200px at 40% 10%, rgba(77,208,225,.12), transparent 60%); border-left: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); }
+    .chip-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .chip { font-size: .8rem; color: var(--muted); border: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); padding: 6px 10px; border-radius: 999px; background: color-mix(in oklab, var(--panel) 60%, transparent); }
+    @media (max-width: 980px) { .hero-inner { grid-template-columns: 1fr; } .hero-fig { border-left: none; border-top: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); } }
+
+    /* Sections */
+    .section { padding: 36px 0; }
+    .section h2 { font-size: 1.3rem; margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: color-mix(in oklab, var(--panel) 90%, transparent); border: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-2); }
+    .card h3 { margin: 4px 0 8px; font-size: 1.05rem; }
+    .eyebrow { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* Footer */
+    footer { border-top: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); margin-top: 44px; }
+    .foot { display: flex; gap: 16px; align-items: center; justify-content: space-between; min-height: 72px; color: var(--muted); }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+    .hero-fig { padding: 10px; border-left: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); }
+
+    .hero-logo {
+      display: block;
+      max-width: min(420px, 95%);
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+      /* keep the glow feeling without changing colors */
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
+    }
+    @media (max-width: 980px) {
+      .hero-fig { border-left: none; border-top: 1px solid color-mix(in oklab, var(--panel) 70%, transparent); }
+    }
+.collab-banner {
+  background: linear-gradient(90deg, rgba(77,208,225,.08), rgba(34,197,94,.08));
+  border-bottom: 1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+  padding: 14px 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+}
+.collab-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--text-1);
+  font-size: 0.95rem;
+}
+.collab-content .icon {
+  font-size: 1.3rem;
+  color: var(--brand);
+  margin-top: 2px;
+}
+.collab-content a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+.collab-content a:hover {
+  text-decoration: underline;
+  color: var(--text-0);
+}
+@media (max-width: 640px) {
+  .collab-content { flex-direction: column; }
+}    
+
+/* Animated glow for the main hero button */
+.btn.primary.pulse {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 0 15px rgba(77,208,225,.4), 0 0 35px rgba(77,208,225,.2);
+  transition: box-shadow .4s ease;
+}
+
+.btn.primary.pulse::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: radial-gradient(circle at 50% 50%, rgba(77,208,225,.8), transparent 70%);
+  opacity: 0;
+  transition: opacity .4s ease, transform 1.8s linear;
+  transform: scale(0.9);
+  z-index: -1;
+}
+
+.btn.primary.pulse:hover::before {
+  opacity: 0.9;
+  transform: scale(1.2);
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(77,208,225,.4), 0 0 35px rgba(77,208,225,.2); }
+  50% { box-shadow: 0 0 25px rgba(77,208,225,.7), 0 0 45px rgba(77,208,225,.4); }
+}
+
+.btn.primary.pulse {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+  </style>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/conclusions.html">Conclusions</a>
+        <a href="/referencetable.html">Reference Table</a>
+        <a href="/devblog.html">Dev Blog</a>
+        <a href="/stresstests.html">Stress Tests</a>
+        <a href="/predictions.html">Predictions</a>
+        <a href="/ai-assisted-math.html">Appendix</a>
+        <a href="/demos.html" class="nav-cta">Demos</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <nav aria-label="Mobile">
+          <a href="#" data-contact-popup>Contact</a>
+          <a href="/conclusions.html">Conclusions</a>
+          <a href="/referencetable.html">Reference Table</a>
+          <a href="/devblog.html">Dev Blog</a>
+          <a href="/stresstests.html">Stress Tests</a>
+          <a href="/predictions.html">Predictions</a>
+          <a href="/ai-assisted-math.html">Appendix</a>
+          <a href="/demos.html">Demos</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <!-- Collaboration Callout -->
+<section class="collab-banner">
+  <div class="container">
+    <div class="collab-content">
+      <p>
+        <strong>Seeking Collaboration:</strong> The Causal Budget Framework has not yet been peer reviewed.  
+        I’m actively looking for physicists and mathematicians interested in verifying and expanding the findings.
+        <a href="#" data-contact-popup>Contact</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+  <!-- Hero -->
+  <main>
+    <section class="hero">
+      <div class="container hero">
+        <div class="card hero-inner">
+          <div>
+            <div class="kicker">Computational Ontophysics</div>
+            <h1>Causal Budget Framework
+              <span style="display:block; font-weight:400; color:var(--text-1); font-size:.9em;">One budget, one ledger, all of physics.</span>
+            </h1>
+            <p class="lede">CBF treats reality as an update loop. Each tick splits a universal budget into Translation and Maintenance, then writes outcomes to a global Event Ledger. The same mechanism recovers interference patterns, Lorentz factors, gravitational time dilation, and dark‑matter‑like pruning scars.</p>
+            <div class="hero-actions">
+              <a class="btn primary pulse" href="/theory.html">Explore the Theory</a>
+              <a class="btn secondary" href="/referencetable.html">Reference Table</a>
+              <a class="btn secondary" href="/demos.html">Try the Demos</a>
+            </div>
+            <div class="chip-row" aria-hidden="true">
+              <span class="chip">C = T + M</span>
+              <span class="chip">Event Ledger</span>
+              <span class="chip">GBSL</span>
+              <span class="chip">S and D ledgers</span>
+              <span class="chip">MCF and hazard</span>
+            </div>
+          </div>
+          <div class="hero-fig" aria-hidden="true">
+            <img class="hero-logo"
+                src="./assets/logo-cbf-symbol.png"
+                srcset="./assets/logo-cbf-symbol.png 1x, ./assets/logo-cbf-symbol@2x.png 2x"
+                alt="CBF minimal symbol" width="420" height="220" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Preface -->
+    <section class="section" id="preface">
+      <div class="container">
+        <h2>Preface <span class="eyebrow" style="margin-left:.5rem; text-transform:none;">Read this first</span></h2>
+        <article class="card" style="padding:20px;">
+          <p><strong>I'm Jamie</strong>, a software engineer of 25+ years and a physics enthusiast. My strengths are building engines and frameworks, and turning ideas into code. After years of watching talks on competing TOEs, I decided to write a simple double slit cellular automaton so I could step through it frame by frame and look for patterns. I did not expect much, but within three months of evenings I kept finding angles that pushed me further and nudged me toward a computational view of the universe.</p>
+          <p><strong>Reality check</strong>: this is not the story of one polished simulator. I built about a dozen evolving, half working double slit prototypes. Nothing was polished because I kept trying new ideas quickly. This is the story of how a CA approach began to reproduce known laws of physics from simple rules. I have a full time day job, so I am publishing the core ideas now, especially C = T + M and GBSL, and I am open to handing them off or collaborating with anyone who wants to push them further.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Ownership & AI Collaboration Disclaimer -->
+    <section class="section" id="ownership">
+      <div class="container">
+        <h2>Ownership &amp; AI Collaboration Disclaimer</h2>
+        <article class="card" style="padding:20px;">
+          <p><strong>Not peer reviewed.</strong> This site is a working notebook for the Causal Budget Framework (CBF). Nothing here has been formally reviewed or published. Treat the content as exploratory research.</p>
+
+          <p><strong>Background.</strong> I have no formal education in physics or mathematics. My background is in computer science and software engineering. Many of the links between CBF and established physics, including equations and terminology, are provisional and may contain errors. They are placeholders that show where collaboration and formal verification are needed.</p>
+
+          <p><strong>Method.</strong> All ideas are developed through coding experiments, custom cellular-automata simulations, and observation. I use AI tools, including ChatGPT and Claude, for rapid prototyping, critique, and algebraic consistency checks. These tools help with expression and organization of ideas, they do not originate or own any discoveries. If asked live to defend some of the heavier math <em>and detailed connections to standard physics</em>, I may not be able to do so. Those areas will be refined with input from qualified physicists and mathematicians during formalization.</p>
+
+          <p><strong>Sources and citations.</strong> I am not providing formal citations at this stage because this is an evolving theory site, not a peer-reviewed paper. Proper attribution requires knowing which parts are novel and which parts restate known results. That separation will be established during expert review. As sections are formalized, I will add appropriate citations and credit to prior work.</p>
+
+          <p><strong>Status and next steps.</strong> Replication, mathematical validation, and peer review are required before any of this should be treated as established science. Qualified collaborators are welcome to participate in reviewing and refining the framework.</p>
+
+          <p><strong>Use and citation.</strong> You may reference or discuss this content with attribution to this site. Please do not present any material here as confirmed physics. If you build on these ideas, clearly label your work as exploratory until peer review is complete.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Perspective -->
+    <section class="section" id="ownership">
+      <div class="container">
+        <h2>Perspective</h2>
+        <article class="card" style="padding:20px;">
+          <p>While I lack formal training in physics, please do not underestimate the Causal Budget Framework because of that. Every apparent gap I have found has resolved not by changing the theory, but by deepening my understanding. The only major rewrite came from a breakthrough on observational time symmetry, which ended up completing the framework rather than contradicting it. I describe this approach as <strong>Indie Physics</strong>. It means starting from first principles with fresh simulations and minimal assumptions, so I can rebuild concepts from the ground up without inherited bias, while still welcoming expert review and correction.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Explore: Start here + Latest -->
+    <section class="section" id="explore">
+      <div class="container">
+        <h2>Explore CBF</h2>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="card" style="padding:18px;">
+            <div class="eyebrow">Start here</div>
+            <div class="grid" style="grid-template-columns: 1fr; gap: 12px;">
+              <article class="card">
+                <div class="eyebrow">Primer</div>
+                <h3><a href="/conclusions.html">Big picture Conclusions</a></h3>
+                <p>Short, opinionated statements of what CBF claims about QM, SR, GR, EM, and cosmology. Updated as the dev blog advances.</p>
+              </article>
+              <article class="card">
+                <div class="eyebrow">Symbols</div>
+                <h3><a href="/referencetable.html">Reference Table</a></h3>
+                <p>All symbols and fields in one place: α(x), g(x), hazard h(x, ω), S ledger, D ledger, maintenance rate ω₀, and more.</p>
+              </article>
+              <article class="card">
+                <div class="eyebrow">Experiments</div>
+                <h3><a href="/demos.html">Interactive Demos</a></h3>
+                <p>Linked sphere wavefronts, queue buffering SR, gravity pacing, MCF attenuation, and interference playgrounds.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <div class="eyebrow">Latest from the Dev Blog</div>
+            <div class="grid" style="grid-template-columns: 1fr; gap: 12px;">
+              <article class="card">
+                <div class="eyebrow">GBSL</div>
+                <h3><a href="/devblog.html#gbsl">Global Budget Synchronization Law</a></h3>
+                <p>How a universal tick and queue buffering yield action at a distance, light as the sync ceiling, and why commits cancel losers.</p>
+              </article>
+              <article class="card">
+                <div class="eyebrow">Predictions</div>
+                <h3><a href="/predictions.html">Falsifiable tests</a></h3>
+                <p>SR edge dispersion, lensing vs TTL stability η, coherence only halos, and a DCQE reinterpretation via the temporal gate.</p>
+              </article>
+              <article class="card">
+                <div class="eyebrow">Math Appendix</div>
+                <h3><a href="/ai-assisted-math.html">AI assisted derivations</a></h3>
+                <p>Clean math that maps compute fractions to γ, builds E² = (pc)² + (mc²)², and defines ω₀.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="dot" aria-hidden="true"></span>
+        <span>© <span id="y">2025</span> CBF • Jamie Whitten</span>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <a href="#" data-contact-popup>Contact</a>
+        <a href="/devblog.html">Dev Blog</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile drawer
+    const burger = document.getElementById('burger');
+    const drawer = document.getElementById('drawer');
+    const closeDrawer = document.getElementById('closeDrawer');
+    function openDrawer(){ drawer.hidden = false; requestAnimationFrame(()=>{ drawer.classList.add('open'); }); burger.setAttribute('aria-expanded','true'); }
+    function hideDrawer(){ drawer.classList.remove('open'); burger.setAttribute('aria-expanded','false'); setTimeout(()=>{ drawer.hidden = true; }, 200); }
+    burger?.addEventListener('click', openDrawer);
+    closeDrawer?.addEventListener('click', hideDrawer);
+    drawer?.addEventListener('click', (e)=>{ if(e.target === drawer) hideDrawer(); });
+
+    // Copyright year
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

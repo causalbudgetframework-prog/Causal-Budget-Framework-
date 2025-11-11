@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Double-Slit Demo (Optimized for Presentation)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1em;
+    }
+    canvas {
+      border: 1px solid #555;
+      background: #000;
+      margin-top: 1em;
+    }
+    .controls {
+      margin-bottom: 1em;
+    }
+    label, select, input, button {
+      margin: 0 0.5em;
+    }
+    .info {
+      margin-top: 1em;
+      font-size: 14px;
+      color: #aaa;
+      text-align: center;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Double-Slit Interference Pattern Demo</h1>
+  <div class="controls">
+    <label for="speed">Animation Speed:</label>
+    <input id="speed" type="range" min="1" max="10" value="6">
+    
+    <label for="wavelength">Wavelength:</label>
+    <input id="wavelength" type="range" min="15" max="40" value="25">
+    
+    <button id="reset">Reset</button>
+    <button id="pause">Pause/Resume</button>
+  </div>
+  <canvas id="canvas" width="800" height="600"></canvas>
+  
+  <div class="info">
+    <strong>Watch the sequence:</strong><br>
+    1. Wave starts from bottom center<br>
+    2. Expands in circle until it hits the wall<br>
+    3. Only passes through the two slits<br>
+    4. Creates new expanding circles from each slit<br>
+    5. <strong>When circles overlap → interference fingers appear!</strong><br><br>
+    <em>This demonstrates why the "single wave" explanation requires distance-dependent phase calculations.</em>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    let time = 0;
+    let running = true;
+    let phase = 'expanding'; // 'expanding', 'through-slits', 'interference'
+    
+    // Setup
+    const wallY = Math.floor(height * 0.65);
+    const screenY = Math.floor(height * 0.1);
+    const slit1X = Math.floor(width * 0.35);
+    const slit2X = Math.floor(width * 0.65);
+    const slitWidth = 20;
+    const startX = Math.floor(width / 2);
+    const startY = height - 40;
+    
+    function reset() {
+      time = 0;
+      phase = 'expanding';
+    }
+    
+    function step() {
+      const speed = parseInt(document.getElementById('speed').value);
+      time += speed * 0.3;
+    }
+    
+    function drawWave() {
+      // Clear canvas with dark background
+      ctx.fillStyle = '#001122';
+      ctx.fillRect(0, 0, width, height);
+      
+      const radius = time;
+      const wavelength = parseInt(document.getElementById('wavelength').value);
+      
+      if (phase === 'expanding') {
+        // Initial expanding circle
+        if (radius < Math.hypot(slit1X - startX, wallY - startY)) {
+          drawCircle(startX, startY, radius);
+        } else {
+          phase = 'through-slits';
+          time = 0; // Reset for next phase
+        }
+      } 
+      else if (phase === 'through-slits') {
+        // Circles expanding from slits
+        drawCircle(slit1X, wallY, time);
+        drawCircle(slit2X, wallY, time);
+        
+        // Check if circles are overlapping enough for interference
+        const dist = Math.hypot(slit2X - slit1X, 0);
+        if (time > dist / 3) {
+          phase = 'interference';
+        }
+      }
+      else if (phase === 'interference') {
+        // Show interference pattern
+        drawInterferencePattern(wavelength);
+      }
+    }
+    
+    function drawCircle(centerX, centerY, radius) {
+      if (radius <= 0) return;
+      
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+      
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const distance = Math.hypot(x - centerX, y - centerY);
+          
+          // Only draw if within a few pixels of the radius and not blocked by wall
+          if (Math.abs(distance - radius) < 3 && !isWall(x, y)) {
+            const index = (y * width + x) * 4;
+            data[index] = 255;     // Red
+            data[index + 1] = 255; // Green
+            data[index + 2] = 255; // Blue
+            data[index + 3] = 255; // Alpha
+          }
+        }
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+    }
+    
+    function drawInterferencePattern(wavelength) {
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+      
+      // Calculate current radius of circles from slits
+      const radius1 = time;
+      const radius2 = time;
+      
+      // Only draw interference above the wall
+      for (let y = screenY + 5; y < wallY - 5; y++) {
+        for (let x = 0; x < width; x++) {
+          if (isWall(x, y)) continue;
+          
+          // Check if this point is inside BOTH circles
+          const distFromSlit1 = Math.hypot(x - slit1X, y - wallY);
+          const distFromSlit2 = Math.hypot(x - slit2X, y - wallY);
+          
+          const inCircle1 = distFromSlit1 <= radius1;
+          const inCircle2 = distFromSlit2 <= radius2;
+          
+          // Only show interference where circles overlap
+          if (inCircle1 && inCircle2) {
+            // Calculate path difference interference
+            const pathDifference = distFromSlit1 - distFromSlit2;
+            const phase = (pathDifference / wavelength) * 2 * Math.PI;
+            const interference = (Math.cos(phase) + 1) / 2; // 0 to 1
+            
+            const index = (y * width + x) * 4;
+            const brightness = Math.floor(interference * 200) + 55;
+            
+            // Color code the interference pattern
+            data[index] = Math.floor(brightness * 0.4);     // Red
+            data[index + 1] = Math.floor(brightness * 0.6); // Green
+            data[index + 2] = brightness;                   // Blue (strongest)
+            data[index + 3] = 255;                          // Alpha
+          } else {
+            // Only show the individual circle edges as white (but only above the wall)
+            if ((inCircle1 || inCircle2) && y < wallY - 3) {
+              const distToEdge1 = Math.abs(distFromSlit1 - radius1);
+              const distToEdge2 = Math.abs(distFromSlit2 - radius2);
+              
+              if (distToEdge1 < 2 || distToEdge2 < 2) {
+                const index = (y * width + x) * 4;
+                data[index] = 255;     // Red
+                data[index + 1] = 255; // Green
+                data[index + 2] = 255; // Blue
+                data[index + 3] = 255; // Alpha
+              }
+            }
+          }
+        }
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+    }
+    
+    function isWall(x, y) {
+      // Wall with slits
+      if (Math.abs(y - wallY) <= 3) {
+        const inSlit1 = Math.abs(x - slit1X) < slitWidth/2;
+        const inSlit2 = Math.abs(x - slit2X) < slitWidth/2;
+        return !inSlit1 && !inSlit2;
+      }
+      
+      // Top screen
+      if (Math.abs(y - screenY) <= 2) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    function drawWalls() {
+      ctx.fillStyle = '#444';
+      
+      // Draw wall with slits
+      for (let x = 0; x < width; x++) {
+        if (isWall(x, wallY)) {
+          ctx.fillRect(x, wallY - 3, 1, 6);
+        }
+      }
+      
+      // Draw top screen
+      for (let x = 0; x < width; x++) {
+        ctx.fillRect(x, screenY, 1, 3);
+      }
+      
+      // Mark slits
+      ctx.fillStyle = 'red';
+      ctx.fillRect(slit1X - 1, wallY - 5, 2, 10);
+      ctx.fillRect(slit2X - 1, wallY - 5, 2, 10);
+      
+      // Labels
+      ctx.fillStyle = 'yellow';
+      ctx.font = '12px sans-serif';
+      ctx.fillText('Detector Screen', 10, screenY - 5);
+      ctx.fillText('Double Slit Wall', 10, wallY - 10);
+      ctx.fillText('Wave Source', startX - 40, startY + 15);
+      
+      // Phase indicator
+      ctx.fillText(`Phase: ${phase}`, width - 150, 20);
+    }
+    
+    function draw() {
+      drawWave();
+      drawWalls();
+    }
+    
+    function loop() {
+      if (running) step();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    
+    document.getElementById('reset').onclick = reset;
+    document.getElementById('pause').onclick = () => running = !running;
+    
+    reset();
+    loop();
+  </script>
+</body>
+</html>

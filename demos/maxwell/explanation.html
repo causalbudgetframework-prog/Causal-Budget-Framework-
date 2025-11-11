@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CBF • Maxwell TEz Double‑Slit — Explanation</title>
+  <link rel="icon" href="/favicon.ico"/>
+  <link rel="stylesheet" href="../../pagestyles.css"/>
+  <link rel="stylesheet" href="../styles.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css">
+  <script defer src="https://unpkg.com/prismjs/prism.js"></script>
+  <script defer src="https://unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="../../contact-popup.js"></script>
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="title">Causal Budget Framework</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+       <a href="#" data-contact-popup>Contact</a>
+        <a href="../../conclusions.html">Conclusions</a>
+        <a href="../../referencetable.html">Reference Table</a>
+        <a href="../../devblog.html">Dev Blog</a>
+        <a href="../../stresstests.html">Stress Tests</a>
+        <a href="../../predictions.html">Predictions</a>
+        <a href="../../appendix.html">Appendix</a>
+        <a href="../../theory.html" class="nav-cta">Theory</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="drawer" id="drawer" hidden>
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="brand"><span class="dot"></span><span class="title">CBF Menu</span></div>
+          <button class="burger" id="closeDrawer" aria-label="Close menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Mobile">
+       <a href="#" data-contact-popup>Contact</a>
+          <a href="../../conclusions.html">Conclusions</a>
+          <a href="../../referencetable.html">Reference Table</a>
+          <a href="../../devblog.html">Dev Blog</a>
+          <a href="../../stresstests.html">Stress Tests</a>
+          <a href="../../predictions.html">Predictions</a>
+          <a href="../../appendix.html">Appendix</a>
+          <a href="../../theory.html" class="nav-cta">Theory</a>
+        </nav>
+      </div>
+    </aside>
+  </header>
+
+  <div class="container layout no-sidebar">
+    <!-- Chips -->
+    <nav class="card" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <a class="chip" href="#overview">Overview</a>
+      <a class="chip" href="#cbf">CBF Relation</a>
+      <a class="chip" href="#results">Expected Results</a>
+      <a class="chip" href="#settings">Settings</a>
+      <a class="chip" href="#code">Key Code</a>
+      <a class="chip" href="#run">Run</a>
+    </nav>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section id="overview" class="card">
+        <div class="demo-hero">
+          <div class="shot">
+            <img src="./hero.png" alt="Maxwell TEz double‑slit demo" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1>Maxwell (TEz Yee) Double‑Slit in CBF</h1>
+            <p>
+              A 2‑D TEz FDTD solver drives a plane wave into a bright metal wall with two slits. The right side shows
+              interference and a commit detector. Everything is phrased in CBF terms: translation flux Π is <em>T</em>,
+              stored field energy density <em>u</em> is <em>M</em>, loss σ drains <em>M</em>, and the detector commits events
+              with weights proportional to Π⋅n (or selectable alternatives).
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Run Demo</a>
+              <a class="btn btn-secondary" href="../../demos.html">Back to Demos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CBF RELATION -->
+      <section id="cbf" class="card">
+        <h2 class="section-title">How this maps to CBF</h2>
+        <p>
+          Π (Poynting) is the per‑cell <strong>translation budget T</strong>. The field energy density <strong>u</strong> is the
+          <strong>maintenance budget M</strong>. The absorber implements <strong>M drain</strong> via σE². The NodeGraph on the right
+          approximates the Event Ledger, selecting commits along the screen with probability ∝ weight (default Π⋅n). Slit edges act as
+          geometry that <em>diversifies directions</em>, enabling phase alignment on the detector, where commit frequency appears as bright rows.
+        </p>
+
+<h2>CBF ↔ Maxwell Mapping</h2>
+<div class="well">
+<strong>Cheat Sheet</strong>
+<ul>
+<li><code>T</code> (translation) = Poynting flux <code>Π = E×H</code> → arrays <code>Pix,Piy</code></li>
+<li><code>M</code> (maintenance) = energy density <code>u = ½(εE² + μH²)</code> → array <code>uArr</code></li>
+<li><code>M</code> drain = <code>σE²</code> (absorber)</li>
+<li>Ledger commits = stochastic hits ∝ chosen weight (default <code>|Π⋅n|</code>)</li>
+</ul>
+</div>
+
+<h2>60‑Second Tour</h2>
+<ul class="checklist">
+<li>Left of slits: plane source + reflection → standing pattern (budget parked in M).</li>
+<li>At slits: edges diversify directions, enabling phase match downstream.</li>
+<li>Right of slits: interference fans; commits cluster where phases align (bright yellow rows).</li>
+<li>Brightness = visual gain only.</li>
+<li>Switch commit weight: <code>Π⋅n</code>≈screen flux, <code>|Π|</code>≈total flow, <code>u</code>≈stored energy.</li>
+</ul>        
+      </section>
+
+      <!-- EXPECTED RESULTS -->
+      <section id="results" class="card">
+        <h2 class="section-title">What to expect</h2>
+        <ul>
+          <li><strong>Before the slits:</strong> cavity interference from the plane source reflecting on the wall, a budget build‑up zone (more M).</li>
+          <li><strong>After the slits:</strong> two secondary lobes that interfere; detector commits cluster where phases beat‑match.</li>
+          <li><strong>Brightness slider:</strong> multiplies post‑normalization amplitude so high‑frequency runs stay visible without clipping low‑freq runs.</li>
+        </ul>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="card">
+        <h2 class="section-title">Settings</h2>
+        <div class="table-wrap">
+          <table class="table settings-table">
+            <thead><tr><th>Parameter</th><th>Default</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="key">Frequency</td><td>30</td><td>Wavelength ≈ Nx / f.</td></tr>
+              <tr><td class="key">Loss σ</td><td>0.8</td><td>Absorbing boundary strength (M drain).</td></tr>
+              <tr><td class="key">Commit probability</td><td>0.5</td><td>Throttle for NodeGraph commits.</td></tr>
+              <tr><td class="key">Commit weight</td><td>|Π⋅n|</td><td>Detector weighting mode (u, |Π|, |Π⋅n|, |Ez|²).</td></tr>
+              <tr><td class="key">Brightness</td><td>1.5</td><td>Gain after auto‑scaling, keeps high‑f runs visible.</td></tr>
+              <tr><td class="key">Slits</td><td>On</td><td>Bright, thick wall with two clear openings by default.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-hint">Tip: On mobile, drag the table horizontally to view all columns.</div>
+      </section>
+
+      <!-- CODE -->
+      <section id="code" class="card">
+        <h2 class="section-title">Key Code</h2>
+
+        <!-- 1) Yee update (TEz) -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>1) TEz Yee update (fields and PEC wall)</span>
+            <button class="copy-btn" data-copy="#code-yee" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>Standard TEz Yee with PEC mask for the bright wall and slits.</p>
+          <pre><code id="code-yee" class="language-js"></code></pre>
+          <script>
+            const q1 = `// TEz update
+function updateH(Ez,Hx,Hy,Nx,Ny,dt){
+  for(let y=0;y<Ny-1;y++) for(let x=0;x<Nx;x++){ const i=y*Nx+x; Hx[i]-=dt*(Ez[i+Nx]-Ez[i]); }
+  for(let y=0;y<Ny;y++)   for(let x=0;x<Nx-1;x++){ const i=y*Nx+x; Hy[i]+=dt*(Ez[i+1]-Ez[i]); }
+}
+function updateE(Ez,Hx,Hy,Ca,Cb,metal,Nx,Ny,c2){
+  for(let y=1;y<Ny;y++) for(let x=1;x<Nx;x++){
+    const i=y*Nx+x;
+    const curl=(Hy[i]-Hy[i-1])-(Hx[i]-Hx[i-Nx]);
+    Ez[i]=Ca[i]*Ez[i] + Cb[i]*c2*curl;
+  }
+  // PEC: force Ez=0 in metal
+  for(let y=0;y<Ny;y++) for(let x=0;x<Nx;x++) if(metal[y*Nx+x]) Ez[y*Nx+x]=0;
+}`;
+            document.getElementById('code-yee').textContent = q1;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p>Π emerges from fields as <em>translation</em>, u as <em>maintenance</em>. The PEC mask is a hard constraint that redirects T, creating the direction diversification needed for interference.</p>
+          </div>
+        </div>
+
+        <!-- 2) Slits + brightness -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>2) Bright wall, clear slits, and user brightness gain</span>
+            <button class="copy-btn" data-copy="#code-slits" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0 2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>Wall width increased, cyan guides added, and a post‑normalize brightness control keeps high‑frequency runs visible.</p>
+          <pre><code id="code-slits" class="language-js"></code></pre>
+          <script>
+            const q2 = `// Build bright wall with two slits
+function buildSlits(metal,Nx,Ny,on=true){
+  metal.fill(0);
+  if(!on) return;
+  const x0 = Math.floor(Nx*0.35), wallW=3;
+  for(let y=0;y<Ny;y++) for(let w=0;w<wallW;w++) metal[y*Nx + (x0+w)] = 1;
+  // clear two slits
+  const cy=Ny>>1, slitW=3, gap=12;
+  for(let dy=-slitW;dy<=slitW;dy++) for(let w=0;w<wallW;w++){
+    metal[(cy-gap+dy)*Nx + (x0+w)] = 0;
+    metal[(cy+gap+dy)*Nx + (x0+w)] = 0;
+  }
+}
+
+// Brightness gain in draw():
+const vmax = Ez.reduce((m,v)=>Math.max(m,Math.abs(v)),1e-6);
+const gain = Number(brightEl.value)||1;
+const scale = gain/(vmax||1); // multiply after auto-scaling
+const rgb = Math.min(255, 255*Math.abs(Ez[i])*scale);`;
+            document.getElementById('code-slits').textContent = q2;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p>The wall is a geometric constraint, not a source. The gain knob is purely visual, it does not change Π or u, only how we render accepted information.</p>
+          </div>
+        </div>
+
+        <!-- 3) Budget & commits -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>3) CBF budget check and detector commits (Π·n by default)</span>
+            <button class="copy-btn" data-copy="#code-cbf" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0 2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>Π is translation, u is maintenance. The detector picks commits stochastically with weight ∝ selected metric.</p>
+          <pre><code id="code-cbf" class="language-js"></code></pre>
+          <script>
+            const q3 = `// Budget tick
+function budgetTick(Ez,Hx,Hy,eps,sig,dt,Nx,Ny,uArr,Pix,Piy){
+  let res=0, cnt=0;
+  for(let y=0;y<Ny;y++) for(let x=0;x<Nx;x++){
+    const i=y*Nx+x;
+    const uNew = 0.5*(eps[i]*Ez[i]*Ez[i] + Hx[i]*Hx[i] + Hy[i]*Hy[i]); // M
+    const Sx = -Ez[i]*Hy[i], Sy = Ez[i]*Hx[i]; // Π = (Sx,Sy) → T
+    Pix[i]=Sx; Piy[i]=Sy;
+    // centered divergence and residual not shown here (see demo file)
+    uArr[i]=uNew;
+  }
+}
+
+// Detector commit (right screen)
+function detectorCommit(x0,Nx,Ny,mode,cprob,Ez,Pix,Piy,uArr,ng){
+  if(Math.random()>cprob) return;
+  let total=0;
+  for(let y=0;y<Ny;y++) for(let x=x0;x<Nx;x++){
+    const i=y*Nx+x;
+    total += (mode==='u') ? uArr[i]
+           : (mode==='P') ? Math.hypot(Pix[i],Piy[i])
+           : (mode==='Pn')? Math.abs(Pix[i]) // n=(1,0)
+                           : (Ez[i]*Ez[i]);
+  }
+  if(total<=1e-12) return;
+  let r=Math.random()*total, sel=-1;
+  outer: for(let y=0;y<Ny;y++) for(let x=x0;x<Nx;x++){
+    const i=y*Nx+x;
+    const w=(mode==='u')?uArr[i]:(mode==='P')?Math.hypot(Pix[i],Piy[i]):(mode==='Pn')?Math.abs(Pix[i]):(Ez[i]*Ez[i]);
+    r-=w; if(r<=0){ sel=i; break outer; }
+  }
+  if(sel>=0) ng.push({i:sel,t:performance.now()});
+}`;
+            document.getElementById('code-cbf').textContent = q3;
+          </script>
+          <div class="callout info">
+            <div class="callout-title">CBF Representation</div>
+            <p>The residual tracks local conservation between T outflow, M change, and σ drain. Commits are <em>outcomes</em>, not field accumulation.</p>
+          </div>
+        </div>
+
+        <!-- 4) Optional anti‑reflection buffer -->
+        <div class="code-block">
+          <div class="code-title">
+            <span>4) Optional anti‑reflection buffer behind the source</span>
+            <button class="copy-btn" data-copy="#code-ar" aria-label="Copy code">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0 2 2v8a2 2 0 0 0 2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p>Quiet the pre‑slit cavity by adding a thin σ strip behind the source line.</p>
+          <pre><code id="code-ar" class="language-js"></code></pre>
+          <script>
+            const q4 = `// Add a vertical lossy strip left of the source line
+function addAntiReflection(sig,Nx,Ny,xSource,width=4,strength=1.5){
+  const x0=Math.max(0,xSource-width-1);
+  for(let y=0;y<Ny;y++) for(let x=x0;x<xSource;x++){
+    const i=y*Nx+x; sig[i]=Math.max(sig[i], strength);
+  }
+}`;
+            document.getElementById('code-ar').textContent = q4;
+          </script>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="run" class="card" style="text-align:center">
+        <h2 class="section-title">Run the Demo</h2>
+        <a class="btn btn-run" href="./demo.html" data-run="./demo.html">Launch</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="container">
+    <div class="foot">
+      <span>© CBF</span>
+      <span class="muted">Built with love and lots of wave cells</span>
+    </div>
+  </footer>
+
+  <script>
+    // Drawer toggle
+    document.getElementById('burger')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.hidden = false; d.classList.add('open');
+    });
+    document.getElementById('closeDrawer')?.addEventListener('click', () => {
+      const d = document.getElementById('drawer');
+      if (!d) return; d.classList.remove('open'); d.hidden = true;
+    });
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = sel && document.querySelector(sel);
+        if (!el) return;
+        navigator.clipboard.writeText(el.textContent || '').then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
+  <script src="../explain-page.js" defer></script>
+</body>
+</html>
